@@ -7,6 +7,18 @@
   ******************************************************************************
   */
 
+### V3.0.0 / 14-July-2023 ###
+=================================
+Main changes
+-------------
+- Align NAND driver against new Azure RTOS LevelX V6.2.1 version
+
+Dependencies:
+-------------
+- Azure RTOS FileX V6.2.1
+- Azure RTOS LevelX V6.2.1
+- STM32Cube SD, MMC HAL drivers
+
 ### V2.1.4 / 11-November-2022 ###
 =================================
 Main changes
