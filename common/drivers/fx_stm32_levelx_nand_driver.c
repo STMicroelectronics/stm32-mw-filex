@@ -96,6 +96,16 @@ VOID  fx_stm32_levelx_nand_driver(FX_MEDIA *media_ptr)
             {
                 if (current_driver->initialized == FX_FALSE)
                 {
+#ifdef FX_NAND_FORMAT_FLASH_BEFORE_OPEN
+                    /* Format flash instance*/
+                    status = lx_nand_flash_format(&current_driver->flash_instance, current_driver->name, current_driver->nand_driver_initialize, fx_lx_nand_driver_buffer, sizeof(fx_lx_nand_driver_buffer));
+                    if (status != LX_SUCCESS)
+                    {
+                        media_ptr->fx_media_driver_status = FX_IO_ERROR;
+
+                        return;
+                    }
+#endif
                     /* Open flash instance*/
                     status = lx_nand_flash_open(&current_driver->flash_instance, current_driver->name, current_driver->nand_driver_initialize, fx_lx_nand_driver_buffer, sizeof(fx_lx_nand_driver_buffer));
 
@@ -106,7 +116,6 @@ VOID  fx_stm32_levelx_nand_driver(FX_MEDIA *media_ptr)
                         media_ptr->fx_media_driver_status = FX_SUCCESS;
 
                         media_ptr->fx_media_driver_free_sector_update = FX_TRUE;
-                        break;
                     }
                     else
                     {
