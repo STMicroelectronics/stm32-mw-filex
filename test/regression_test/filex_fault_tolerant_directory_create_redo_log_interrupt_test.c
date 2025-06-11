@@ -1,6 +1,6 @@
 /* This FileX test concentrates on the Fault-Tolerant redo log write interrupt operation.  */
 /*
-For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
+For FAT 12, 16, 32, one cluster size is 1024 bytes;
                                          
 Check redo log interrupt for fx_directory_create(): 
 Step1: Format and open the media; 
@@ -34,13 +34,8 @@ void    filex_fault_tolerant_directory_create_redo_log_interrupt_test_applicatio
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
-#ifdef FX_ENABLE_EXFAT
-#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
-#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
-#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
-#endif
 
 
 
@@ -56,11 +51,7 @@ static pthread_t              ptid1;
 static FX_MEDIA               ram_disk;
 static UCHAR                  *pointer;   
 
-#ifdef FX_ENABLE_EXFAT
-#define TEST_COUNT              4
-#else              
 #define TEST_COUNT              3
-#endif
 
 /* Define the counters used in the test application...  */
                                                      
@@ -144,32 +135,6 @@ static CHAR *                 expected_name[] =  {
                         "D5",    
                         ".",
                         "..",    
-                        "END"};    
-
-static CHAR *                 expected_name_exfat[] =  {
-                             
-                        "A0",
-                        "A1",   
-                        "A00",    
-                        "A2",     
-                        "A3",     
-                        "B0",
-                        "B1",   
-                        "B2",     
-                        "B00",    
-                        "B3",     
-                        "C0",
-                        "C1",   
-                        "C2",    
-                        "C3",     
-                        "C00",    
-                        "D0",
-                        "D1",   
-                        "D2",    
-                        "D3",     
-                        "D4",    
-                        "D00",    
-                        "D5",    
                         "END"};
 
 /* Define thread prototypes.  */
@@ -183,7 +148,6 @@ static void   * ftest_1_entry(void * thread_input);
 extern void    _fx_ram_driver(FX_MEDIA *media_ptr);
 extern void    test_control_return(UINT status);         
 static void    traverse_directory(CHAR *directory_name);    
-static void    traverse_directory_exfat(CHAR *directory_name);     
 extern UINT    _filex_fault_tolerant_log_check(FX_MEDIA *media_ptr);
 extern UINT    (*driver_write_callback)(FX_MEDIA *media_ptr, UINT sector_type, UCHAR *block_ptr, UINT *operation_ptr);  
 static UINT    my_driver_write(FX_MEDIA *media_ptr, UINT sector_type, UCHAR *block_ptr, UINT *operation_ptr);
@@ -248,7 +212,7 @@ UINT        i;
 
     /* Print out some test information banners.  */
     printf("FileX Test:   Fault Tolerant Dir Create Redo LOG Interrupt Test......");        
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         redo_complete = 0;
@@ -306,26 +270,6 @@ UINT        i;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            status =  fx_media_exFAT_format(&ram_disk, 
-                                            _fx_ram_driver,         // Driver entry            
-                                            ram_disk_memory_large,  // RAM disk memory pointer
-                                            cache_buffer,           // Media buffer pointer
-                                            CACHE_SIZE,             // Media buffer size 
-                                            "MY_RAM_DISK",          // Volume Name
-                                            1,                      // Number of FATs
-                                            0,                      // Hidden sectors
-                                            256,                    // Total sectors 
-                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
-                                            4,                      // exFAT Sectors per cluster
-                                            12345,                  // Volume ID
-                                            0);                     // Boundary unit
-        }
-#endif
 
         /* Determine if the format had an error.  */
         if (status)
@@ -419,10 +363,7 @@ UINT        i;
         expected_index = 0;
                                        
         /* Traverse the directory structure recursively.  */
-        if (i < 3)            
-            traverse_directory(FX_NULL);
-        else                  
-            traverse_directory_exfat(FX_NULL);
+        traverse_directory(FX_NULL);
                          
         /* Create the main thread.  */
 #ifndef FX_STANDALONE_ENABLE
@@ -473,10 +414,7 @@ UINT        i;
         expected_index = 0;
                                         
         /* Traverse the directory structure recursively.  */
-        if (i < 3)            
-            traverse_directory(FX_NULL);
-        else                  
-            traverse_directory_exfat(FX_NULL);
+        traverse_directory(FX_NULL);
 
         /* Attempt to create the same directory again.  */
         status = fx_directory_create(&ram_disk, "/D0/D5");
@@ -495,10 +433,7 @@ UINT        i;
                                         
         redo_complete = 1;
         /* Traverse the directory structure recursively.  */
-        if (i < 3)            
-            traverse_directory(FX_NULL);
-        else                  
-            traverse_directory_exfat(FX_NULL);
+        traverse_directory(FX_NULL);
 
         /* Close the media.  */
         status =  fx_media_close(&ram_disk);
@@ -690,7 +625,7 @@ CHAR            name[300];
     if (strcmp(name, "D0"))
         status++;
 
-    /* Okay, now postion to the deepest sub-directory and ensure that the directory first/next 
+    /* Okay, now position to the deepest sub-directory and ensure that the directory first/next 
        operations work properly there as well.  */
 
     /* Set the current path */
@@ -748,133 +683,6 @@ CHAR            name[300];
 
 #endif
 
-#ifndef FX_STANDALONE_ENABLE
-/* Define the exFAT directory traversal routine for the local path test.  */
-void  traverse_directory_exfat(CHAR *directory_name)
-{
-
-FX_LOCAL_PATH   local_path;
-FX_FILE         file;
-UINT            status;
-CHAR            name[300];
-
-
-    /* Determine if we are at the start.  */
-    if (directory_name == FX_NULL)
-    {
-        status =  fx_directory_local_path_set(&ram_disk, &local_path, "\\");
-    }
-    else
-    {
-        status =  fx_directory_local_path_set(&ram_disk, &local_path, directory_name);
-    }
-    /* Get the first directory entry in the root path.  */
-    status =  fx_directory_first_entry_find(&ram_disk, name);
-
-    /* Loop through the directory entries for this path.  */
-    while (status == FX_SUCCESS)
-    {
-
-        /* Compare with what is expected.  */
-        if (strcmp(name, expected_name_exfat[expected_index++]))
-            error_counter++;
-       
-        /* Determine if this name is a directory or a file.  */
-        status =  fx_directory_name_test(&ram_disk, name);
-
-        /* What is it?  */
-        if (status == FX_NOT_DIRECTORY)
-        {
-
-            /* This is a file, open it to test its integrity.  */
-            status =  fx_file_open(&ram_disk, &file, name, FX_OPEN_FOR_READ);
-            if (status != FX_SUCCESS)
-                error_counter++;
-            status =  fx_file_close(&file);
-            if (status != FX_SUCCESS)
-                error_counter++;
-        
-            /* Pickup the next directory entry.  */
-            status =  fx_directory_next_entry_find(&ram_disk, name);
-        }
-        else if (status == FX_SUCCESS)
-        {
-
-            /* Recursive call to traverse directory.  */
-            traverse_directory_exfat(name);
-        
-            /* Restore path.  */
-            status =  fx_directory_local_path_restore(&ram_disk, &local_path);        
-            status =  fx_directory_next_entry_find(&ram_disk, name);
-        } 
-    } 
-    fx_directory_local_path_clear(&ram_disk);
-}
-#else
-/* Define the exFAT directory traversal routine for the local path test.  */
-void  traverse_directory_exfat(CHAR *directory_name)
-{
-FX_FILE         file;
-UINT            status;
-CHAR            name[300];
-
-    /* Pickup the first entry in the root directory.  */
-    status =  fx_directory_first_entry_find(&ram_disk, name);
-    if (strcmp(name, "A0"))
-        status++;
-    status =  fx_directory_next_entry_find(&ram_disk, name);
-    if (strcmp(name, "B0"))
-        status++;
-    status =  fx_directory_next_entry_find(&ram_disk, name);
-    if (strcmp(name, "C0"))
-        status++;
-    status =  fx_directory_next_entry_find(&ram_disk, name);
-    if (strcmp(name, "D0"))
-        status++;
-
-    /* Okay, now postion to the deepest sub-directory and ensure that the directory first/next 
-       operations work properly there as well.  */
-
-    /* Set the current path */
-    status =  fx_directory_default_set(&ram_disk, "/D0/D4");
-
-    /* Check the status.  */
-    if (status != FX_SUCCESS) 
-    {
-
-        /* Error setting the path.  Return to caller.  */
-        printf("ERROR!\n");
-        test_control_return(16);
-    }
-
-    /* Pickup the first entry in this sub-sub directory.  */
-    status =  fx_directory_first_entry_find(&ram_disk, name);
-    if (strcmp(name, "D00"))
-        status++;
-    
-         /* Set the current path */
-     status =  fx_directory_default_set(&ram_disk, "/D0");
-     status += fx_directory_first_entry_find(&ram_disk, name);     
-    if (strcmp(name, "D1"))
-        error_counter++;
-      status += fx_directory_next_entry_find(&ram_disk, name); 
-    if (strcmp(name, "D2"))
-        error_counter++;
-      status += fx_directory_next_entry_find(&ram_disk, name); 
-    if (strcmp(name, "D3"))
-        error_counter++;
-      status += fx_directory_next_entry_find(&ram_disk, name); 
-    if (strcmp(name, "D4"))
-        error_counter++;
-    if(redo_complete==1)
-    {
-          status += fx_directory_next_entry_find(&ram_disk, name);
-        if (strcmp(name, "D5"))
-            error_counter++;
-    }    
-}
-
-#endif
 #else  
 
 #ifdef CTEST

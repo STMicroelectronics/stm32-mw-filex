@@ -1,18 +1,18 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation
+ * Copyright (c) 2024 STMicroelectronics
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
 /**************************************************************************/
-/**                                                                       */ 
+/**                                                                       */
 /** FileX Component                                                       */
 /**                                                                       */
 /**   Port Specific                                                       */
@@ -21,27 +21,27 @@
 /**************************************************************************/
 
 
-/**************************************************************************/ 
-/*                                                                        */ 
-/*  PORT SPECIFIC C INFORMATION                            RELEASE        */ 
-/*                                                                        */ 
-/*    fx_port.h                                            Generic        */ 
-/*                                                           6.3.0        */
+/**************************************************************************/
+/*                                                                        */
+/*  PORT SPECIFIC C INFORMATION                            RELEASE        */
+/*                                                                        */
+/*    fx_port.h                                            Generic        */
+/*                                                           6.4.1        */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
 /*                                                                        */
-/*  DESCRIPTION                                                           */ 
-/*                                                                        */ 
-/*    This file contains data type definitions that make the FileX FAT    */ 
-/*    compatible file system function identically on a variety of         */ 
-/*    different processor architectures.  For example, the byte offset of */ 
-/*    various entries in the boot record, and directory entries are       */ 
-/*    defined in this file.                                               */ 
-/*                                                                        */ 
-/*  RELEASE HISTORY                                                       */ 
-/*                                                                        */ 
+/*  DESCRIPTION                                                           */
+/*                                                                        */
+/*    This file contains data type definitions that make the FileX FAT    */
+/*    compatible file system function identically on a variety of         */
+/*    different processor architectures.  For example, the byte offset of */
+/*    various entries in the boot record, and directory entries are       */
+/*    defined in this file.                                               */
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  11-09-2020     William E. Lamie         Initial Version 6.1.2         */
@@ -51,6 +51,9 @@
 /*  10-31-2023     Xiuwen Cai               Modified comment(s),          */
 /*                                            added basic types guards,   */
 /*                                            resulting in version 6.3.0  */
+/*  28-05-2024     STMicroelectronics       Modified the code             */
+/*                                            to be RTOS agnostic support */
+/*                                            resulting in version 6.4.1  */
 /*                                                                        */
 /**************************************************************************/
 
@@ -63,43 +66,73 @@
 #ifdef FX_INCLUDE_USER_DEFINE_FILE
 
 
-/* Yes, include the user defines in fx_user.h. The defines in this file may 
+/* Yes, include the user defines in fx_user.h. The defines in this file may
    alternately be defined on the command line.  */
 
 #include "fx_user.h"
 #endif
 
-
-/* Include the ThreadX api file.  */
+/* This port file to be used in standalone mode.
+Force the definition of FX_STANDALONE_ENABLE if not already defined in fx_user.h.  */
 
 #ifndef FX_STANDALONE_ENABLE
-#include "tx_api.h"
-
-
-/* Define ULONG64 typedef, if not already defined.  */
-
-#ifndef ULONG64_DEFINED
-#define ULONG64_DEFINED
-typedef unsigned long long  ULONG64;
+#define FX_STANDALONE_ENABLE
 #endif
 
-#else
 
 /* Define compiler library include files.  */
 
+#include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#ifndef VOID
-#define VOID                                    void
+#ifndef VOID_DEFINED
+#define VOID_DEFINED
+typedef void                                    VOID;
+#endif
+
+#ifndef CHAR_DEFINED
+#define CHAR_DEFINED
 typedef char                                    CHAR;
+#endif
+
+#ifndef BOOL_DEFINED
+#define BOOL_DEFINED
 typedef char                                    BOOL;
+#endif
+
+#ifndef UCHAR_DEFINED
+#define UCHAR_DEFINED
 typedef unsigned char                           UCHAR;
+#endif
+
+#ifndef INT_DEFINED
+#define INT_DEFINED
 typedef int                                     INT;
+#endif
+
+#ifndef UINT_DEFINED
+#define UINT_DEFINED
 typedef unsigned int                            UINT;
+#endif
+
+#ifndef LONG_DEFINED
+#define LONG_DEFINED
 typedef long                                    LONG;
+#endif
+
+#ifndef ULONG_DEFINED
+#define ULONG_DEFINED
 typedef unsigned long                           ULONG;
+#endif
+
+#ifndef SHORT_DEFINED
+#define SHORT_DEFINED
 typedef short                                   SHORT;
+#endif
+
+#ifndef USHORT_DEFINED
+#define USHORT_DEFINED
 typedef unsigned short                          USHORT;
 #endif
 
@@ -116,75 +149,23 @@ typedef unsigned long long                      ULONG64;
 #define ALIGN_TYPE                              ULONG
 #endif
 
-#endif
 
-/* Define FileX internal protection macros.  If FX_SINGLE_THREAD is defined,
-   these protection macros are effectively disabled.  However, for multi-thread
-   uses, the macros are setup to utilize a ThreadX mutex for multiple thread 
-   access control into an open media.  */
+/* Define FileX internal protection macros.  */
 
-#if defined(FX_SINGLE_THREAD) || defined(FX_STANDALONE_ENABLE)
-#define FX_PROTECT                   
+#define FX_PROTECT
 #define FX_UNPROTECT
-#else
-#define FX_PROTECT                      if (media_ptr -> fx_media_id != FX_MEDIA_ID) return(FX_MEDIA_NOT_OPEN); \
-                                        else if (tx_mutex_get(&(media_ptr -> fx_media_protect), TX_WAIT_FOREVER) != TX_SUCCESS) return(FX_MEDIA_NOT_OPEN);
-#define FX_UNPROTECT                    tx_mutex_put(&(media_ptr -> fx_media_protect));
-#endif
 
+/* Add details that there is no lock mechanism in standalone mode.  */
 
-/* Define interrupt lockout constructs to protect the system date/time from being updated
-   while they are being read.  */
-#ifndef FX_STANDALONE_ENABLE
-#ifndef FX_INT_SAVE_AREA
-#define FX_INT_SAVE_AREA                unsigned int  old_interrupt_posture;
-#endif
-
-#ifndef FX_DISABLE_INTS
-#define FX_DISABLE_INTS                 old_interrupt_posture =  tx_interrupt_control(TX_INT_DISABLE);
-#endif
-
-#ifndef FX_RESTORE_INTS
-#define FX_RESTORE_INTS                 tx_interrupt_control(old_interrupt_posture);
-#endif
-#else
-/* Disable use of ThreadX protection in standalone mode for FileX */
-#ifndef FX_LEGACY_INTERRUPT_PROTECTION
-#define FX_LEGACY_INTERRUPT_PROTECTION
-#endif
 #define FX_INT_SAVE_AREA
 #define FX_DISABLE_INTS
 #define FX_RESTORE_INTS
-#endif
 
-/* Define the error checking logic to determine if there is a caller error in the FileX API.  
-   The default definitions assume ThreadX is being used.  This code can be completely turned 
-   off by just defining these macros to white space.  */
 
-#ifndef FX_STANDALONE_ENABLE
-#ifndef TX_TIMER_PROCESS_IN_ISR
+/* Details that these macros are not needed in the standalone mode.  */
 
-#define FX_CALLER_CHECKING_EXTERNS      extern  TX_THREAD      *_tx_thread_current_ptr; \
-                                        extern  TX_THREAD       _tx_timer_thread; \
-                                        extern  volatile ULONG  _tx_thread_system_state;
-
-#define FX_CALLER_CHECKING_CODE         if ((TX_THREAD_GET_SYSTEM_STATE()) || \
-                                            (_tx_thread_current_ptr == TX_NULL) || \
-                                            (_tx_thread_current_ptr == &_tx_timer_thread)) \
-                                            return(FX_CALLER_ERROR);
-
-#else
-#define FX_CALLER_CHECKING_EXTERNS      extern  TX_THREAD      *_tx_thread_current_ptr; \
-                                        extern  volatile ULONG  _tx_thread_system_state;
-
-#define FX_CALLER_CHECKING_CODE         if ((TX_THREAD_GET_SYSTEM_STATE()) || \
-                                            (_tx_thread_current_ptr == TX_NULL)) \
-                                            return(FX_CALLER_ERROR);
-#endif
-#else
 #define FX_CALLER_CHECKING_EXTERNS
 #define FX_CALLER_CHECKING_CODE
-#endif
 
 
 /* Define the update rate of the system timer.  These values may also be defined at the command
@@ -196,29 +177,29 @@ typedef unsigned long long                      ULONG64;
    value is 10 seconds.  This value can be overwritten externally. */
 
 #ifndef FX_UPDATE_RATE_IN_SECONDS
-#define FX_UPDATE_RATE_IN_SECONDS 10
+#define FX_UPDATE_RATE_IN_SECONDS               10
 #endif
 
 
-/* Defines the number of ThreadX timer ticks required to achieve the update rate specified by 
-   FX_UPDATE_RATE_IN_SECONDS defined previously. By default, the ThreadX timer tick is 10ms, 
-   so the default value for this constant is 1000.  If TX_TIMER_TICKS_PER_SECOND is defined,
-   this value is derived from TX_TIMER_TICKS_PER_SECOND.  */
- 
+/* Defines the number of timer ticks required,so the default value for this constant is 1000.  */
+
 #ifndef FX_UPDATE_RATE_IN_TICKS
-#if (defined(TX_TIMER_TICKS_PER_SECOND) && (!defined(FX_STANDALONE_ENABLE)))
-#define FX_UPDATE_RATE_IN_TICKS         (TX_TIMER_TICKS_PER_SECOND * FX_UPDATE_RATE_IN_SECONDS)
-#else
-#define FX_UPDATE_RATE_IN_TICKS         1000 
+#define FX_UPDATE_RATE_IN_TICKS                 1000
 #endif
-#endif
+
+/* Define trace macros as 'empty' since trace is not supported in standalone mode.  */
+
+#define FX_TRACE_OBJECT_REGISTER(t, p, n, a, b)
+#define FX_TRACE_OBJECT_UNREGISTER(o)
+#define FX_TRACE_IN_LINE_INSERT(i, a, b, c, d, f, g, h)
+#define FX_TRACE_EVENT_UPDATE(e, t, i, a, b, c, d)
 
 
 /* Define the version ID of FileX.  This may be utilized by the application.  */
 
 #ifdef FX_SYSTEM_INIT
-CHAR                            _fx_version_id[] = 
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  FileX Generic Version 6.4.0 *";
+CHAR                            _fx_version_id[] =
+  "Copyright (c) 2024 Microsoft Corporation.  *  FileX Generic Version 6.4.1 *";
 #else
 extern  CHAR                    _fx_version_id[];
 #endif

@@ -623,7 +623,7 @@ FX_DIR_ENTRY    search_directory;
     _fx_directory_entry_write_error_request =  0;
     return_if_fail( status == FX_IO_ERROR);
 
-    /* Delete a directory wtih large error request values just to exercise those paths - should be successful.  */
+    /* Delete a directory with large error request values just to exercise those paths - should be successful.  */
     _fx_directory_entry_read_error_request =  10000;
     _fx_directory_entry_write_error_request =  10000;
     status =  fx_directory_delete(&ram_disk, "SUB8");
@@ -918,21 +918,21 @@ FX_DIR_ENTRY    search_directory;
     _fx_utility_fat_entry_read_error_request = 0;
     return_if_fail( status == FX_IO_ERROR);
 
-    /* Now try to allocate a new cluster with a bad read value (1) of intial cluster in sub-directory in fx_directory_free_search.  */
+    /* Now try to allocate a new cluster with a bad read value (1) of initial cluster in sub-directory in fx_directory_free_search.  */
     _fx_utility_fat_entry_read_error_request = 10095;
     ram_disk.fx_media_cluster_search_start =  ram_disk.fx_media_total_clusters + (FX_FAT_ENTRY_START-1);
     status =  fx_file_create(&ram_disk, name);
     _fx_utility_fat_entry_read_error_request = 0;
     return_if_fail( status == FX_FAT_READ_ERROR);
 
-    /* Now try to allocate a new cluster with a bad read value (same as initial cluster) of intial cluster in sub-directory in fx_directory_free_search.  */
+    /* Now try to allocate a new cluster with a bad read value (same as initial cluster) of initial cluster in sub-directory in fx_directory_free_search.  */
     _fx_utility_fat_entry_read_error_request = 30098;
     ram_disk.fx_media_cluster_search_start =  ram_disk.fx_media_total_clusters + (FX_FAT_ENTRY_START-1);
     status =  fx_file_create(&ram_disk, name);
     _fx_utility_fat_entry_read_error_request = 0;
     return_if_fail( status == FX_FAT_READ_ERROR);
 
-    /* Now try to allocate a new cluster with a bad read value (greater than max) of intial cluster in sub-directory in fx_directory_free_search.  */
+    /* Now try to allocate a new cluster with a bad read value (greater than max) of initial cluster in sub-directory in fx_directory_free_search.  */
     temp =  ram_disk.fx_media_total_clusters;
     _fx_utility_fat_entry_read_error_request = 40101;
     ram_disk.fx_media_cluster_search_start =  ram_disk.fx_media_total_clusters + (FX_FAT_ENTRY_START-1);
@@ -1417,7 +1417,7 @@ FX_DIR_ENTRY    search_directory;
         test_control_return(106);
     }
 
-    /* Build a sub-directory structure to further test diretory entry read.  */
+    /* Build a sub-directory structure to further test directory entry read.  */
     status =  fx_directory_create(&ram_disk, "SUB1");
     status += fx_directory_default_set(&ram_disk, "SUB1");
     status += fx_file_create(&ram_disk, "S1_FL1.TXT");    
@@ -2675,7 +2675,7 @@ FX_DIR_ENTRY    search_directory;
     dir_entry.fx_dir_entry_short_name[0] =        0;
     search_directory.fx_dir_entry_short_name[0] = 0;
 
-    /* Lets make the name bigger than the maximun name.  */
+    /* Lets make the name bigger than the maximum name.  */
     name[255] = 'a';
     name[256] = 'a';
     name[257] = 'a';
@@ -2934,7 +2934,7 @@ FX_DIR_ENTRY    search_directory;
     }
     name[255] =  0;
     
-    /* Create a sub-directory of maximum lenght.  */
+    /* Create a sub-directory of maximum length.  */
     status =  fx_directory_create(&ram_disk, name);
     
     /* Set the default path to this name.  */

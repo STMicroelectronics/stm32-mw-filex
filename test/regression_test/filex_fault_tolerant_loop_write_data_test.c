@@ -1,6 +1,6 @@
 /* This FileX test concentrates on the Fault-Tolerant data loop write operation.  */
 /*                 
-For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
+For FAT 12, 16, 32, one cluster size is 1024 bytes;
 
          1024        1024          1024       1024         1024         1024
     |------------|------------|-----------|------------|------------|------------|
@@ -32,13 +32,8 @@ void    filex_fault_tolerant_loop_write_data_test_application_define(void *first
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
-#ifdef FX_ENABLE_EXFAT
-#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
-#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
-#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
-#endif
 
 
 /* Define the ThreadX and FileX object control blocks...  */
@@ -66,11 +61,7 @@ static CHAR                     read_buffer[4096];
 static UINT                     read_buffer_size = 4096;  
 static UINT                     i;
                                                          
-#ifdef FX_ENABLE_EXFAT
-#define TEST_COUNT              4            /* FAT12, 16, 32 and exFAT.  */
-#else              
 #define TEST_COUNT              3            /* FAT12, 16, 32.  */
-#endif
 
 /* Define thread prototypes.  */
 
@@ -141,7 +132,7 @@ ULONG       available_bytes;
     for (write_index = 0; write_index < write_buffer_size; write_index ++)
         write_buffer[write_index] = (CHAR)rand();
                  
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -198,26 +189,6 @@ ULONG       available_bytes;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            status =  fx_media_exFAT_format(&ram_disk, 
-                                            _fx_ram_driver,         // Driver entry            
-                                            ram_disk_memory_large,  // RAM disk memory pointer
-                                            cache_buffer,           // Media buffer pointer
-                                            CACHE_SIZE,             // Media buffer size 
-                                            "MY_RAM_DISK",          // Volume Name
-                                            1,                      // Number of FATs
-                                            0,                      // Hidden sectors
-                                            256,                    // Total sectors 
-                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
-                                            4,                      // exFAT Sectors per cluster
-                                            12345,                  // Volume ID
-                                            0);                     // Boundary unit
-        }
-#endif
 
         /* Determine if the format had an error.  */
         if (status)
@@ -227,7 +198,7 @@ ULONG       available_bytes;
             test_control_return(1);
         }
 
-        /* Initialize the parmeters.  */      
+        /* Initialize the parameters.  */      
         file_size = 1500; 
         two_cluster_size = 2048;
 

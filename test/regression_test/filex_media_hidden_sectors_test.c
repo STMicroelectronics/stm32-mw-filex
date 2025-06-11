@@ -8,11 +8,7 @@
 
 #define     HIDDEN_SECTORS          8
 
-#ifdef FX_ENABLE_EXFAT
-#define     SECTOR_SIZE             FX_EXFAT_SECTOR_SIZE
-#else
 #define     SECTOR_SIZE             512
-#endif
 
 
 /* Define the ThreadX and FileX object control blocks...  */
@@ -96,21 +92,6 @@ UINT        status;
     printf("FileX Test:   Media Hidden Sectors Test..............................");
 
     /* Format the media.  This needs to be done before opening it!  */
-#ifdef FX_ENABLE_EXFAT
-    status =  fx_media_exFAT_format(&ram_disk, 
-                            hidden_sectors_driver,  // Driver entry
-                            ram_disk_memory,        // RAM disk memory pointer
-                            cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
-                            "MY_RAM_DISK",          // Volume Name
-                            1,                      // Number of FATs
-                            HIDDEN_SECTORS,         // Hidden sectors
-                            256,                    // Total sectors 
-                            SECTOR_SIZE,            // Sector size   
-                            1,                      // exFAT Sectors per cluster
-                            12345,                  // Volume ID
-                            0);                     // Boundary unit
-#else
     status =  fx_media_format(&ram_disk, 
                             hidden_sectors_driver,  // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
@@ -125,7 +106,6 @@ UINT        status;
                             1,                      // Sectors per cluster
                             1,                      // Heads
                             1);                     // Sectors per track 
-#endif
 
     /* Determine if the format had an error.  */
     if (status)
@@ -253,7 +233,7 @@ UINT        bytes_per_sector;
         /* For RAM driver, determine if the boot record is valid.  */
         if ((source_buffer[0] != (UCHAR) 0xEB)  ||
            ((source_buffer[1] != (UCHAR) 0x34)  &&
-            (source_buffer[1] != (UCHAR) 0x76)) ||      /* exFAT jump code.  */
+            (source_buffer[1] != (UCHAR) 0x76)) ||
             (source_buffer[2] != (UCHAR) 0x90))
         {
 
@@ -265,15 +245,6 @@ UINT        bytes_per_sector;
         /* For RAM disk only, pickup the bytes per sector.  */
         bytes_per_sector =  _fx_utility_16_unsigned_read(&source_buffer[FX_BYTES_SECTOR]);
 
-#ifdef FX_ENABLE_EXFAT
-        /* if byte per sector is zero, then treat it as exFAT volume.  */
-        if (bytes_per_sector == 0 && (source_buffer[1] == (UCHAR) 0x76))
-        {
-
-            /* Pickup the byte per sector shift, and calculate byte per sector.  */
-            bytes_per_sector = (UINT)(1 << source_buffer[FX_EF_BYTE_PER_SECTOR_SHIFT]);
-        }
-#endif /* FX_ENABLE_EXFAT */
 
         /* Ensure this is less than the destination.  */
 

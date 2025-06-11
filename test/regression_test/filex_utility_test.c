@@ -66,11 +66,7 @@ static UCHAR partition_sector[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0xaa
 };
 
-#ifdef FX_ENABLE_EXFAT
-#define TEST_COUNT              6
-#else              
 #define TEST_COUNT              5
-#endif
 
 /* Define thread prototypes.  */
 
@@ -128,7 +124,7 @@ ULONG total_sectors;
 ULONG partition_start;
 ULONG partition_size;
                   
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -226,27 +222,6 @@ ULONG partition_size;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            total_sectors = 256;
-            status =  fx_media_exFAT_format(&ram_disk, 
-                                            _fx_ram_driver,         // Driver entry            
-                                            ram_disk_memory_large,  // RAM disk memory pointer
-                                            cache_buffer,           // Media buffer pointer
-                                            CACHE_SIZE,             // Media buffer size 
-                                            "MY_RAM_DISK",          // Volume Name
-                                            1,                      // Number of FATs
-                                            0,                      // Hidden sectors
-                                            total_sectors,          // Total sectors 
-                                            512,                   // Sector size   
-                                            4,                      // exFAT Sectors per cluster
-                                            12345,                  // Volume ID
-                                            0);                     // Boundary unit
-        }
-#endif
         return_if_fail( status == FX_SUCCESS);
 
         /* Get partition offset and size. */
@@ -817,35 +792,23 @@ ULONG       temp6;
     tmp_media.fx_media_reserved_sectors = 0;
 
     /* 12-bit FAT. */
-#ifdef FX_ENABLE_EXFAT
-    tmp_media.fx_media_FAT_type = FX_FAT12;
-#else
     tmp_media.fx_media_12_bit_FAT = 1;
-#endif /* FX_ENABLE_EXFAT */
 
     /* The FAT entry of cluster 400 is located at the second sector. */
     FAT_sector = _fx_utility_FAT_sector_get(&tmp_media, 400);
     return_if_fail(1 == FAT_sector);
 
     /* 16-bit FAT. */
-#ifdef FX_ENABLE_EXFAT
-    tmp_media.fx_media_FAT_type = FX_FAT16;
-#else
     tmp_media.fx_media_12_bit_FAT = 0;
     tmp_media.fx_media_32_bit_FAT = 0;
-#endif /* FX_ENABLE_EXFAT */
 
     /* The FAT entry of cluster 400 is located at the second sector. */
     FAT_sector = _fx_utility_FAT_sector_get(&tmp_media, 400);
     return_if_fail(1 == FAT_sector);
 
-    /* 32-bit FAT or exFAT. */
-#ifdef FX_ENABLE_EXFAT
-    tmp_media.fx_media_FAT_type = FX_FAT32;
-#else
+    /* 32-bit FAT. */
     tmp_media.fx_media_12_bit_FAT = 0;
     tmp_media.fx_media_32_bit_FAT = 1;
-#endif /* FX_ENABLE_EXFAT */
 
     /* The FAT entry of cluster 400 is located at the fourth sector. */
     FAT_sector = _fx_utility_FAT_sector_get(&tmp_media, 400);

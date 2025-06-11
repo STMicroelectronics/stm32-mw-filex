@@ -287,7 +287,7 @@ ULONG       temp3;
         test_control_return(9);
     }
 
-    /* Close the medias.  */
+    /* Close the media.  */
     status =  fx_media_close(&ram_disk);
     status += fx_media_close(&ram_disk1);
 
@@ -409,7 +409,7 @@ ULONG       temp3;
         test_control_return(9);
     }
 
-    /* Close the medias.  */
+    /* Close the media.  */
     status =  fx_media_close(&ram_disk);
     status += fx_media_close(&ram_disk1);
 
@@ -517,7 +517,7 @@ ULONG       temp3;
         test_control_return(17);
     }
 
-    /* Close the medias.  */
+    /* Close the media.  */
     status =  fx_media_close(&ram_disk1);
     status += fx_media_close(&ram_disk);
 
@@ -1624,7 +1624,7 @@ ULONG       temp3;
         test_control_return(60);
     }
 
-    /* Now attemp to close the media, but with an I/O error introduced so the close will fail trying to write out the directory entry of the open file.  */
+    /* Now attempt to close the media, but with an I/O error introduced so the close will fail trying to write out the directory entry of the open file.  */
     _fx_ram_driver_io_error_request =  1;
     status =  fx_media_close(&ram_disk);
     _fx_ram_driver_io_error_request =  0;
@@ -1740,7 +1740,7 @@ ULONG       temp3;
     _fx_utility_logical_sector_flush_error_request = 1;    
     status =  fx_media_close(&ram_disk);
 #else
-    /* Now attemp to close the media, but with an I/O error introduced so the close will fail trying to write out the directory entry of the open file.  */
+    /* Now attempt to close the media, but with an I/O error introduced so the close will fail trying to write out the directory entry of the open file.  */
     _fx_ram_driver_io_error_request =  17;
     status =  fx_media_close(&ram_disk);
     _fx_ram_driver_io_error_request =  0;
@@ -1857,7 +1857,7 @@ ULONG       temp3;
     _fx_utility_logical_sector_flush_error_request = 1;    
     status =  fx_media_close(&ram_disk);
 #else 
-    /* Now attemp to flush the media, but with an I/O error introduced so the close will fail trying to write out the directory entry of the open file.  */
+    /* Now attempt to flush the media, but with an I/O error introduced so the close will fail trying to write out the directory entry of the open file.  */
     _fx_ram_driver_io_error_request =  1;
     status =  fx_media_flush(&ram_disk);
     _fx_ram_driver_io_error_request =  0;
@@ -1974,7 +1974,7 @@ ULONG       temp3;
     _fx_utility_logical_sector_flush_error_request = 1;    
     status =  fx_media_close(&ram_disk);
 #else
-    /* Now attemp to flush the media, but with an I/O error introduced so the close will fail trying to flush logical sectors out.  */
+    /* Now attempt to flush the media, but with an I/O error introduced so the close will fail trying to flush logical sectors out.  */
     _fx_ram_driver_io_error_request =  17;
     status =  fx_media_flush(&ram_disk);
     _fx_ram_driver_io_error_request =  0;

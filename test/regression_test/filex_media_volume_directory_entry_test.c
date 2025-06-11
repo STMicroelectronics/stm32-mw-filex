@@ -11,11 +11,7 @@
 #define     DEMO_STACK_SIZE         8192
 /* Set the cache size as the size of one sector causing frequently IO operation. */
 #define     CACHE_SIZE              128
-#ifdef FX_ENABLE_EXFAT
-#define     CACHE_SIZE1             FX_EXFAT_SECTOR_SIZE
-#else
 #define     CACHE_SIZE1             512
-#endif
 
 #define     VOLUME_LABEL            "Vlabel"
 
@@ -139,7 +135,7 @@ static void    ftest_0_entry(ULONG thread_input)
     status = fx_media_close( &ram_disk);
     return_if_fail( status == FX_SUCCESS);
 
-    /* Test for creating direcoty with same name as volume" */
+    /* Test for creating directory with same name as volume" */
     
     /* Format the media.  This needs to be done before opening it!  */
     status = fx_media_format(&ram_disk,
@@ -177,84 +173,6 @@ static void    ftest_0_entry(ULONG thread_input)
     return_if_fail( status == FX_SUCCESS);
 
 
-#ifdef FX_ENABLE_EXFAT
-    /* Test for setting volume name same as directory created previously, 
-       when disk is originally formated without volume name */
-
-    /* Format the media.  This needs to be done before opening it!  */
-    status =  fx_media_exFAT_format(&ram_disk, 
-                            _fx_ram_driver,             // Driver entry
-                            ram_disk_memory,            // RAM disk memory pointer
-                            cache_buffer1,              // Media buffer pointer
-                            CACHE_SIZE1,                // Media buffer size 
-                            "",                         // Volume Name
-                            1,                          // Number of FATs
-                            0,                          // Hidden sectors
-                            7000,                       // Total sectors 
-                            FX_EXFAT_SECTOR_SIZE,  // Sector size   
-                            1,                          // exFAT Sectors per cluster
-                            12345,                      // Volume ID
-                            0);                         // Boundary unit
-
-    return_if_fail( status == FX_SUCCESS);
-
-    status = fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer1, CACHE_SIZE1);
-    return_if_fail( status == FX_SUCCESS);
-    
-    status =   fx_directory_create(&ram_disk, VOLUME_LABEL);
-    return_if_fail( status == FX_SUCCESS);
-    
-    status =  fx_media_flush(&ram_disk);
-    return_if_fail( status == FX_SUCCESS);
-    
-    status =  fx_media_volume_set(&ram_disk, VOLUME_LABEL);
-    return_if_fail( status == FX_SUCCESS);
-
-    status =  fx_media_flush(&ram_disk);
-    return_if_fail( status == FX_SUCCESS);
-
-    status = fx_media_close( &ram_disk);
-    return_if_fail( status == FX_SUCCESS);
-
-    /* Test for creating directory with same name as volume, 
-       when disk is originally formated without volume name */
-
-    /* Format the media.  This needs to be done before opening it!  */
-    status =  fx_media_exFAT_format(&ram_disk, 
-                            _fx_ram_driver,             // Driver entry
-                            ram_disk_memory,            // RAM disk memory pointer
-                            cache_buffer1,              // Media buffer pointer
-                            CACHE_SIZE1,                // Media buffer size 
-                            "",                         // Volume Name
-                            1,                          // Number of FATs
-                            0,                          // Hidden sectors
-                            7000,                       // Total sectors 
-                            FX_EXFAT_SECTOR_SIZE,  // Sector size   
-                            1,                          // exFAT Sectors per cluster
-                            12345,                      // Volume ID
-                            0);                         // Boundary unit
-
-    return_if_fail( status == FX_SUCCESS);
-
-    status = fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer1, CACHE_SIZE1);
-    return_if_fail( status == FX_SUCCESS);
-    
-    status =  fx_media_volume_set(&ram_disk, VOLUME_LABEL);
-    return_if_fail( status == FX_SUCCESS);
-
-    status =  fx_media_flush(&ram_disk);
-    return_if_fail( status == FX_SUCCESS);
-    
-    status =   fx_directory_create(&ram_disk, VOLUME_LABEL);
-    return_if_fail( status == FX_SUCCESS);
-    
-    status =  fx_media_flush(&ram_disk);
-    return_if_fail( status == FX_SUCCESS);
-
-    status = fx_media_close( &ram_disk);
-    return_if_fail( status == FX_SUCCESS);
-
-#endif
 
     printf("SUCCESS!\n");
     test_control_return(0);

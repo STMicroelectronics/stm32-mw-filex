@@ -1168,7 +1168,7 @@ ULONG       i, j;
     status += fx_file_close(&my_file4);
     status += fx_file_delete(&ram_disk, "TEST1.TXT");
 
-    /* Finally, perform a direct write with that can't be done with contigous clusters.  */   
+    /* Finally, perform a direct write with that can't be done with contiguous clusters.  */   
     status =  fx_file_write(&my_file, my_buffer, 128*4);
     
     /* Did we get an error?  */

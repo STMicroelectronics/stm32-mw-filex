@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -294,7 +293,7 @@ UINT   u;
             /* Number of LFN cannot is 1-based.  Therefore it cannot be zero. */
             return(FX_FILE_CORRUPT);
         }
-        else 
+        else
         {
             /* Pickup the file name length.  */
             i = (number_of_lfns - 1) * FX_LONG_NAME_ENTRY_LEN;
@@ -648,7 +647,7 @@ UINT   u;
          BIT3 - set if 8.3 is all in lower case and no extended filename.
          BIT4 - set for file, clear for directory entry if no extended filename.
 
-       This is true for all NT systems. Prior to NT follows MSDOS FAT documentation and
+       This is true for all NT systems. Prior to NT follows MS-DOS FAT documentation and
        is set to 0x00, all bits cleared. Therefore if BIT3 is set force lowercase.  */
     if ((get_short_name) && (destination_ptr -> fx_dir_entry_reserved & 0x08))
     {

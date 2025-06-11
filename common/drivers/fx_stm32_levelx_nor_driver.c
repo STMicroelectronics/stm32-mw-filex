@@ -1,13 +1,13 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+  * Copyright (c) 2024 Microsoft Corporation
+  * Copyright (c) 2024 STMicroelectronics
+  *
+  * This program and the accompanying materials are made available under the
+  * terms of the MIT License which is available at
+  * https://opensource.org/licenses/MIT.
+  *
+  * SPDX-License-Identifier: MIT
+  **************************************************************************/
 
 #include "fx_stm32_levelx_nor_driver.h"
 
@@ -92,6 +92,26 @@ UCHAR lx_stm32_nor_qspi_extended_cache_memory[LX_STM32_QSPI_OBSOLETE_COUNT_CACHE
 
 #endif //LX_NOR_QSPI_DRIVER
 
+#ifdef LX_NOR_XSPI_DRIVER
+
+#ifdef LX_NOR_ENABLE_MAPPING_BITMAP
+#define LX_STM32_XSPI_MAPPING_BITMAP_CACHE_SIZE ((LX_STM32_XSPI_FLASH_SIZE / LX_NOR_SECTOR_SIZE) + 31) / 32
+#else
+#define LX_STM32_XSPI_MAPPING_BITMAP_CACHE_SIZE   0
+#endif
+
+#ifdef LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE
+#define LX_STM32_XSPI_OBSOLETE_COUNT_CACHE_SIZE (LX_STM32_XSPI_FLASH_SIZE / LX_STM32_XSPI_SECTOR_SIZE) * sizeof(LX_NOR_OBSOLETE_COUNT_CACHE_TYPE) / 4
+#else
+#define LX_STM32_XSPI_OBSOLETE_COUNT_CACHE_SIZE  0
+#endif
+
+#if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
+UCHAR lx_stm32_nor_xspi_extended_cache_memory[LX_STM32_XSPI_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_XSPI_MAPPING_BITMAP_CACHE_SIZE];
+#endif
+
+#endif //LX_NOR_XSPI_DRIVER
+
 #endif //LX_NOR_DISABLE_EXTENDED_CACHE
 
 static struct fx_lx_nor_driver_instance  fx_lx_nor_drivers[MAX_LX_NOR_DRIVERS] =
@@ -106,7 +126,7 @@ static struct fx_lx_nor_driver_instance  fx_lx_nor_drivers[MAX_LX_NOR_DRIVERS] =
       .extended_nor_cache_size = sizeof(lx_stm32_nor_simulator_extended_cache_memory),
       #endif
       #endif
-    }
+    },
 #endif
 
 #ifdef LX_NOR_OSPI_DRIVER
@@ -119,7 +139,7 @@ static struct fx_lx_nor_driver_instance  fx_lx_nor_drivers[MAX_LX_NOR_DRIVERS] =
       .extended_nor_cache_size = sizeof(lx_stm32_nor_ospi_extended_cache_memory),
       #endif
       #endif
-    }
+    },
 #endif
 
 #ifdef LX_NOR_QSPI_DRIVER
@@ -130,6 +150,19 @@ static struct fx_lx_nor_driver_instance  fx_lx_nor_drivers[MAX_LX_NOR_DRIVERS] =
       #if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
       .extended_nor_cache = lx_stm32_nor_qspi_extended_cache_memory,
       .extended_nor_cache_size = sizeof(lx_stm32_nor_qspi_extended_cache_memory),
+      #endif
+      #endif
+    },
+#endif
+
+#ifdef LX_NOR_XSPI_DRIVER
+    { .name = LX_NOR_XSPI_DRIVER_NAME,
+      .id = LX_NOR_XSPI_DRIVER_ID,
+      .nor_driver_initialize = lx_stm32_xspi_initialize,
+      #ifndef LX_NOR_DISABLE_EXTENDED_CACHE
+      #if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
+      .extended_nor_cache = lx_stm32_nor_xspi_extended_cache_memory,
+      .extended_nor_cache_size = sizeof(lx_stm32_nor_xspi_extended_cache_memory),
       #endif
       #endif
     }

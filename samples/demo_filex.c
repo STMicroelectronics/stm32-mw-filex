@@ -103,21 +103,6 @@ CHAR  local_buffer[30];
 
     /* Format the RAM disk - the memory for the RAM disk was setup in
        tx_application_define above.  */
-#ifdef FX_ENABLE_EXFAT
-    fx_media_exFAT_format(&ram_disk,
-                          _fx_ram_driver,         // Driver entry
-                          ram_disk_memory,        // RAM disk memory pointer
-                          media_memory,           // Media buffer pointer
-                          sizeof(media_memory),   // Media buffer size
-                          "MY_RAM_DISK",          // Volume Name
-                          1,                      // Number of FATs
-                          0,                      // Hidden sectors
-                          256,                    // Total sectors
-                          512,                    // Sector size
-                          8,                      // exFAT Sectors per cluster
-                          12345,                  // Volume ID
-                          1);                     // Boundary unit
-#else
     fx_media_format(&ram_disk,
                     _fx_ram_driver,               // Driver entry
                     ram_disk_memory,              // RAM disk memory pointer
@@ -132,7 +117,6 @@ CHAR  local_buffer[30];
                     8,                            // Sectors per cluster
                     1,                            // Heads
                     1);                           // Sectors per track
-#endif /* FX_ENABLE_EXFAT */
 
 
     /* Loop to repeat the demo over and over!  */

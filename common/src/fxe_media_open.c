@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -69,8 +68,6 @@ FX_CALLER_CHECKING_EXTERNS
 /*                                                                        */
 /*  CALLS                                                                 */
 /*                                                                        */
-/*    tx_thread_identify                    Get current thread            */
-/*    tx_thread_preemption_change           Disable/restore preemption    */
 /*    _fx_media_open                        Actual media open service     */
 /*                                                                        */
 /*  CALLED BY                                                             */
@@ -97,8 +94,7 @@ FX_MEDIA  *current_media;
 ULONG      open_count;
 
 #ifndef FX_SINGLE_THREAD
-TX_THREAD *current_thread;
-UINT       old_threshold;
+FX_DECLARE_PREEMPTION
 #endif
 
 
@@ -141,12 +137,8 @@ UINT       old_threshold;
 
 #ifndef FX_SINGLE_THREAD
 
-    /* Pickup current thread pointer. At this point we know the current thread pointer is non-null since 
-       it was checked by code in FX_CALLER_CHECKING_CODE macro.  */
-    current_thread =  tx_thread_identify();
-
     /* Disable preemption temporarily.  */
-    tx_thread_preemption_change(current_thread, 0, &old_threshold);
+    FX_DISABLE_PREEMPTION
 #endif
 
     /* Loop to check for the media already opened.  */
@@ -162,7 +154,7 @@ UINT       old_threshold;
 #ifndef FX_SINGLE_THREAD
 
             /* Restore preemption.  */
-            tx_thread_preemption_change(current_thread, old_threshold, &old_threshold);
+            FX_RESTORE_PREEMPTION
 #endif
 
             /* Duplicate media open, return an error!  */
@@ -176,7 +168,7 @@ UINT       old_threshold;
 #ifndef FX_SINGLE_THREAD
 
     /* Restore preemption.  */
-    tx_thread_preemption_change(current_thread, old_threshold, &old_threshold);
+    FX_RESTORE_PREEMPTION
 #endif
 
     /* Call actual media open service.  */

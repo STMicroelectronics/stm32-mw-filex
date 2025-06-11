@@ -1,6 +1,6 @@
 /* This FileX test concentrates on the Fault-Tolerant enable feature.  */
 /* 
-For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
+For FAT 12, 16, 32, one cluster size is 1024 bytes;
 Check Fault tolerrant Log file:           
 Step1: Format and open the media; 
 Step2: Check the fault tolerant enable flag and boot index value; 
@@ -46,11 +46,7 @@ static UCHAR                    cache_buffer[CACHE_SIZE];
 static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
 #endif
 
-#ifdef FX_ENABLE_EXFAT
-#define TEST_COUNT              4
-#else              
 #define TEST_COUNT              3
-#endif
 
 /* Define thread prototypes.  */
 
@@ -119,7 +115,7 @@ UINT        size;
     /* Print out some test information banners.  */
     printf("FileX Test:   Fault Tolerant Enable Test.............................");
                   
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -176,26 +172,6 @@ UINT        size;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            status =  fx_media_exFAT_format(&ram_disk, 
-                                            _fx_ram_driver,         // Driver entry            
-                                            ram_disk_memory_large,  // RAM disk memory pointer
-                                            cache_buffer,           // Media buffer pointer
-                                            CACHE_SIZE,             // Media buffer size 
-                                            "MY_RAM_DISK",          // Volume Name
-                                            1,                      // Number of FATs
-                                            0,                      // Hidden sectors
-                                            256,                    // Total sectors 
-                                            512,                   // Sector size   
-                                            4,                      // exFAT Sectors per cluster
-                                            12345,                  // Volume ID
-                                            0);                     // Boundary unit
-        }
-#endif
         return_if_fail( status == FX_SUCCESS);
 
         /* Open the ram_disk.  */
@@ -213,7 +189,7 @@ UINT        size;
         start_cluster = _fx_utility_32_unsigned_read(buffer + FX_FAULT_TOLERANT_BOOT_INDEX);  
         return_if_fail( start_cluster == 0);
     
-        /* Atempt to call fx_fault_tolerant_enable with invalid parameters. */
+        /* Attempt to call fx_fault_tolerant_enable with invalid parameters. */
         temp = ram_disk.fx_media_sectors_per_cluster;
         ram_disk.fx_media_sectors_per_cluster = 0;
         status = fx_fault_tolerant_enable(&ram_disk, fault_tolerant_buffer, FAULT_TOLERANT_SIZE);
@@ -256,7 +232,7 @@ UINT        size;
         /* Check the fault tolerant feature flag.  */
         return_if_fail( ram_disk.fx_media_fault_tolerant_enabled == FX_TRUE);
 
-        /* Atempt to exceed the space limitation in _fx_fault_tolerant_add_FAT_log. */
+        /* Attempt to exceed the space limitation in _fx_fault_tolerant_add_FAT_log. */
         temp = ram_disk.fx_media_fault_tolerant_file_size;    
         temp1 = ram_disk.fx_media_fault_tolerant_state;
         ram_disk.fx_media_fault_tolerant_state |= FX_FAULT_TOLERANT_STATE_STARTED;

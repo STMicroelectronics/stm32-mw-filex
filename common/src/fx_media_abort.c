@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -58,7 +57,7 @@
 /*                                                                        */
 /*  CALLS                                                                 */
 /*                                                                        */
-/*    tx_mutex_delete                       Delete the mutex              */
+/*    fx_os_mutex_delete                       Delete the mutex           */
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
@@ -170,10 +169,11 @@ FX_FILE *file_ptr;
 
 #ifndef FX_DONT_CREATE_MUTEX
 
-    /* Note that the protection is never released. The mutex delete
-       service will handle all threads waiting access to this media
-       control block.  */
-    tx_mutex_delete(& (media_ptr -> fx_media_protect));
+    /* Note that the protection is never explicitly released.
+	The mutex removal function will handle all threads waiting to access the media control block.
+	However, it is important to release the protection before deleting the mutex object
+	to avoid unexpected behaviour or resource leaks. */
+    fx_os_mutex_delete(&(media_ptr -> fx_media_protect));
 #endif
 #endif
 
