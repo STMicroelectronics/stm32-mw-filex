@@ -1,6 +1,6 @@
 /* This FileX test concentrates on the Fault-Tolerant directory write interrupt operation.  */
 /*                                                         
-For FAT 12, 16, 32, one cluster size is 1024 bytes;
+For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
 
 Check directory interrupt for fx_unicode_file_create() :         
 Step1: Format and open the media; 
@@ -33,8 +33,13 @@ void    filex_fault_tolerant_unicode_file_create_directory_interrupt_test_applic
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
+#ifdef FX_ENABLE_EXFAT
+#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
+#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
+#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
+#endif
 
 
 
@@ -51,7 +56,11 @@ static FX_MEDIA               ram_disk;
 static FX_FILE                my_file;
 static UCHAR                  *pointer;
 
+#ifdef FX_ENABLE_EXFAT
+#define TEST_COUNT              3   /* exFAT does not yet support Unicode.  */
+#else              
 #define TEST_COUNT              3
+#endif
 
 /* Define the counters used in the test application...  */
                                                          
@@ -149,7 +158,7 @@ UINT        length;
     /* Print out some test information banners.  */
     printf("FileX Test:   Fault Tolerant Unicode File Create DIR Interrupt Test..");
                
-    /* Loop to test FAT 12, 16, 32.   */
+    /* Loop to test FAT 12, 16, 32 and exFAT.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -206,6 +215,26 @@ UINT        length;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
+#ifdef FX_ENABLE_EXFAT
+        else
+        {
+
+            /* Format the media with exFAT.  This needs to be done before opening it!  */
+            status =  fx_media_exFAT_format(&ram_disk, 
+                                            _fx_ram_driver,         // Driver entry            
+                                            ram_disk_memory_large,  // RAM disk memory pointer
+                                            cache_buffer,           // Media buffer pointer
+                                            CACHE_SIZE,             // Media buffer size 
+                                            "MY_RAM_DISK",          // Volume Name
+                                            1,                      // Number of FATs
+                                            0,                      // Hidden sectors
+                                            256,                    // Total sectors 
+                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
+                                            4,                      // exFAT Sectors per cluster
+                                            12345,                  // Volume ID
+                                            0);                     // Boundary unit
+        }
+#endif
 
         /* Determine if the format had an error.  */
         if (status)

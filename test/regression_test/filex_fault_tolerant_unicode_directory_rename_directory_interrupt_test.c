@@ -1,6 +1,6 @@
 /* This FileX test concentrates on the Fault-Tolerant directory write interrupt operation.  */
 /*                 
-For FAT 12, 16, 32, one cluster size is 1024 bytes;
+For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
                                 
 Check directory interrupt for fx_unicode_directory_rename():  
 Step1: Format and open the media; 
@@ -34,8 +34,13 @@ void    filex_fault_tolerant_unicode_directory_rename_directory_interrupt_test_a
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
+#ifdef FX_ENABLE_EXFAT
+#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
+#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
+#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
+#endif
 
 
 /* Define the ThreadX and FileX object control blocks...  */
@@ -49,7 +54,11 @@ static pthread_t ptid1;
 static FX_MEDIA               ram_disk;
 static UCHAR                  *pointer;    
 
+#ifdef FX_ENABLE_EXFAT
+#define TEST_COUNT              3   /* exFAT does not yet support Unicode.  */
+#else              
 #define TEST_COUNT              3
+#endif
 
 /* Define the counters used in the test application...  */
                                                      
@@ -196,7 +205,45 @@ static CHAR *                 expected_name_1[] =  {
                         ".",
                         "..", 
                         "END"};   
-
+                                             
+static CHAR                   **expected_name_exfat;
+static CHAR *                 expected_name_exfat_0[] =  {
+                              
+                        "A",
+                        "A1",   
+                        "A11",    
+                        "A2",     
+                        "A3",     
+                        "B",
+                        "B1",   
+                        "B2",     
+                        "B22",    
+                        "B3",     
+                        "C",
+                        "C1",   
+                        "C2",    
+                        "C3",     
+                        "C33",   
+                        "END"};
+                        
+static CHAR *                 expected_name_exfat_1[] =  {
+                              
+                        "A",
+                        "A1",   
+                        "A11",    
+                        "A2",     
+                        "A3",     
+                        "B",
+                        "B1",   
+                        "B2",     
+                        "B23",    
+                        "B3",     
+                        "C",
+                        "C1",   
+                        "C2",    
+                        "C3",     
+                        "C33",   
+                        "END"};
 
 /* Define thread prototypes.  */
 
@@ -210,6 +257,7 @@ static void    *ftest_1_entry(void * thread_input);
 extern void    _fx_ram_driver(FX_MEDIA *media_ptr);
 extern void    test_control_return(UINT status);         
 static void    traverse_directory(CHAR *directory_name);    
+static void    traverse_directory_exfat(CHAR *directory_name);  
 extern UINT    _filex_fault_tolerant_log_check(FX_MEDIA *media_ptr); 
 extern UINT    (*driver_write_callback)(FX_MEDIA *media_ptr, UINT sector_type, UCHAR *block_ptr, UINT *operation_ptr);  
 static UINT    my_driver_write(FX_MEDIA *media_ptr, UINT sector_type, UCHAR *block_ptr, UINT *operation_ptr);
@@ -277,7 +325,7 @@ FX_LOCAL_PATH   local_path;
     /* Print out some test information banners.  */
     printf("FileX Test:   Fault Tolerant Unicode Dir Rename DIR Interrupt Test...");
                
-    /* Loop to test FAT 12, 16, 32.   */
+    /* Loop to test FAT 12, 16, 32 and exFAT.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -334,6 +382,26 @@ FX_LOCAL_PATH   local_path;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
+#ifdef FX_ENABLE_EXFAT
+        else
+        {
+
+            /* Format the media with exFAT.  This needs to be done before opening it!  */
+            status =  fx_media_exFAT_format(&ram_disk, 
+                                            _fx_ram_driver,         // Driver entry            
+                                            ram_disk_memory_large,  // RAM disk memory pointer
+                                            cache_buffer,           // Media buffer pointer
+                                            CACHE_SIZE,             // Media buffer size 
+                                            "MY_RAM_DISK",          // Volume Name
+                                            1,                      // Number of FATs
+                                            0,                      // Hidden sectors
+                                            256,                    // Total sectors 
+                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
+                                            4,                      // exFAT Sectors per cluster
+                                            12345,                  // Volume ID
+                                            0);                     // Boundary unit
+        }
+#endif
 
         /* Determine if the format had an error.  */
         if (status)
@@ -398,7 +466,7 @@ FX_LOCAL_PATH   local_path;
             test_control_return(5);
         }
                                
-        /* Initialize the directory structure.  */
+        /* Initailize the directory structure.  */
         index = 0;
         directory_name_path_short[index++] = '/';
 
@@ -453,7 +521,7 @@ FX_LOCAL_PATH   local_path;
             test_control_return(7);
         }
                                       
-        /* Initialize the directory structure.  */
+        /* Initailize the directory structure.  */
         index = 0;
         directory_name_path_short[index++] = '/';
 
@@ -508,7 +576,7 @@ FX_LOCAL_PATH   local_path;
             test_control_return(9);
         }
                                                
-        /* Initialize the directory structure.  */
+        /* Initailize the directory structure.  */
         index = 0;
         directory_name_path_short[index++] = '/';
 
@@ -566,7 +634,7 @@ FX_LOCAL_PATH   local_path;
         /* Now create the third level of sub-directories...  
            "/A/A1/A11", "/B/B2/B22", "/C/C3/C33"  */
                                                                            
-        /* Initialize the directory structure.  */
+        /* Initailize the directory structure.  */
         index = 0;
         directory_name_path_short[index++] = '/';
 
@@ -622,7 +690,7 @@ FX_LOCAL_PATH   local_path;
             test_control_return(12);
         }
                                                                                             
-        /* Initialize the directory structure.  */
+        /* Initailize the directory structure.  */
         index = 0;
         directory_name_path_short[index++] = '/';
 
@@ -678,7 +746,7 @@ FX_LOCAL_PATH   local_path;
             test_control_return(13);
         }                     
 
-        /* Initialize the directory structure.  */
+        /* Initailize the directory structure.  */
         index = 0;
         directory_name_path_short[index++] = '/';
 
@@ -738,8 +806,16 @@ FX_LOCAL_PATH   local_path;
         expected_index = 0;
                         
         /* Traverse the directory structure recursively.  */
-        expected_name = expected_name_0;
-        traverse_directory(FX_NULL);
+        if (i < 3)            
+        {
+            expected_name = expected_name_0;
+            traverse_directory(FX_NULL);
+        }
+        else   
+        {                       
+            expected_name_exfat = expected_name_exfat_0;
+            traverse_directory_exfat(FX_NULL);
+        }
                         
         /* Create the main thread.  */
 #ifndef FX_STANDALONE_ENABLE
@@ -789,8 +865,16 @@ FX_LOCAL_PATH   local_path;
         expected_index = 0;
                                              
         /* Traverse the directory structure recursively.  */
-        expected_name = expected_name_1;
-        traverse_directory(FX_NULL);
+        if (i < 3)            
+        {
+            expected_name = expected_name_1;
+            traverse_directory(FX_NULL);
+        }
+        else   
+        {                       
+            expected_name_exfat = expected_name_exfat_1;
+            traverse_directory_exfat(FX_NULL);
+        }
 
         /* Set the local path to /B/B2.  */    
 #ifndef FX_STANDALONE_ENABLE
@@ -878,7 +962,7 @@ FX_LOCAL_PATH   local_path;
                                                          
     /* Set the local path to /B/B2.  */    
 
-    /* Initialize the directory structure.  */
+    /* Initailize the directory structure.  */
     index = 0;
     directory_name_path_short[index++] = '/';
 
@@ -1057,6 +1141,83 @@ UINT            skip;
 #endif                
             }
 
+            status =  fx_directory_next_entry_find(&ram_disk, name);
+        } 
+    } 
+
+#ifndef FX_STANDALONE_ENABLE
+    fx_directory_local_path_clear(&ram_disk);
+#endif
+}       
+
+
+/* Define the exFAT directory traversal routine for the local path test.  */
+void  traverse_directory_exfat(CHAR *directory_name)
+{
+
+FX_LOCAL_PATH   local_path;
+FX_FILE         file;
+UINT            status;
+CHAR            name[300];
+
+
+    /* Determine if we are at the start.  */
+    if (directory_name == FX_NULL)
+    {
+#ifndef FX_STANDALONE_ENABLE
+        status =   fx_directory_local_path_set(&ram_disk, &local_path, "\\");
+#else
+        status =   fx_directory_default_set(&ram_disk, "\\");
+#endif
+    }
+    else
+    {
+#ifndef FX_STANDALONE_ENABLE
+        status =   fx_directory_local_path_set(&ram_disk, &local_path, directory_name);
+#else
+        status =   fx_directory_default_set(&ram_disk, directory_name);
+#endif
+    }
+
+    /* Get the first directory entry in the root path.  */
+    status =  fx_directory_first_entry_find(&ram_disk, name);
+
+    /* Loop through the directory entries for this path.  */
+    while (status == FX_SUCCESS)
+    {
+
+        /* Compare with what is expected.  */
+        if (strcmp(name, expected_name_exfat[expected_index++]))
+            error_counter++;
+       
+        /* Determine if this name is a directory or a file.  */
+        status =  fx_directory_name_test(&ram_disk, name);
+
+        /* What is it?  */
+        if (status == FX_NOT_DIRECTORY)
+        {
+
+            /* This is a file, open it to test its integrity.  */
+            status =  fx_file_open(&ram_disk, &file, name, FX_OPEN_FOR_READ);
+            if (status != FX_SUCCESS)
+                error_counter++;
+            status =  fx_file_close(&file);
+            if (status != FX_SUCCESS)
+                error_counter++;
+        
+            /* Pickup the next directory entry.  */
+            status =  fx_directory_next_entry_find(&ram_disk, name);
+        }
+        else if (status == FX_SUCCESS)
+        {
+
+            /* Recursive call to traverse directory.  */
+            traverse_directory_exfat(name);
+        
+            /* Restore path.  */
+#ifndef FX_STANDALONE_ENABLE        
+            status =  fx_directory_local_path_restore(&ram_disk, &local_path);        
+#endif
             status =  fx_directory_next_entry_find(&ram_disk, name);
         } 
     } 

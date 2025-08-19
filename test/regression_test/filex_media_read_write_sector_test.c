@@ -373,7 +373,7 @@ TEST_START:
 #endif
     }
 
-    /* Update FAT entries.  */
+    /* Update FAT entires.  */
     for (i = 2; i < 6000; i++)
     {
         status +=  _fx_utility_FAT_entry_write(&ram_disk, (ULONG) i, (ULONG) i+1);
@@ -729,7 +729,7 @@ TEST_START:
         status += _fx_utility_logical_sector_write(&ram_disk, logical_sector, ram_disk.fx_media_memory_buffer, 1, FX_DATA_SECTOR);
     }
 
-    /* Update FAT entries.  */
+    /* Update FAT entires.  */
     for (i = 2; i < 6000; i++)
     {
         status +=  _fx_utility_FAT_entry_write(&ram_disk, (ULONG) i, (ULONG) i+1);
@@ -1046,7 +1046,7 @@ TEST_START:
     status += fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, 128);
     return_if_fail( status == FX_SUCCESS);
 
-    /* Now loop to write the FAT entries out with random I/O errors.  */
+    /* Now loop to write the FAT entries out with random I/O erorrs.  */
     fat_entry =  4;
     for (i = 0; i < 500000; i++) 
     {
@@ -1111,7 +1111,7 @@ TEST_START:
     status += fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, 128);
     return_if_fail( status == FX_SUCCESS);
 
-    /* Now loop to write the FAT entries out with random I/O errors.  */
+    /* Now loop to write the FAT entries out with random I/O erorrs.  */
     fat_entry =  4;
     for (i = 0; i < 500000; i++) 
     {
@@ -1176,7 +1176,7 @@ TEST_START:
     status += fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, 128);
     return_if_fail( status == FX_SUCCESS);
 
-    /* Now loop to write the FAT entries out with random I/O errors.  */
+    /* Now loop to write the FAT entries out with random I/O erorrs.  */
     fat_entry =  4;
     for (i = 0; i < 500000; i++) 
     {

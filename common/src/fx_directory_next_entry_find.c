@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -28,6 +29,9 @@
 #include "fx_system.h"
 #include "fx_directory.h"
 #include "fx_utility.h"
+#ifdef FX_ENABLE_EXFAT
+#include "fx_directory_exFAT.h"
+#endif /* FX_ENABLE_EXFAT */
 
 #ifndef FX_NO_LOCAL_PATH
 FX_LOCAL_PATH_SETUP
@@ -95,9 +99,6 @@ FX_PATH      *path_ptr;
 UINT          index;
 CHAR         *path_string_ptr =  FX_NULL;
 #endif
-#ifndef FX_NO_LOCAL_PATH
-FX_LOCAL_PATH *current_local_path;
-#endif
 
 
 #ifndef FX_MEDIA_STATISTICS_DISABLE
@@ -131,12 +132,11 @@ FX_LOCAL_PATH *current_local_path;
 
 #ifndef FX_NO_LOCAL_PATH
 
-    current_local_path = (FX_LOCAL_PATH *)fx_os_current_thread_tls_get();
-    if (current_local_path)
+    if (_tx_thread_current_ptr -> tx_thread_filex_ptr)
     {
 
         /* Setup the default path pointer.  */
-        path_ptr = (FX_PATH *)current_local_path;
+        path_ptr =  (FX_PATH *)_tx_thread_current_ptr -> tx_thread_filex_ptr;
 
         /* Determine if we are at the root directory.  */
         if (path_ptr -> fx_path_directory.fx_dir_entry_name[0])
@@ -147,7 +147,7 @@ FX_LOCAL_PATH *current_local_path;
 #ifndef FX_MEDIA_DISABLE_SEARCH_CACHE
 
             /* Setup pointer to the path.  */
-            path_string_ptr = current_local_path -> fx_path_string;
+            path_string_ptr =  ((FX_PATH *)_tx_thread_current_ptr -> tx_thread_filex_ptr) -> fx_path_string;
 #endif
 
             /* Set the internal pointer to the search directory as well.  */
@@ -195,66 +195,77 @@ FX_LOCAL_PATH *current_local_path;
     /* Calculate the directory size.  */
     if (search_dir_ptr)
     {
-        /* Determine the directory size.  */
-        if (path_ptr -> fx_path_current_entry != 0)
+#ifdef FX_ENABLE_EXFAT
+        if (media_ptr -> fx_media_FAT_type == FX_exFAT)
         {
-
-            /* Pickup the previously saved directory size.  */
-            directory_size =  search_dir_ptr -> fx_dir_entry_file_size;
+            directory_size = search_dir_ptr -> fx_dir_entry_file_size / FX_DIR_ENTRY_SIZE;
         }
         else
         {
-
-            /* This should only be done on the first time into next directory find.  */
-
-            /* Ensure that the search directory's last search cluster is cleared.  */
-            search_dir_ptr -> fx_dir_entry_last_search_cluster =  0;
-
-            /* Calculate the directory size by counting the allocated
-               clusters for it. */
-            i =        0;
-            cluster =  search_dir_ptr -> fx_dir_entry_cluster;
-            while (cluster < media_ptr -> fx_media_fat_reserved)
+#endif /* FX_ENABLE_EXFAT */
+            /* Determine the directory size.  */
+            if (path_ptr -> fx_path_current_entry != 0)
             {
 
-                /* Increment the cluster count.  */
-                i++;
-
-                /* Read the next FAT entry.  */
-                status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &next_cluster);
-
-                /* Check the return status.  */
-                if (status != FX_SUCCESS)
-                {
-
-                    /* Release media protection.  */
-                    FX_UNPROTECT
-
-                    /* Return the bad status.  */
-                    return(status);
-                }
-
-                if ((cluster < FX_FAT_ENTRY_START) || (cluster == next_cluster) || (i > media_ptr -> fx_media_total_clusters))
-                {
-
-                    /* Release media protection.  */
-                    FX_UNPROTECT
-
-                    /* Return the bad status.  */
-                    return(FX_FAT_READ_ERROR);
-                }
-
-                cluster = next_cluster;
+                /* Pickup the previously saved directory size.  */
+                directory_size =  search_dir_ptr -> fx_dir_entry_file_size;
             }
+            else
+            {
 
-            /* Now we can calculate the directory size.  */
-            directory_size =  (((ULONG64)media_ptr -> fx_media_bytes_per_sector) *
-                               ((ULONG64)media_ptr -> fx_media_sectors_per_cluster) * i) /
-                (ULONG64)FX_DIR_ENTRY_SIZE;
+                /* This should only be done on the first time into next directory find.  */
 
-            /* Save how many entries there are in the directory.  */
-            search_dir_ptr -> fx_dir_entry_file_size =  directory_size;
+                /* Ensure that the search directory's last search cluster is cleared.  */
+                search_dir_ptr -> fx_dir_entry_last_search_cluster =  0;
+
+                /* Calculate the directory size by counting the allocated
+                   clusters for it. */
+                i =        0;
+                cluster =  search_dir_ptr -> fx_dir_entry_cluster;
+                while (cluster < media_ptr -> fx_media_fat_reserved)
+                {
+
+                    /* Increment the cluster count.  */
+                    i++;
+
+                    /* Read the next FAT entry.  */
+                    status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &next_cluster);
+
+                    /* Check the return status.  */
+                    if (status != FX_SUCCESS)
+                    {
+
+                        /* Release media protection.  */
+                        FX_UNPROTECT
+
+                        /* Return the bad status.  */
+                        return(status);
+                    }
+
+                    if ((cluster < FX_FAT_ENTRY_START) || (cluster == next_cluster) || (i > media_ptr -> fx_media_total_clusters))
+                    {
+
+                        /* Release media protection.  */
+                        FX_UNPROTECT
+
+                        /* Return the bad status.  */
+                        return(FX_FAT_READ_ERROR);
+                    }
+
+                    cluster = next_cluster;
+                }
+
+                /* Now we can calculate the directory size.  */
+                directory_size =  (((ULONG64)media_ptr -> fx_media_bytes_per_sector) *
+                                   ((ULONG64)media_ptr -> fx_media_sectors_per_cluster) * i) /
+                    (ULONG64)FX_DIR_ENTRY_SIZE;
+
+                /* Save how many entries there are in the directory.  */
+                search_dir_ptr -> fx_dir_entry_file_size =  directory_size;
+            }
+#ifdef FX_ENABLE_EXFAT
         }
+#endif /* FX_ENABLE_EXFAT */
     }
     else
     {
@@ -284,16 +295,34 @@ FX_LOCAL_PATH *current_local_path;
             /* Return error status.  */
             return(temp_status);
         }
+#ifdef FX_ENABLE_EXFAT
+        if (entry.fx_dir_entry_type == FX_EXFAT_DIR_ENTRY_TYPE_END_MARKER)
+        {
+            /* Set the error code.  */
+            status =  FX_NO_MORE_ENTRIES;
+
+            /* Get out of the loop.  */
+            break;
+        }
+#endif /* FX_ENABLE_EXFAT */
 
         /* Check to see if the entry has something in it.  */
+#ifdef FX_ENABLE_EXFAT
+        else if (entry.fx_dir_entry_type != FX_EXFAT_DIR_ENTRY_TYPE_FILE_DIRECTORY)
+#else
         if (((UCHAR)entry.fx_dir_entry_name[0] == (UCHAR)FX_DIR_ENTRY_FREE) && (entry.fx_dir_entry_short_name[0] == 0))
+#endif /* FX_ENABLE_EXFAT */
         {
 
             /* Current entry is free, skip to next entry and continue the loop.  */
             path_ptr -> fx_path_current_entry++;
             continue;
         }
+#ifdef FX_ENABLE_EXFAT
+        else /* FX_EXFAT_DIR_ENTRY_TYPE_FILE_DIRECTORY */
+#else
         else if ((UCHAR)entry.fx_dir_entry_name[0] != (UCHAR)FX_DIR_ENTRY_DONE)
+#endif /* FX_ENABLE_EXFAT */
         {
 
             /* A valid directory entry is present.  */
@@ -401,11 +430,11 @@ FX_LOCAL_PATH *current_local_path;
                     /* See if we have copied the NULL termination character.  */
                     if (entry.fx_dir_entry_name[index] == (CHAR)FX_NULL)
                     {
-
+                    
                         /* Check to see if we use the break to get out of the loop.  */
                         if (v < (FX_MAX_LONG_NAME_LEN - 1))
                         {
-
+                        
                             /* Yes, not at the end of the string, break.  */
                             break;
                         }
@@ -420,6 +449,7 @@ FX_LOCAL_PATH *current_local_path;
             /* Get out of the loop.  */
             break;
         }
+#ifndef FX_ENABLE_EXFAT
         else
         {
 
@@ -429,6 +459,7 @@ FX_LOCAL_PATH *current_local_path;
             /* Get out of the loop.  */
             break;
         }
+#endif /* FX_ENABLE_EXFAT */
     }
 
     /* Release media protection.  */

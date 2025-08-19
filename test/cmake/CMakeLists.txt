@@ -6,9 +6,11 @@ project(threadx_test LANGUAGES C)
 
 # Set build configurations
 set(BUILD_CONFIGURATIONS
-    default_build_coverage no_cache_build no_cache_standalone_build
-    fault_tolerant_build_coverage no_check_build no_cache_fault_tolerant_build
-    standalone_build_coverage standalone_fault_tolerant_build_coverage 
+    default_build_coverage no_cache_build exfat_build exfat_no_cache_build
+    exfat_no_check_build exfat_build_4096 no_cache_standalone_build
+    fault_tolerant_build_coverage fault_tolerant_exfat_build no_check_build no_cache_fault_tolerant_build
+    standalone_build_coverage exfat_standalone_build_coverage exfat_standalone_build_2048
+    standalone_fault_tolerant_build_coverage exfat_standalone_fault_tolerant_build_coverage
     standalone_no_cache_fault_tolerant_build)
 set(CMAKE_CONFIGURATION_TYPES
     ${BUILD_CONFIGURATIONS}
@@ -31,6 +33,26 @@ set(FX_FAULT_TOLERANT_DEFINITIONS
 set(default_build_coverage "")
 set(no_cache_build -DFX_DISABLE_CACHE -DFX_DISABLE_FAT_ENTRY_REFRESH)
 set(fault_tolerant_build_coverage ${FX_FAULT_TOLERANT_DEFINITIONS})
+# FX_EXFAT_SECTOR_SIZE is a test symbol only used to change exFAt format option
+set(fault_tolerant_exfat_build ${FX_FAULT_TOLERANT_DEFINITIONS}
+                               -DFX_ENABLE_EXFAT
+                               -DFX_EXFAT_SECTOR_SIZE=4096
+                               -DFX_EXFAT_MAX_CACHE_SIZE=FX_EXFAT_SECTOR_SIZE
+                               -DTX_ENABLE_EVENT_TRACE)
+set(exfat_build -DFX_ENABLE_EXFAT -DFX_EXFAT_SECTOR_SIZE=512
+                               -DFX_EXFAT_MAX_CACHE_SIZE=FX_EXFAT_SECTOR_SIZE)
+set(exfat_no_cache_build ${exfat_build} -DFX_DISABLE_CACHE)
+set(exfat_build_4096 -DFX_ENABLE_EXFAT -DFX_EXFAT_SECTOR_SIZE=4096
+                               -DFX_EXFAT_MAX_CACHE_SIZE=FX_EXFAT_SECTOR_SIZE)
+set(exfat_no_check_build -DFX_ENABLE_EXFAT -DFX_DISABLE_ERROR_CHECKING -DFX_EXFAT_SECTOR_SIZE=2048
+                               -DFX_EXFAT_MAX_CACHE_SIZE=FX_EXFAT_SECTOR_SIZE)
+set(exfat_standalone_build_coverage -DFX_STANDALONE_ENABLE -DFX_ENABLE_EXFAT -DFX_EXFAT_SECTOR_SIZE=2048
+                               -DFX_EXFAT_MAX_CACHE_SIZE=FX_EXFAT_SECTOR_SIZE)
+set(exfat_standalone_fault_tolerant_build_coverage ${FX_FAULT_TOLERANT_DEFINITIONS}
+                                                   -DFX_STANDALONE_ENABLE -DFX_ENABLE_EXFAT -DFX_EXFAT_SECTOR_SIZE=4096
+                                                   -DFX_EXFAT_MAX_CACHE_SIZE=FX_EXFAT_SECTOR_SIZE)   
+set(exfat_standalone_build_1024 -DFX_STANDALONE_ENABLE -DFX_ENABLE_EXFAT -DFX_EXFAT_SECTOR_SIZE=1024
+                               -DFX_EXFAT_MAX_CACHE_SIZE=FX_EXFAT_SECTOR_SIZE)
 set(standalone_build_coverage  -DFX_STANDALONE_ENABLE)
 set(standalone_fault_tolerant_build_coverage ${FX_FAULT_TOLERANT_DEFINITIONS}
                                              -DFX_STANDALONE_ENABLE)       

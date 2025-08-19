@@ -241,13 +241,13 @@ TEST_START:
         actual = my_file.fx_file_first_physical_cluster;
 
 /* Please fix me:
- * The following code is determining to cover a branch in fx_file_write.c, which need to get three condition:
+ * The following code is determing to cover a branch in fx_file_write.c, which need to get three condition:
  * 1. fx_file_total_clusters - fx_file_current_relative_cluster > 0
  * 2. fx_file_current_logical_offset >= fx_media_bytes_per_sector
  * 3. fx_file_current_relative_sector >= fx_media_sectors_per_cluster - 1
  *
  * In other words, it need to set fx_file_current_logical_offset at the end of a cluster which is in the middle of a file.
- * I manually modify FILE_STRUCT and satisfy the condition for coverage. Should this branch be removed?
+ * I manually modify FILE_STRUCT and satify the condition for coverage. Should this branch be removed?
  */
         /* Produce wrong first_physical_cluster. */
         status = fx_file_relative_seek( &my_file, steps[0].offset, steps[0].seek);

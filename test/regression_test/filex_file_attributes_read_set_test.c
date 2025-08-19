@@ -197,7 +197,7 @@ FX_FILE     open_file;
         test_control_return(9);
     }
 
-    /* Attempt to set file attributes with invalid file name.  */
+    /* Attempt to set file attributes with invlaid file name.  */
     status = fx_file_attributes_set(&ram_disk, "NOT_EXIST", FX_READ_ONLY);
     if (status != FX_NOT_FOUND)
     {

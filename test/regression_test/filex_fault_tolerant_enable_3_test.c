@@ -40,7 +40,11 @@ static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
 #endif
 static CHAR                     read_buffer[10240];
 
+#ifdef FX_ENABLE_EXFAT
+#define TEST_COUNT              4
+#else              
 #define TEST_COUNT              3
+#endif
 
 /* Define thread prototypes.  */
 
@@ -1005,6 +1009,7 @@ FX_DIR_ENTRY dir_entry;
     status = fx_media_close( &ram_disk);
     return_if_fail( status == FX_SUCCESS);
 
+#ifndef FX_ENABLE_EXFAT
     /* Format a FAT32 disk with 512 bytes sector.  */
     status =  fx_media_format(&ram_disk, 
                             _fx_ram_driver,         // Driver entry
@@ -1057,6 +1062,7 @@ FX_DIR_ENTRY dir_entry;
 
     status = fx_media_close( &ram_disk);
     return_if_fail( status == FX_SUCCESS);
+#endif /* ifndef FX_ENABLE_EXFAT */
 
     /* Output successful.  */
     printf("SUCCESS!\n");

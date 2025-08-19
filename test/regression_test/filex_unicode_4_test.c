@@ -134,7 +134,7 @@ FX_FILE my_file;
     return_value_if_fail(status == FX_SUCCESS, 4);
 
     // Attempt to create a unicode file which make fx_unicode_file_create call fx_unicode_directory_search to scan the directory before creation.
-    // The file we just created will be read during the scanning so that the branch at Line 290 in fx_unicode_directory_search will be covered.
+    // The file we just created will be read during the scannning so that the branch at Line 290 in fx_unicode_directory_search will be covered.
     length = fx_unicode_length_get(long_unicode_name1);
     status = fx_unicode_file_create(&ram_disk, long_unicode_name1, length, (CHAR *)destination_name);
     return_value_if_fail(status == FX_SUCCESS, 5);
@@ -182,7 +182,7 @@ FX_FILE my_file;
     status = fx_unicode_file_create(&ram_disk, specified_unicode_file_name, length, (CHAR *)destination_name);
     return_value_if_fail(status == FX_SUCCESS, 12);
 
-    /* Create a 8.3 format volume directory entry. */
+    /* Create a 8.3 format volume dirctory entry. */
     status = fx_media_volume_set(&ram_disk, "        .   ");
     return_value_if_fail(status == FX_SUCCESS, 13);
 
@@ -191,7 +191,7 @@ FX_FILE my_file;
     status = fx_unicode_file_create(&ram_disk, specified_unicode_file_name, length, (CHAR *)destination_name);
     return_value_if_fail(status == FX_ALREADY_CREATED, 14);
 
-    /* Create format volume directory entry with 11 blanks. */
+    /* Create format volume dirctory entry with 11 blanks. */
     status = fx_media_volume_set(&ram_disk, "           ");
     return_value_if_fail(status == FX_SUCCESS, 15);
 
@@ -249,7 +249,7 @@ FX_FILE my_file;
     status = fx_unicode_name_get(&ram_disk, "NT-FILE~.TX", destination_name_1, &ulength);
     return_value_if_fail(status == FX_NOT_FOUND, 32);
 
-    /* Show special performance in our implement. Although we assign the first byte of some short name dir_entry as 0, fx_unicode_directory_search consider the long file name return by fx_unicode_directory_entry_read as short name so that we will succeed. */
+    /* Show special performance in our implement. Althought we assign the first byte of some short name dir_entry as 0, fx_unicode_directory_search consider the long file name return by fx_unicode_directory_entry_read as short name so that we will succeed. */
     status = fx_unicode_name_get(&ram_disk, "aBcD~", destination_name_1, &ulength);
     return_value_if_fail(status == FX_SUCCESS, 33);
 
@@ -357,7 +357,7 @@ FX_FILE my_file;
     temp_array[0] = large_file_name_format[(1734 - 852) * 16];
     temp_array[1] = large_file_name_format[(1734 - 852) * 16 + 11];
 
-    /* Modify the first dir_entry's ordinary number as 0x40 to make number of lfns be zero. */
+    /* Modfy the first dir_entry's ordinary number as 0x40 to make number of lfns be zero. */
     large_file_name_format[(1734 - 852) * 16] = 0x40;
     large_file_name_format[(1734 - 852) * 16 + 11] = (UCHAR)FX_LONG_NAME;
     _fx_ram_driver_copy_default_format = 1;
@@ -398,7 +398,7 @@ FX_FILE my_file;
     temp_array[2] = large_file_name_format[(1736 - 852) * 16];
     temp_array[3] = large_file_name_format[(1736 - 852) * 16 + 11];
 
-    /* Modify the second dir_entry's ordinary number as 0x40 to make card number be zero. */
+    /* Modfy the second dir_entry's ordinary number as 0x40 to make card number be zero. */
     large_file_name_format[(1734 - 852) * 16] = 0x42;
     large_file_name_format[(1734 - 852) * 16 + 11] = (UCHAR)FX_LONG_NAME;
     large_file_name_format[(1736 - 852) * 16] = 0x40;
@@ -446,7 +446,7 @@ FX_FILE my_file;
     temp_array[2] = large_file_name_format[(1738 - 852) * 16];
     temp_array[3] = large_file_name_format[(1738 - 852) * 16 + 11];
 
-    /* Modify the last two dir_entries in root directory, so we have to access the second sector of root directory. */
+    /* Modfy the last two dir_entries in root directory, so we have to access the second sector of root directory. */
     large_file_name_format[(1736 - 852) * 16] = 0x43;
     large_file_name_format[(1736 - 852) * 16 + 11] = (UCHAR)FX_LONG_NAME;
     large_file_name_format[(1738 - 852) * 16] = 0x42;

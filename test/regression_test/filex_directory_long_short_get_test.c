@@ -172,7 +172,7 @@ UINT        i;
     }
 #endif /* FX_DISABLE_ERROR_CHECKING */
     
-    /* attempt to get the long name of something that does not exist */
+    /* attempt to get the long name of something that doesnt exist */
     status = fx_directory_long_name_get(&ram_disk, "does_not_exist", "does_not_exist");
     if (status == FX_SUCCESS)
     {

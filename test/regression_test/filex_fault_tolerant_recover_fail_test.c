@@ -54,7 +54,11 @@ static UINT                     read_buffer_size = 4096;
 static UINT                     data_size = 0;
                                                          
 #define SEEK_COUNT              5                   
+#ifdef FX_ENABLE_EXFAT
+#define FAT_COUNT               4            /* FAT12, 16, 32 and exFAT.  */
+#else              
 #define FAT_COUNT               3            /* FAT12, 16, 32.  */
+#endif
 #define TEST_COUNT              FAT_COUNT * SEEK_COUNT
 
 /* Define thread prototypes.  */
@@ -291,7 +295,7 @@ static void    ftest_1_entry(ULONG thread_input)
         write_buffer[write_index] = (CHAR)rand();    
     }
 
-    /* Write 1024 bytes to the file, then update the FAT table.  (bytes should be greater than one cluster).  */
+    /* Write 1024 bytes to the file, then update the FAT table.  (bytes should be greate than one cluster).  */
     fx_file_write(&my_file, (void *) write_buffer, write_buffer_size);
 }
 

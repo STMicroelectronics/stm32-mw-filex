@@ -143,12 +143,42 @@ set(regression_test_cases
     ${SOURCE_DIR}/filex_utility_test.c
     ${SOURCE_DIR}/filex_utility_fat_flush_test.c)
 
+if("-DFX_ENABLE_EXFAT" IN_LIST ${CMAKE_BUILD_TYPE})
+  set(regression_test_cases_exfat
+      ${SOURCE_DIR}/filex_directory_attributes_read_set_exfat_test.c
+      ${SOURCE_DIR}/filex_directory_create_delete_exfat_test.c
+      ${SOURCE_DIR}/filex_directory_default_path_get_set_exfat_test.c
+      ${SOURCE_DIR}/filex_directory_first_next_find_exfat_test.c
+      ${SOURCE_DIR}/filex_directory_local_path_exfat_test.c
+      ${SOURCE_DIR}/filex_directory_naming_exfat_test.c
+      ${SOURCE_DIR}/filex_directory_rename_exfat_test.c
+      ${SOURCE_DIR}/filex_file_allocate_truncate_exfat_test.c
+      ${SOURCE_DIR}/filex_file_attributes_read_set_exfat_test.c
+      ${SOURCE_DIR}/filex_file_create_delete_exfat_test.c
+      ${SOURCE_DIR}/filex_file_date_time_set_exfat_test.c
+      ${SOURCE_DIR}/filex_file_naming_exfat_test.c
+      ${SOURCE_DIR}/filex_file_read_write_exfat_test.c
+      ${SOURCE_DIR}/filex_file_rename_exfat_test.c
+      ${SOURCE_DIR}/filex_file_seek_exfat_test.c
+      ${SOURCE_DIR}/filex_media_abort_exfat_test.c
+      ${SOURCE_DIR}/filex_media_cache_invalidate_exfat_test.c
+      ${SOURCE_DIR}/filex_media_check_exfat_test.c
+      ${SOURCE_DIR}/filex_media_format_open_close_exfat_test.c
+      ${SOURCE_DIR}/filex_media_close_with_file_opened_exfat_test.c
+      ${SOURCE_DIR}/filex_media_flush_with_file_opened_exfat_test.c
+      ${SOURCE_DIR}/filex_media_flush_exfat_test.c
+      ${SOURCE_DIR}/filex_media_multiple_open_close_exfat_test.c
+      ${SOURCE_DIR}/filex_media_read_write_sector_exfat_test.c
+      ${SOURCE_DIR}/filex_media_volume_get_set_exfat_test.c
+      ${SOURCE_DIR}/filex_bitmap_flush_exfat_test.c)
+endif()
+
 add_library(test_utility ${SOURCE_DIR}/fx_ram_driver_test.c
                          ${SOURCE_DIR}/filextestcontrol.c)
 target_link_libraries(test_utility PUBLIC azrtos::filex)
 target_compile_definitions(test_utility PUBLIC BATCH_TEST CTEST)
 
-foreach(test_case ${regression_test_cases})
+foreach(test_case ${regression_test_cases} ${regression_test_cases_exfat})
   get_filename_component(test_name ${test_case} NAME_WE)
   add_executable(${test_name} ${test_case})
   target_link_libraries(${test_name} PRIVATE test_utility)

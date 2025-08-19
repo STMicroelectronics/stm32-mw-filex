@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -25,7 +26,7 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */
 /*                                                                        */
 /*    fx_user.h                                           PORTABLE C      */
-/*                                                           6.1.5        */
+/*                                                           6.1.10       */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -52,6 +53,11 @@
 /*  03-02-2021     William E. Lamie         Modified comment(s), and      */
 /*                                            added standalone support,   */
 /*                                            resulting in version 6.1.5  */
+/*  01-31-2022     Bhupendra Naphade        Modified comment(s), and      */
+/*                                            added product constant to   */
+/*                                            support variable sector     */
+/*                                            size in exFAT,              */
+/*                                            resulting in version 6.1.10 */
 /*                                                                        */
 /**************************************************************************/
 
@@ -144,9 +150,29 @@
 /*#define FX_NO_LOCAL_PATH   */
 
 
+/* Defined, FileX is able to access exFAT file system. 
+
+   FileX supports the Microsoft exFAT file system format. 
+   Your use of exFAT technology in your products requires a separate 
+   license from Microsoft. Please see the following link for further 
+   details on exFAT licensing:
+
+   https://www.microsoft.com/en-us/legal/intellectualproperty/mtl/exfat-licensing.aspx
+*/
+
+/* #define FX_ENABLE_EXFAT */
+
+
+/* Define bitmap cache size for exFAT. Size should be minimum one sector size and maximum 4096. 
+   For applications using muliple media devices with varing sector size, the value should be set to the 
+   size of largest sector size */
+
+/* #define FX_EXFAT_MAX_CACHE_SIZE      512 */
+
+
 /* Define FileX internal protection macros.  If FX_SINGLE_THREAD is defined,
    these protection macros are effectively disabled.  However, for multi-thread
-   uses, the macros are setup to utilize a ThreadX mutex for multiple thread
+   uses, the macros are setup to utilize a ThreadX mutex for multiple thread 
    access control into an open media.  */
 
 /* #define FX_SINGLE_THREAD   */
@@ -179,12 +205,12 @@
 
 
 /* Define byte offset in boot sector where the cluster number of the Fault Tolerant Log file is.
-   Note that this field (byte 116 to 119) is marked as reserved by FAT 12/16/32 specification. */
+   Note that this field (byte 116 to 119) is marked as reserved by FAT 12/16/32/exFAT specification. */
 
 /*#define FX_FAULT_TOLERANT_BOOT_INDEX      116 */
 
-/* Below FX_DISABLE_XXX macros can be used for code size optimization required for memory
-   critical applications */
+/* Below FX_DISABLE_XXX macros can be used for code size optimization required for memory 
+   critical aplications */
 
 /* Defined, error checking is disabled.  */
 

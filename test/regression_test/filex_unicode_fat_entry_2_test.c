@@ -119,7 +119,7 @@ FX_LOCAL_PATH   local_path;
 
     status += fx_unicode_directory_create(&ram_disk,  long_unicode_name, length, (CHAR *)destination_name2);
 
-    /* Fat entry destroy. */
+    /* Fat entry destory. */
     ram_disk.fx_media_fat_cache[8].fx_fat_cache_entry_value = 0x1ff;
     ram_disk.fx_media_fat_cache[8].fx_fat_cache_entry_dirty = 1;
 

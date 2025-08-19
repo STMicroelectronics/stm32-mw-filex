@@ -144,7 +144,7 @@ UINT        attributes;
     
 #endif
     
-    /* check directory attributes read to make sure it throws an error when the media hasn't been opened */
+    /* check directory attributes read to make sure it throws an error when the media hasnt been opened */
     status = fx_directory_attributes_read(&ram_disk, "TEST_DIR", &attributes);
     if (status != FX_MEDIA_NOT_OPEN)
     {
@@ -152,7 +152,7 @@ UINT        attributes;
         test_control_return(99);
     }
     
-    /* check directory attributes set to make sure it throws an error when the media hasn't been opened */
+    /* check directory attributes set to make sure it throws an error when the media hasnt been opened */
     status = fx_directory_attributes_set(&ram_disk, "TEST_DIR", 0x0000);
     if (status != FX_MEDIA_NOT_OPEN)
     {
@@ -218,7 +218,7 @@ UINT        attributes;
     }
     ram_disk.fx_media_driver_write_protect = FX_FALSE;
     
-    /* check directory attributes read to make sure it throws an error when it isn't a directory */
+    /* check directory attributes read to make sure it throws an error when it isnt a directory */
     status = fx_directory_attributes_read(&ram_disk, "NOT_A_DIR", &attributes);
     if (status != FX_NOT_DIRECTORY)
     {
@@ -226,7 +226,7 @@ UINT        attributes;
         test_control_return(99);
     }
     
-    /* check directory attributes read to make sure it throws an error when the directory isn't found */
+    /* check directory attributes read to make sure it throws an error when the directory isnt found */
     status = fx_directory_attributes_read(&ram_disk, "DOES_NOT_EXIST", &attributes);
     if (status == FX_SUCCESS)
     {
@@ -234,7 +234,7 @@ UINT        attributes;
         test_control_return(99);
     }
     
-    /* check directory attributes set to make sure it throws an error when it isn't a directory */
+    /* check directory attributes set to make sure it throws an error when it isnt a directory */
     status = fx_directory_attributes_set(&ram_disk, "NOT_A_DIR", attributes);
     if (status != FX_NOT_DIRECTORY)
     {
@@ -242,7 +242,7 @@ UINT        attributes;
         test_control_return(99);
     }
     
-    /* check directory attributes set to make sure it throws an error when the directory isn't found */
+    /* check directory attributes set to make sure it throws an error when the directory isnt found */
     status = fx_directory_attributes_set(&ram_disk, "DOES_NOT_EXIST", attributes);
     if (status == FX_SUCCESS)
     {

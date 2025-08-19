@@ -1,13 +1,14 @@
-/***************************************************************************
-  * Copyright (c) 2024 Microsoft Corporation
-  * Copyright (c) 2024 STMicroelectronics
-  *
-  * This program and the accompanying materials are made available under the
-  * terms of the MIT License which is available at
-  * https://opensource.org/licenses/MIT.
-  *
-  * SPDX-License-Identifier: MIT
-  **************************************************************************/
+
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef FX_STM32_MMC_DRIVER_H

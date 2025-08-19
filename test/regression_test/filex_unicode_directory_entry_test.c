@@ -249,7 +249,7 @@ FX_DIR_ENTRY source_dir, destination_dir;
     /* Try to recreate the same directory to see what happened. */
     status = fx_unicode_directory_create(&ram_disk,  long_unicode_name, length, (CHAR *) destination_name);
 
-    /* Since there are no appropriate long name dir_entry behind, the filesystem will read data continuously until logic sector overflow. */
+    /* Since there are no appropriate long name dir_entry behind, the filesystem will read data continously untill logic sector overflow. */
     return_value_if_fail( status == FX_FILE_CORRUPT, 12);
 #endif
 
@@ -319,21 +319,21 @@ FX_DIR_ENTRY source_dir, destination_dir;
 #endif
     return_value_if_fail( status == FX_SUCCESS, 19);
 
-    /* Call _fx_unicode_directory_entry_read with incorrect initial information. */
+    /* Call _fx_unicode_directory_entry_read with uncorrect initial information. */
     destination_dir.fx_dir_entry_name = (CHAR *)buffer;
     source_dir.fx_dir_entry_last_search_cluster = 1;
     source_dir.fx_dir_entry_last_search_relative_cluster = 1;
     dir_num1 = 0;
     status = _fx_unicode_directory_entry_read( &ram_disk, &source_dir, &dir_num1, &destination_dir, destination_name, &dir_num2);
 
-    /* Call _fx_unicode_directory_entry_read with incorrect initial information. */
+    /* Call _fx_unicode_directory_entry_read with uncorrect initial information. */
     source_dir.fx_dir_entry_last_search_cluster = 1;
     source_dir.fx_dir_entry_last_search_relative_cluster = 0;
     source_dir.fx_dir_entry_last_search_log_sector = 1;
     source_dir.fx_dir_entry_log_sector = 0;
     status = _fx_unicode_directory_entry_read( &ram_disk, &source_dir, &dir_num1, &destination_dir, destination_name, &dir_num2);
 
-    /* Call _fx_unicode_directory_entry_read with incorrect initial information. */
+    /* Call _fx_unicode_directory_entry_read with uncorrect initial information. */
     source_dir.fx_dir_entry_last_search_cluster = 1;
     source_dir.fx_dir_entry_last_search_relative_cluster = 0;
     source_dir.fx_dir_entry_last_search_byte_offset = 0x20;

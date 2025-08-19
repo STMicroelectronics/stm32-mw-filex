@@ -39,7 +39,11 @@ static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
 #endif
 static CHAR                     read_buffer[10240];          
 
+#ifdef FX_ENABLE_EXFAT
+#define TEST_COUNT              4
+#else              
 #define TEST_COUNT              3
+#endif
 
 /* Define thread prototypes.  */
 
@@ -194,7 +198,7 @@ FX_FAULT_TOLERANT_FAT_CHAIN *FAT_chain;
 #endif
     return_if_fail( status == FX_SUCCESS);
 
-    /* Create a lot of directories which makes the first level subdir occupy space more than a single cluster, which will leave fat logs in log file. */
+    /* Create a lot of directries which makes the first level subdir occupy space more than a single cluster, which will leave fat logs in log file. */
 
     /* For our special implement of fx_unicode_xx_create, we can only 26 files/directories with the same length of unicode name. */
     for ( UINT i = 0; i < 26; i++)

@@ -40,7 +40,11 @@ static UCHAR                    new_file_name8[] =  {'z' + 1, 0, 'z', 0, 'c', 0,
 static UCHAR                    new_file_name9[] =  {'z' + 1, 1, 'z', 0, 'c', 0, 'd', 0, 0, 0}; 
 static UCHAR                    destination_name[100];
 
+#ifdef FX_ENABLE_EXFAT
+#define TEST_COUNT              3   /* exFAT does not yet support Unicode.  */
+#else              
 #define TEST_COUNT              3
+#endif
 
 /* Define thread prototypes.  */
 
@@ -107,7 +111,7 @@ ULONG       new_length;
     /* Print out some test information banners.  */
     printf("FileX Test:   Unicode File Rename Test...............................");
                       
-    /* Loop to test FAT 12, 16, 32.   */
+    /* Loop to test FAT 12, 16, 32 and exFAT.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -164,6 +168,26 @@ ULONG       new_length;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
+#ifdef FX_ENABLE_EXFAT
+        else
+        {
+
+            /* Format the media with exFAT.  This needs to be done before opening it!  */
+            status =  fx_media_exFAT_format(&ram_disk, 
+                                            _fx_ram_driver,         // Driver entry            
+                                            ram_disk_memory_large,  // RAM disk memory pointer
+                                            cache_buffer,           // Media buffer pointer
+                                            CACHE_SIZE,             // Media buffer size 
+                                            "MY_RAM_DISK",          // Volume Name
+                                            1,                      // Number of FATs
+                                            0,                      // Hidden sectors
+                                            256,                    // Total sectors 
+                                            512,                   // Sector size   
+                                            4,                      // exFAT Sectors per cluster
+                                            12345,                  // Volume ID
+                                            0);                     // Boundary unit
+        }
+#endif
 
         /* Determine if the format had an error.  */
         if (status)

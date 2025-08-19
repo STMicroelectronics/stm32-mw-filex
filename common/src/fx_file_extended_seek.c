@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -152,104 +153,132 @@ FX_MEDIA *media_ptr;
     /* Check if the desired position within the leading consecutive clusters.  */
     if (byte_offset >= (ULONG64)file_ptr -> fx_file_consecutive_cluster * (ULONG64)bytes_per_cluster)
     {
-
-        /* At this point, we are ready to walk list of clusters to setup the
-           seek position of this file.  */
-
-        /* check if byte_offset is greater than where we were left off earlier */
-        if ((ULONG64)file_ptr -> fx_file_current_relative_cluster * (ULONG64)bytes_per_cluster < byte_offset)
+#ifdef FX_ENABLE_EXFAT
+        if (file_ptr -> fx_file_dir_entry.fx_dir_entry_dont_use_fat & 1)
         {
-
-            cluster =    file_ptr -> fx_file_current_physical_cluster;
-
-            bytes_remaining =   byte_offset -
-                file_ptr -> fx_file_current_relative_cluster * bytes_per_cluster;
-
-            cluster_count = file_ptr -> fx_file_current_relative_cluster;
-        }
-        else
-        {
-
-            cluster =    file_ptr -> fx_file_first_physical_cluster +
-                (file_ptr -> fx_file_consecutive_cluster - 1);
-            bytes_remaining =   byte_offset -
-                (file_ptr -> fx_file_consecutive_cluster - 1) * bytes_per_cluster;
-            cluster_count =     (file_ptr -> fx_file_consecutive_cluster - 1);
-        }
-
-
-        /* Follow the link of FAT entries.  */
-        while ((cluster >= FX_FAT_ENTRY_START) && (cluster < media_ptr -> fx_media_fat_reserved))
-        {
-
-            /* Increment the number of clusters.  */
-            cluster_count++;
-
-            /* Read the current cluster entry from the FAT.  */
-            status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
-
-            /* Check the return value.  */
-            if (status != FX_SUCCESS)
+            if (byte_offset == (ULONG64)file_ptr -> fx_file_consecutive_cluster * (ULONG64)bytes_per_cluster)
             {
+                /* If the file bytes exactly fits the cluster size */
+                bytes_remaining = bytes_per_cluster;
 
-                /* Release media protection.  */
-                FX_UNPROTECT
+                file_ptr -> fx_file_current_relative_cluster = (ULONG)(byte_offset / bytes_per_cluster - 1);
 
-                /* Return the error status.  */
-                return(status);
-            }
-
-            /* Save the last valid cluster.  */
-            last_cluster =  cluster;
-
-            /* Setup for the next cluster.  */
-            cluster =  contents;
-
-            /* Determine if this is the last written cluster.  */
-            if (bytes_remaining > bytes_per_cluster)
-            {
-
-                /* Still more seeking, just decrement the working byte offset.  */
-                bytes_remaining =  bytes_remaining - bytes_per_cluster;
+                file_ptr -> fx_file_current_physical_cluster =
+                    file_ptr -> fx_file_first_physical_cluster + file_ptr -> fx_file_current_relative_cluster;
             }
             else
             {
 
-                /* Remember this cluster number.  */
-                file_ptr -> fx_file_current_physical_cluster =  last_cluster;
+                /* We shouldn't be here if don't using FAT!  */
+                FX_UNPROTECT
 
-                /* Remember the relative cluster.  */
-                file_ptr -> fx_file_current_relative_cluster =  cluster_count - 1;
-
-                /* If the remaining bytes exactly fits the cluster size, check for
-                   a possible adjustment to the next cluster.  */
-                if ((bytes_remaining == bytes_per_cluster) &&
-                    (cluster >= FX_FAT_ENTRY_START) && (cluster < media_ptr -> fx_media_fat_reserved))
-                {
-
-                    /* We need to position to next allocated cluster.  */
-                    file_ptr -> fx_file_current_physical_cluster =  cluster;
-                    file_ptr -> fx_file_current_relative_cluster++;
-
-                    /* Clear the remaining bytes.  */
-                    bytes_remaining =  0;
-                }
-
-                /* This is the cluster that contains the seek position.  */
-                break;
+                return(FX_FILE_CORRUPT);
             }
         }
-
-        /* Check for errors in traversal of the FAT chain.  */
-        if (byte_offset > (((ULONG64) bytes_per_cluster) * ((ULONG64) cluster_count)))
+        else
         {
+#endif /* FX_ENABLE_EXFAT */
 
-            /* Release media protection.  */
-            FX_UNPROTECT
+            /* At this point, we are ready to walk list of clusters to setup the
+               seek position of this file.  */
 
-            /* This is an error that suggests a corrupt file.  */
-            return(FX_FILE_CORRUPT);
+            /* check if byte_offset is greater than where we were left off earlier */
+            if ((ULONG64)file_ptr -> fx_file_current_relative_cluster * (ULONG64)bytes_per_cluster < byte_offset)
+            {
+
+                cluster =    file_ptr -> fx_file_current_physical_cluster;
+
+                bytes_remaining =   byte_offset -
+                    file_ptr -> fx_file_current_relative_cluster * bytes_per_cluster;
+
+                cluster_count = file_ptr -> fx_file_current_relative_cluster;
+            }
+            else
+            {
+
+                cluster =    file_ptr -> fx_file_first_physical_cluster +
+                    (file_ptr -> fx_file_consecutive_cluster - 1);
+                bytes_remaining =   byte_offset -
+                    (file_ptr -> fx_file_consecutive_cluster - 1) * bytes_per_cluster;
+                cluster_count =     (file_ptr -> fx_file_consecutive_cluster - 1);
+            }
+
+
+            /* Follow the link of FAT entries.  */
+            while ((cluster >= FX_FAT_ENTRY_START) && (cluster < media_ptr -> fx_media_fat_reserved))
+            {
+
+                /* Increment the number of clusters.  */
+                cluster_count++;
+
+                /* Read the current cluster entry from the FAT.  */
+                status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
+
+                /* Check the return value.  */
+                if (status != FX_SUCCESS)
+                {
+
+                    /* Release media protection.  */
+                    FX_UNPROTECT
+
+                    /* Return the error status.  */
+                    return(status);
+                }
+
+                /* Save the last valid cluster.  */
+                last_cluster =  cluster;
+
+                /* Setup for the next cluster.  */
+                cluster =  contents;
+
+                /* Determine if this is the last written cluster.  */
+                if (bytes_remaining > bytes_per_cluster)
+                {
+
+                    /* Still more seeking, just decrement the working byte offset.  */
+                    bytes_remaining =  bytes_remaining - bytes_per_cluster;
+                }
+                else
+                {
+
+                    /* Remember this cluster number.  */
+                    file_ptr -> fx_file_current_physical_cluster =  last_cluster;
+
+                    /* Remember the relative cluster.  */
+                    file_ptr -> fx_file_current_relative_cluster =  cluster_count - 1;
+
+                    /* If the remaining bytes exactly fits the cluster size, check for
+                       a possible adjustment to the next cluster.  */
+                    if ((bytes_remaining == bytes_per_cluster) &&
+                        (cluster >= FX_FAT_ENTRY_START) && (cluster < media_ptr -> fx_media_fat_reserved))
+                    {
+
+                        /* We need to position to next allocated cluster.  */
+                        file_ptr -> fx_file_current_physical_cluster =  cluster;
+                        file_ptr -> fx_file_current_relative_cluster++;
+
+                        /* Clear the remaining bytes.  */
+                        bytes_remaining =  0;
+                    }
+
+                    /* This is the cluster that contains the seek position.  */
+                    break;
+                }
+            }
+        
+            /* Check for errors in traversal of the FAT chain.  */
+            if (byte_offset > (((ULONG64) bytes_per_cluster) * ((ULONG64) cluster_count)))
+            {
+    
+                /* Release media protection.  */
+                FX_UNPROTECT
+
+                /* This is an error that suggests a corrupt file.  */
+                return(FX_FILE_CORRUPT);
+            }
+#ifdef FX_ENABLE_EXFAT
         }
+#endif /* FX_ENABLE_EXFAT */
     }
     else
     {

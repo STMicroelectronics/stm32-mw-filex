@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -167,7 +168,7 @@ SYSTEM_DECLARE  ULONG _fx_system_build_options_3;
    compiling fx_system_initialize.c to eliminate the FileX timer.  */
 
 #ifndef FX_NO_TIMER
-SYSTEM_DECLARE  FX_TIMER _fx_system_timer;
+SYSTEM_DECLARE  TX_TIMER _fx_system_timer;
 #endif
 
 #endif

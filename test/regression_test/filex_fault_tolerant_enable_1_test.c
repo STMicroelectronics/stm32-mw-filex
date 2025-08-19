@@ -52,7 +52,11 @@ static UCHAR                    cache_buffer[CACHE_SIZE];
 static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
 #endif
 
+#ifdef FX_ENABLE_EXFAT
+#define TEST_COUNT              4
+#else              
 #define TEST_COUNT              3
+#endif
 
 /* Define thread prototypes.  */
 

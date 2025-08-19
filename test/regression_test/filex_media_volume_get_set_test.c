@@ -984,7 +984,7 @@ CHAR        volume_buffer[32];
     ram_disk_memory[71] = 0x39;
 
     /* First Character of Volume label in data section 
-    The absolute address was found by looping across the ram_disk_memory to find the Volume name in data section */
+    The absolute address was found by looping accross the ram_disk_memory to find the Volume name in data section */
     ram_disk_memory[2241024] = FX_DIR_ENTRY_FREE;
 
     memset(cache_buffer,'\0',sizeof(cache_buffer));

@@ -241,7 +241,7 @@ static void    ftest_0_entry(ULONG thread_input)
     /* Rename the directory to a valid maximum name with just an upper case change.  */
     status =  fx_directory_rename(&ram_disk, max_name, max_newname);
 
-/* If we rename a file with longest allowed long file, the file size will overflow FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE, which is defined as 2048 in test environment. */
+/* If we rename a file with longest allowed long file, the file size will overflow FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE, which is defined as 2048 in test enviroment. */
 #if defined(FX_ENABLE_FAULT_TOLERANT) && (FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE < 3072)
     return_if_fail( status == FX_NO_MORE_SPACE);
 #else

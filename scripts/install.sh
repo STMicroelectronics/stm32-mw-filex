@@ -4,7 +4,7 @@
 # Remove large folder
 rm -rf /opt/hostedtoolcache
 
-# Install necessary software for Ubuntu.
+# Install necessary softwares for Ubuntu.
 
 sudo apt-get update
 sudo apt-get install -y \

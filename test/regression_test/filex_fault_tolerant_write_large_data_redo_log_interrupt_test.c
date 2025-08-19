@@ -1,6 +1,6 @@
 /* This FileX test concentrates on the Fault-Tolerant write large data redo log interrupt test.  */
 /*          
-For FAT 12, 16, 32, one cluster size is 1024 bytes;
+For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
 Check write large data fat interrupt operation:          
 Step1: Format and open the media; 
 Step2: Enable fault tolerant feature;   
@@ -32,8 +32,13 @@ void    filex_fault_tolerant_write_large_data_redo_log_interrupt_test_applicatio
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT)
 
 #define DEMO_STACK_SIZE             4096
+#ifdef FX_ENABLE_EXFAT
+#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
+#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
+#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
+#endif
 
 
 /* Define the ThreadX and FileX object control blocks...  */
@@ -64,7 +69,11 @@ static ULONG                    available_bytes;
 static UINT                     redo_log_write_interrupt = FX_FALSE;    
 static ULONG                    i, j;
 
+#ifdef FX_ENABLE_EXFAT
+#define TEST_COUNT              4
+#else              
 #define TEST_COUNT              3
+#endif
 
 /* Define thread prototypes.  */
 
@@ -149,7 +158,7 @@ ULONG       data_value;
     /* Roll back the value for later verification use.  */
     data_value -= (large_data_buffer_size / sizeof(ULONG));
 
-    /* Loop to test FAT 12, 16, 32.   */
+    /* Loop to test FAT 12, 16, 32 and exFAT.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -206,6 +215,26 @@ ULONG       data_value;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
+#ifdef FX_ENABLE_EXFAT
+        else
+        {
+
+            /* Format the media with exFAT.  This needs to be done before opening it!  */
+            status =  fx_media_exFAT_format(&ram_disk, 
+                                            _fx_ram_driver,         // Driver entry            
+                                            ram_disk_memory_large,  // RAM disk memory pointer
+                                            cache_buffer,           // Media buffer pointer
+                                            CACHE_SIZE,             // Media buffer size 
+                                            "MY_RAM_DISK",          // Volume Name
+                                            1,                      // Number of FATs
+                                            0,                      // Hidden sectors
+                                            400000 * 2,             // Total sectors 
+                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
+                                            4,                      // exFAT Sectors per cluster
+                                            12345,                  // Volume ID                
+                                            0);                     // Boundary unit
+        }
+#endif
 
         /* Determine if the format had an error.  */
         if (status)

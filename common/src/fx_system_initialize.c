@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -101,7 +102,8 @@ VOID  _fx_system_initialize(VOID)
        date and time stamps on files.  */
 
 #ifndef FX_NO_TIMER
-    fx_os_timer_create(&_fx_system_timer, "FileX System Timer", _fx_system_timer_entry, FX_TIMER_ID, FX_UPDATE_RATE_IN_TICKS);
+    tx_timer_create(&_fx_system_timer, "FileX System Timer", _fx_system_timer_entry, FX_TIMER_ID,
+                    FX_UPDATE_RATE_IN_TICKS, FX_UPDATE_RATE_IN_TICKS, TX_AUTO_ACTIVATE);
 #endif
 
 #ifndef FX_DISABLE_BUILD_OPTIONS

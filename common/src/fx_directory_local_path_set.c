@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -90,7 +91,6 @@ CHAR        *path_string_ptr;
 UINT         path_string_capacity;
 FX_PATH     *path_ptr;
 UINT         i, j;
-FX_LOCAL_PATH *current_local_path;
 #endif
 FX_DIR_ENTRY dir_entry;
 
@@ -145,7 +145,7 @@ FX_DIR_ENTRY dir_entry;
         local_path_ptr -> fx_path_string[FX_MAXIMUM_PATH - 2] =       (CHAR)0;
 
         /* Setup thread control block to use this local path pointer.  */
-        fx_os_current_thread_tls_set((VOID *)local_path_ptr);
+        _tx_thread_current_ptr -> tx_thread_filex_ptr =  (VOID *)local_path_ptr;
     }
     else
     {
@@ -173,7 +173,7 @@ FX_DIR_ENTRY dir_entry;
         /* Setup the path string's capacity.  */
         path_string_capacity =  FX_MAXIMUM_PATH - 1;
 
-        /* Determine if the new path is relative from the current path. */
+        /* Determine if the new path is relative from the current path.  */
         if ((new_path_name[0] != '\\') && (new_path_name[0] != '/'))
         {
 
@@ -182,16 +182,15 @@ FX_DIR_ENTRY dir_entry;
             /* Setup the default path pointer to the local path.  */
             path_ptr =  local_path_ptr;
 
-            current_local_path = (FX_LOCAL_PATH *)fx_os_current_thread_tls_get();
             /* Determine if the local path is different than the current local path.  */
-            if (local_path_ptr != current_local_path)
+            if (local_path_ptr !=  (FX_LOCAL_PATH *)_tx_thread_current_ptr -> tx_thread_filex_ptr)
             {
 
                 /* Yes, there is a difference.  */
 
                 /* Should we copy from the default media path or from the previous default
                    path.  */
-                if (current_local_path)
+                if (_tx_thread_current_ptr -> tx_thread_filex_ptr)
                 {
 
                     /* There is a local path so copy the relative path info from it.  */
@@ -201,24 +200,24 @@ FX_DIR_ENTRY dir_entry;
 
                         /* Copy from previous local to new local path.  */
                         local_path_ptr -> fx_path_string[i] =
-                            current_local_path -> fx_path_string[i];
-
+                            ((FX_LOCAL_PATH *)_tx_thread_current_ptr -> tx_thread_filex_ptr) -> fx_path_string[i];
+                            
                         /* Determine if we are done.  */
                         if (local_path_ptr -> fx_path_string[i] == 0)
                         {
-
+                        
                             /* Are we not at the end of the string?  */
                             if (i < (FX_MAXIMUM_PATH - 1))
                             {
-
+                            
                                 /* Yes, break the loop.  */
                                 break;
                             }
                         }
-
+                        
                         /* Move to the next character.  */
                         i++;
-
+                        
                     } while (i < FX_MAXIMUM_PATH);
                 }
                 else
@@ -233,15 +232,15 @@ FX_DIR_ENTRY dir_entry;
                         /* Copy from the media default to new local path.  */
                         local_path_ptr -> fx_path_string[i] =
                             media_ptr -> fx_media_default_path.fx_path_string[i];
-
+                            
                         /* Determine if we are done.  */
                         if (local_path_ptr -> fx_path_string[i] == 0)
                         {
-
+                        
                             /* Are we not at the end of the string?  */
                             if (i < (FX_MAXIMUM_PATH - 1))
                             {
-
+                            
                                 /* Yes, break the loop.  */
                                 break;
                             }
@@ -291,7 +290,7 @@ FX_DIR_ENTRY dir_entry;
                 }
 
                 /* Setup thread control block to use this local path pointer.  */
-                fx_os_current_thread_tls_set((VOID *)local_path_ptr);
+                _tx_thread_current_ptr -> tx_thread_filex_ptr =  (VOID *)local_path_ptr;
 
                 /* Release media protection.  */
                 FX_UNPROTECT
@@ -439,7 +438,7 @@ FX_DIR_ENTRY dir_entry;
         }
 
         /* Setup thread control block to use this local path pointer.  */
-        fx_os_current_thread_tls_set((VOID *)local_path_ptr);
+        _tx_thread_current_ptr -> tx_thread_filex_ptr =  (VOID *)local_path_ptr;
     }
 
     /* Release media protection.  */

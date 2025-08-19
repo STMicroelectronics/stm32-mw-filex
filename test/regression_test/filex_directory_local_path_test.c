@@ -408,7 +408,7 @@ CHAR        path_name_buffer[32];
         test_control_return(6);
     }
 
-    /* Create a hierarchy of files and sub-directories.   */
+    /* Create a hiearchy of files and sub-directories.   */
     status =   fx_file_create(&ram_disk,      "RootFile01");
     status +=  fx_file_create(&ram_disk,      "RootFile02");
     status +=  fx_directory_create(&ram_disk, "RootDir03");

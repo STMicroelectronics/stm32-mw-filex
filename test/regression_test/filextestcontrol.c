@@ -219,8 +219,35 @@ void    filex_unicode_fat_entry_test_application_define(void *first_unused_memor
 void    filex_unicode_fat_entry_1_test_application_define(void *first_unused_memory);
 void    filex_unicode_fat_entry_2_test_application_define(void *first_unused_memory);
 void    filex_unicode_fat_entry_3_test_application_define(void *first_unused_memory);
+void    filex_media_format_open_close_exfat_application_define(void *first_unused_memory);
+void    filex_media_close_with_file_opened_exfat_application_define(void *first_unused_memory);
+void    filex_media_flush_with_file_opened_exfat_application_define(void *first_unused_memory);
+void    filex_media_multiple_format_open_close_exfat_application_define(void *first_unused_memory);
+void    filex_media_flush_exfat_application_define(void *first_unused_memory);
+void    filex_media_abort_exfat_application_define(void *first_unused_memory);
+void    filex_media_cache_invalidate_exfat_application_define(void *first_unused_memory);
+void    filex_media_volume_directory_entry_application_define(void *first_unused_memory);
+void    filex_media_volume_get_set_exfat_application_define(void *first_unused_memory);
+void    filex_media_read_write_sector_exfat_application_define(void *first_unused_memory);
+void    filex_media_check_exfat_application_define(void *first_unused_memory);
+void    filex_directory_create_delete_exfat_application_define(void *first_unused_memory);
+void    filex_directory_default_get_set_exfat_application_define(void *first_unused_memory);
+void    filex_directory_naming_exfat_application_define(void *first_unused_memory);
+void    filex_directory_first_next_find_exfat_application_define(void *first_unused_memory);
+void    filex_directory_local_path_exfat_application_define(void *first_unused_memory);
+void    filex_directory_rename_exfat_application_define(void *first_unused_memory);
+void    filex_directory_attributes_read_set_exfat_application_define(void *first_unused_memory);
+void    filex_file_create_delete_exfat_application_define(void *first_unused_memory);
+void    filex_file_naming_exfat_application_define(void *first_unused_memory);
+void    filex_file_read_write_exfat_application_define(void *first_unused_memory);
+void    filex_file_seek_exfat_application_define(void *first_unused_memory);
+void    filex_file_allocate_truncate_exfat_application_define(void *first_unused_memory);
+void    filex_file_attributes_read_set_exfat_application_define(void *first_unused_memory);
+void    filex_file_date_time_set_exfat_application_define(void *first_unused_memory);
+void    filex_file_rename_exfat_application_define(void *first_unused_memory);
 void    filex_utility_application_define(void *first_unused_memory);
 void    filex_utility_fat_flush_application_define(void *first_unused_memory);
+void    filex_bitmap_flush_exfat_application_define(void *first_unused_memory);
 void    test_application_define(void *first_unused_memory);
 
 
@@ -372,6 +399,36 @@ TEST_ENTRY  test_control_tests[] =
     {filex_unicode_file_directory_rename_extra_2_test_application_define, TEST_TIMEOUT_LOW},
     {filex_unicode_file_rename_application_define, TEST_TIMEOUT_LOW},
     {filex_unicode_name_string_application_define, TEST_TIMEOUT_LOW},
+#ifdef FX_ENABLE_EXFAT
+    {filex_media_format_open_close_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_media_close_with_file_opened_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_media_flush_with_file_opened_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_media_multiple_format_open_close_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_media_flush_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_media_abort_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_media_cache_invalidate_exfat_application_define, TEST_TIMEOUT_LOW},
+#if 1
+    {filex_media_volume_get_set_exfat_application_define, TEST_TIMEOUT_LOW},
+#endif
+    {filex_media_read_write_sector_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_media_check_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_directory_create_delete_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_directory_default_get_set_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_directory_naming_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_directory_first_next_find_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_directory_local_path_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_directory_rename_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_directory_attributes_read_set_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_create_delete_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_naming_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_read_write_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_seek_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_allocate_truncate_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_attributes_read_set_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_date_time_set_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_file_rename_exfat_application_define, TEST_TIMEOUT_LOW},
+    {filex_bitmap_flush_exfat_application_define, TEST_TIMEOUT_LOW},
+#endif /* FX_ENABLE_EXFAT */
     {filex_utility_application_define, TEST_TIMEOUT_LOW},
     {filex_utility_fat_flush_application_define, TEST_TIMEOUT_LOW},
     
@@ -2020,7 +2077,7 @@ UCHAR   fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
         printf("Error in checking of fxe_unicode_directory_create!\n");
     }
 
-    /* Call the _fxe_unicode_directory_create with a zero source name length to cause an error.  */
+    /* Call the _fxe_unicode_directory_create with a zero source name lenght to cause an error.  */
     status =  _fxe_unicode_directory_create(&media_instance, unicode_name, 0, "SHORT");
     
     /* Check for the error.  */
@@ -2170,7 +2227,7 @@ UCHAR   fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
         printf("Error in checking of fxe_unicode_directory_rename!\n");
     }
 
-    /* Call the _fxe_unicode_directory_rename with a zero length new unicode name to cause an error.  */
+    /* Call the _fxe_unicode_directory_rename with a zero lenght new unicode name to cause an error.  */
     status =  _fxe_unicode_directory_rename(&media_instance, (UCHAR *)"OLD_UNICODE_NAME", 16, (UCHAR *)"NEW_UNICODE_NAME", 0, FX_NULL);
     
     /* Check for the error.  */
@@ -2278,7 +2335,7 @@ UCHAR   fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
         printf("Error in checking of fxe_unicode_file_create!\n");
     }
 
-    /* Call the _fxe_unicode_file_create with a zero source name length to cause an error.  */
+    /* Call the _fxe_unicode_file_create with a zero source name lenght to cause an error.  */
     status =  _fxe_unicode_file_create(&media_instance, (UCHAR *)"UNICODE NAME", 0, "SHORT");
     
     /* Check for the error.  */
@@ -2414,7 +2471,7 @@ UCHAR   fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
         printf("Error in checking of fxe_unicode_file_rename!\n");
     }
 
-    /* Call the _fxe_unicode_file_rename with a zero length new unicode name to cause an error.  */
+    /* Call the _fxe_unicode_file_rename with a zero lenght new unicode name to cause an error.  */
     status =  _fxe_unicode_file_rename(&media_instance, (UCHAR *)"OLD_UNICODE_NAME", 16, (UCHAR *)"NEW_UNICODE_NAME", 0, FX_NULL);
     
     /* Check for the error.  */

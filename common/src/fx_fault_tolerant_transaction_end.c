@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -43,7 +44,7 @@
 /*    for the log entries, flush the log file to the file system (a       */
 /*    necessary step to record vital information for the file system to   */
 /*    recover, in case the update operation fails midway).  After the     */
-/*    log entries are written to the physical medium, the actually file    */
+/*    log entries are written to the physical medium, the actualy file    */
 /*    system changes (FAT table, directory entries) are applied.          */
 /*                                                                        */
 /*    If the file system changes are successfully applied, the log        */

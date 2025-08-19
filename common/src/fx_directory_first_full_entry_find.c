@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -89,9 +90,7 @@ UINT  _fx_directory_first_full_entry_find(FX_MEDIA *media_ptr,
 {
 
 UINT status;
-#ifndef FX_NO_LOCAL_PATH
-FX_LOCAL_PATH *current_local_path;
-#endif
+
 
 #ifndef FX_MEDIA_STATISTICS_DISABLE
 
@@ -115,12 +114,11 @@ FX_LOCAL_PATH *current_local_path;
 
     /* Determine if a local path is in effect at this point.  */
 #ifndef FX_NO_LOCAL_PATH
-    current_local_path = (FX_LOCAL_PATH *)fx_os_current_thread_tls_get();
-    if (current_local_path)
+    if (_tx_thread_current_ptr -> tx_thread_filex_ptr)
     {
 
         /* Yes, there is a local path.  Set the current entry to zero.  */
-        current_local_path -> fx_path_current_entry =  0;
+        ((FX_PATH *)_tx_thread_current_ptr -> tx_thread_filex_ptr) -> fx_path_current_entry =  0;
     }
     else
     {

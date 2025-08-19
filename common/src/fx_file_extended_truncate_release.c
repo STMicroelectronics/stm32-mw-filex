@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -64,6 +65,8 @@
 /*  CALLS                                                                 */
 /*                                                                        */
 /*    _fx_directory_entry_write             Write directory entry         */
+/*    _fx_utility_exFAT_bitmap_flush        Flush exFAT allocation bitmap */
+/*    _fx_utility_exFAT_cluster_state_set   Set cluster state             */
 /*    _fx_utility_FAT_entry_read            Read a FAT entry              */
 /*    _fx_utility_FAT_entry_write           Write a FAT entry             */
 /*    _fx_utility_FAT_flush                 Flush written FAT entries     */
@@ -102,13 +105,16 @@ ULONG                  cluster_count;
 ULONG64                bytes_remaining;
 FX_MEDIA              *media_ptr;
 
+#ifdef FX_ENABLE_EXFAT
+ULONG                  original_last_physical_cluster;
+#endif /* FX_ENABLE_EXFAT */
 
 #ifndef FX_DONT_UPDATE_OPEN_FILES
 ULONG                  open_count;
 FX_FILE               *search_ptr;
 #endif
 
-#ifdef FX_ENABLE_EVENT_TRACE
+#ifdef TX_ENABLE_EVENT_TRACE
 TX_TRACE_BUFFER_ENTRY *trace_event;
 ULONG                  trace_timestamp;
 #endif
@@ -226,7 +232,19 @@ ULONG                  trace_timestamp;
             }
 
             /* Write the directory entry to the media.  */
-            status = _fx_directory_entry_write(media_ptr, &(file_ptr -> fx_file_dir_entry));
+#ifdef FX_ENABLE_EXFAT
+            if (media_ptr -> fx_media_FAT_type == FX_exFAT)
+            {
+                status = _fx_directory_exFAT_entry_write(
+                        media_ptr, &(file_ptr -> fx_file_dir_entry), UPDATE_STREAM);
+            }
+            else
+            {
+#endif /* FX_ENABLE_EXFAT */
+                status = _fx_directory_entry_write(media_ptr, &(file_ptr -> fx_file_dir_entry));
+#ifdef FX_ENABLE_EXFAT
+            }
+#endif /* FX_ENABLE_EXFAT */
 
             /* Check for a good status.  */
             if (status != FX_SUCCESS)
@@ -288,24 +306,42 @@ ULONG                  trace_timestamp;
             /* Increment the number of clusters.  */
             cluster_count++;
 
-
-            /* Read the current cluster entry from the FAT.  */
-            status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
-
-            /* Check the return value.  */
-            if (status != FX_SUCCESS)
+#ifdef FX_ENABLE_EXFAT
+            if (file_ptr -> fx_file_dir_entry.fx_dir_entry_dont_use_fat & 1)
             {
+                if (cluster >= file_ptr -> fx_file_last_physical_cluster)
+                {
+                    contents = FX_LAST_CLUSTER_exFAT;
+                }
+                else
+                {
+                    contents = cluster + 1;
+                }
+            }
+            else
+            {
+#endif /* FX_ENABLE_EXFAT */
+
+                /* Read the current cluster entry from the FAT.  */
+                status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
+
+                /* Check the return value.  */
+                if (status != FX_SUCCESS)
+                {
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
-                FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+                    FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
 #endif /* FX_ENABLE_FAULT_TOLERANT */
 
-                /* Release media protection.  */
-                FX_UNPROTECT
+                    /* Release media protection.  */
+                    FX_UNPROTECT
 
-                /* Return the error status.  */
-                return(status);
+                    /* Return the error status.  */
+                    return(status);
+                }
+#ifdef FX_ENABLE_EXFAT
             }
+#endif /* FX_ENABLE_EXFAT */
 
             /* Save the last valid cluster.  */
             last_cluster =  cluster;
@@ -327,7 +363,7 @@ ULONG                  trace_timestamp;
                 break;
             }
         }
-
+        
         /* Check for errors in traversal of the FAT chain.  */
         if (size > (((ULONG64) bytes_per_cluster) * ((ULONG64) cluster_count)))
         {
@@ -364,28 +400,58 @@ ULONG                  trace_timestamp;
     /* At this point, we are ready to walk list of clusters to find the clusters
        that can be released.  */
     cluster =           file_ptr -> fx_file_first_physical_cluster;
+#ifdef FX_ENABLE_EXFAT
+    original_last_physical_cluster = file_ptr -> fx_file_last_physical_cluster;
+#endif /* FX_ENABLE_EXFAT */
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
     /* Is this the last used cluster?  */
     if ((cluster_count == 0) && (media_ptr -> fx_media_fault_tolerant_enabled))
     {
+#ifdef FX_ENABLE_EXFAT
+        if (!(file_ptr -> fx_file_dir_entry.fx_dir_entry_dont_use_fat & 1))
+        {
+#endif /* FX_ENABLE_EXFAT */
 
-        /* Set undo log. */
-        status = _fx_fault_tolerant_set_FAT_chain(media_ptr, FX_FALSE, FX_FREE_CLUSTER,
-                                                  media_ptr -> fx_media_fat_last, cluster, media_ptr -> fx_media_fat_last);
+            /* Set undo log. */
+            status = _fx_fault_tolerant_set_FAT_chain(media_ptr, FX_FALSE, FX_FREE_CLUSTER,
+                                                      media_ptr -> fx_media_fat_last, cluster, media_ptr -> fx_media_fat_last);
 
-        /* Determine if the write was successful.  */
-        if (status != FX_SUCCESS)
+            /* Determine if the write was successful.  */
+            if (status != FX_SUCCESS)
+            {
+
+                FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+
+                /* Release media protection.  */
+                FX_UNPROTECT
+
+                /* Return the error code.  */
+                return(status);
+            }
+#ifdef FX_ENABLE_EXFAT
+        }
+        else
         {
 
-            FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+            /* Set undo log. */
+            status = _fx_fault_tolerant_set_FAT_chain(media_ptr, FX_TRUE, FX_FREE_CLUSTER,
+                                                      media_ptr -> fx_media_fat_last, cluster, file_ptr -> fx_file_last_physical_cluster + 1);
 
-            /* Release media protection.  */
-            FX_UNPROTECT
+            /* Determine if the write was successful.  */
+            if (status != FX_SUCCESS)
+            {
 
-            /* Return the error code.  */
-            return(status);
+                FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+
+                /* Release media protection.  */
+                FX_UNPROTECT
+
+                /* Return the error code.  */
+                return(status);
+            }
         }
+#endif /* FX_ENABLE_EXFAT && FX_ENABLE_FAULT_TOLERANT */
 
         file_ptr -> fx_file_last_physical_cluster =  cluster;
     }
@@ -394,24 +460,42 @@ ULONG                  trace_timestamp;
     /* Follow the link of FAT entries.  */
     while ((cluster >= FX_FAT_ENTRY_START) && (cluster < media_ptr -> fx_media_fat_reserved))
     {
-
-        /* Read the current cluster entry from the FAT.  */
-        status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
-
-        /* Check the return value.  */
-        if (status != FX_SUCCESS)
+#ifdef FX_ENABLE_EXFAT
+        if (file_ptr -> fx_file_dir_entry.fx_dir_entry_dont_use_fat & 1)
         {
+            if (cluster >= original_last_physical_cluster)
+            {
+                contents = FX_LAST_CLUSTER_exFAT;
+            }
+            else
+            {
+                contents = cluster + 1;
+            }
+        }
+        else
+        {
+#endif /* FX_ENABLE_EXFAT */
+
+            /* Read the current cluster entry from the FAT.  */
+            status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
+
+            /* Check the return value.  */
+            if (status != FX_SUCCESS)
+            {
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
-            FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+                FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
 #endif /* FX_ENABLE_FAULT_TOLERANT */
 
-            /* Release media protection.  */
-            FX_UNPROTECT
+                /* Release media protection.  */
+                FX_UNPROTECT
 
-            /* Return the error status.  */
-            return(status);
+                /* Return the error status.  */
+                return(status);
+            }
+#ifdef FX_ENABLE_EXFAT
         }
+#endif /* FX_ENABLE_EXFAT */
 
         /* Determine if are more clusters to release.  */
         if (cluster_count > 0)
@@ -423,6 +507,9 @@ ULONG                  trace_timestamp;
             /* Is this the last used cluster?  */
             if (cluster_count == 0)
             {
+#ifdef FX_ENABLE_EXFAT
+                if (!(file_ptr -> fx_file_dir_entry.fx_dir_entry_dont_use_fat & 1))
+#endif /* FX_ENABLE_EXFAT */
                 {
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
@@ -494,6 +581,28 @@ ULONG                  trace_timestamp;
                     }
 #endif /* FX_ENABLE_FAULT_TOLERANT */
                 }
+#if defined(FX_ENABLE_EXFAT) && defined(FX_ENABLE_FAULT_TOLERANT)
+                else if (media_ptr -> fx_media_fault_tolerant_enabled)
+                {
+
+                    /* Set undo log. */
+                    status = _fx_fault_tolerant_set_FAT_chain(media_ptr, FX_TRUE, cluster,
+                                                              media_ptr -> fx_media_fat_last, contents, file_ptr -> fx_file_last_physical_cluster + 1);
+
+                    /* Determine if the write was successful.  */
+                    if (status != FX_SUCCESS)
+                    {
+
+                        FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+
+                        /* Release media protection.  */
+                        FX_UNPROTECT
+
+                        /* Return the error code.  */
+                        return(status);
+                    }
+                }
+#endif /* FX_ENABLE_EXFAT && FX_ENABLE_FAULT_TOLERANT */
 
                 file_ptr -> fx_file_last_physical_cluster =  cluster;
 
@@ -530,22 +639,36 @@ ULONG                  trace_timestamp;
             {
 #endif /* FX_ENABLE_FAULT_TOLERANT */
 
-                status = _fx_utility_FAT_entry_write(media_ptr, cluster, FX_FREE_CLUSTER);
-
-                /* Check the return value.  */
-                if (status)
+#ifdef FX_ENABLE_EXFAT
+                if (!(file_ptr -> fx_file_dir_entry.fx_dir_entry_dont_use_fat & 1))
                 {
+#endif /* FX_ENABLE_EXFAT */
+                    status = _fx_utility_FAT_entry_write(media_ptr, cluster, FX_FREE_CLUSTER);
+
+                    /* Check the return value.  */
+                    if (status)
+                    {
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
-                    FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+                        FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
 #endif /* FX_ENABLE_FAULT_TOLERANT */
 
-                    /* Release media protection.  */
-                    FX_UNPROTECT
+                        /* Release media protection.  */
+                        FX_UNPROTECT
 
-                    /* Return the error status.  */
-                    return(status);
+                        /* Return the error status.  */
+                        return(status);
+                    }
+#ifdef FX_ENABLE_EXFAT
                 }
+
+                if (media_ptr -> fx_media_FAT_type == FX_exFAT)
+                {
+
+                    /* Mark the cluster as free.  */
+                    _fx_utility_exFAT_cluster_state_set(media_ptr, cluster, FX_EXFAT_BITMAP_CLUSTER_FREE);
+                }
+#endif /* FX_ENABLE_EXFAT */
 
                 /* Increment the number of available clusters.  */
                 media_ptr -> fx_media_available_clusters++;
@@ -644,24 +767,42 @@ ULONG                  trace_timestamp;
                     /* Increment the number of clusters.  */
                     cluster_count++;
 
-
-                    /* Read the current cluster entry from the FAT.  */
-                    status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
-
-                    /* Check the return value.  */
-                    if (status != FX_SUCCESS)
+#ifdef FX_ENABLE_EXFAT
+                    if (file_ptr -> fx_file_dir_entry.fx_dir_entry_dont_use_fat & 1)
                     {
+                        if (cluster >= file_ptr -> fx_file_last_physical_cluster)
+                        {
+                            contents = FX_LAST_CLUSTER_exFAT;
+                        }
+                        else
+                        {
+                            contents = cluster + 1;
+                        }
+                    }
+                    else
+                    {
+#endif /* FX_ENABLE_EXFAT */
+
+                        /* Read the current cluster entry from the FAT.  */
+                        status =  _fx_utility_FAT_entry_read(media_ptr, cluster, &contents);
+
+                        /* Check the return value.  */
+                        if (status != FX_SUCCESS)
+                        {
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
-                        FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
+                            FX_FAULT_TOLERANT_TRANSACTION_FAIL(media_ptr);
 #endif /* FX_ENABLE_FAULT_TOLERANT */
 
-                        /* Release media protection.  */
-                        FX_UNPROTECT
+                            /* Release media protection.  */
+                            FX_UNPROTECT
 
-                        /* Return the error status.  */
-                        return(status);
+                            /* Return the error status.  */
+                            return(status);
+                        }
+#ifdef FX_ENABLE_EXFAT
                     }
+#endif /* FX_ENABLE_EXFAT */
 
                     /* Save the last valid cluster.  */
                     last_cluster =  cluster;
@@ -755,6 +896,13 @@ ULONG                  trace_timestamp;
         /* Return the error status.  */
         return(status);
     }
+#ifdef FX_ENABLE_EXFAT
+    /* Flush Bit Map.  */
+    if (media_ptr -> fx_media_FAT_type == FX_exFAT)
+    {
+        _fx_utility_exFAT_bitmap_flush(media_ptr);
+    }
+#endif /* FX_ENABLE_EXFAT */
 
 #endif
 
@@ -768,7 +916,19 @@ ULONG                  trace_timestamp;
     }
 
     /* Write the directory entry to the media.  */
-    status =  _fx_directory_entry_write(media_ptr, &(file_ptr -> fx_file_dir_entry));
+#ifdef FX_ENABLE_EXFAT
+    if (media_ptr -> fx_media_FAT_type == FX_exFAT)
+    {
+
+        status = _fx_directory_exFAT_entry_write(media_ptr, &(file_ptr -> fx_file_dir_entry), UPDATE_STREAM);
+    }
+    else
+    {
+#endif /* FX_ENABLE_EXFAT */
+        status =  _fx_directory_entry_write(media_ptr, &(file_ptr -> fx_file_dir_entry));
+#ifdef FX_ENABLE_EXFAT
+    }
+#endif /* FX_ENABLE_EXFAT */
 
     /* Check for a good status.  */
     if (status != FX_SUCCESS)

@@ -1,12 +1,13 @@
-/***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
- * This program and the accompanying materials are made available under the
- * terms of the MIT License which is available at
- * https://opensource.org/licenses/MIT.
- * 
- * SPDX-License-Identifier: MIT
- **************************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
+/*                                                                        */
+/**************************************************************************/
 
 
 /**************************************************************************/
@@ -104,12 +105,11 @@ UINT  _fx_directory_local_path_get(FX_MEDIA *media_ptr, CHAR **return_path_name)
 #else
 
     /* Determine if there is a local path.  */
-    FX_LOCAL_PATH *current_local_path = (FX_LOCAL_PATH *)fx_os_current_thread_tls_get();
-    if (current_local_path)
+    if (_tx_thread_current_ptr -> tx_thread_filex_ptr)
     {
 
         /* Return a pointer to the current local directory path string.  */
-        *return_path_name = current_local_path -> fx_path_string;
+        *return_path_name =  ((FX_LOCAL_PATH *)_tx_thread_current_ptr -> tx_thread_filex_ptr) -> fx_path_string;
     }
     else
     {
