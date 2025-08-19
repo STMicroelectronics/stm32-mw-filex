@@ -6,6 +6,11 @@
   *          FileX for STM32 devices.
   ******************************************************************************
   */
+
+### V6.4.1 (11-08-2025) ###
+=================================
+- SA0038 issue is fixed (Buffer overflow issue in FileX STM32 RAM driver)
+
 ### V6.4.1 (30-05-2025) ###
 =========================
 - Implement RTOS agnostic capabilities to support FreeRTOS and standalone modes:
