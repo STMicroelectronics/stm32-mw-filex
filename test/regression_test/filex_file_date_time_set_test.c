@@ -281,7 +281,7 @@ FX_FILE     my_file;
         test_control_return(17);
     }
     
-    /* try to retrieve directory information for something that doesnt exist to generate an error */
+    /* try to retrieve directory information for something that does not exist to generate an error */
     status =  fx_directory_information_get(&ram_disk, "DOES_NOT_EXIST", &attributes, &size,
                                         &year, &month, &day, &hour, &minute, &second);
     if (status == FX_SUCCESS)
@@ -365,7 +365,7 @@ FX_FILE     my_file;
         test_control_return(24);
     }
 
-    /* Set the date and time for with an invalid day for Febuary leap year.  */
+    /* Set the date and time for with an invalid day for February leap year.  */
     status =  fx_file_date_time_set(&ram_disk, "TEST.TXT", 
                 2016, 2, 30, 23, 59, 58);
 
@@ -377,7 +377,7 @@ FX_FILE     my_file;
         test_control_return(25);
     }
 
-    /* Set the date and time for with a valid day for Febuary leap year.  */
+    /* Set the date and time for with a valid day for February leap year.  */
     status =  fx_file_date_time_set(&ram_disk, "TEST.TXT", 
                 2016, 2, 29, 24, 59, 58);
 
@@ -389,7 +389,7 @@ FX_FILE     my_file;
         test_control_return(26);
     }
 
-    /* Set the date and time for with an invalid day for Febuary.  */
+    /* Set the date and time for with an invalid day for February.  */
     status =  fx_file_date_time_set(&ram_disk, "TEST.TXT", 
                 2017, 2, 29, 23, 59, 58);
 

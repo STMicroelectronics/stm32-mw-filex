@@ -362,7 +362,7 @@ UINT        offset;
             /* Step1. Calculate the media size.  */    
             media_size = media_ptr -> fx_media_total_sectors * media_ptr -> fx_media_bytes_per_sector; 
 
-            /* Check the media size, if the media size is zero, means doing media format opeartion, skip the interrupt operation.  */
+            /* Check the media size, if the media size is zero, means doing media format operation, skip the interrupt operation.  */
             if (media_size == 0)
             {        
 
@@ -417,10 +417,10 @@ UINT        offset;
             {
                        
                 /* Preparation for write.  */
-                /* Calcuate the offset.  */
+                /* Calculate the offset.  */
                 offset = data_start - block_start;
 
-                /* Calcuate the bytes per write.  */
+                /* Calculate the bytes per write.  */
                 bytes_per_write = bytes_per_block - offset;
 
                 /* Check whether the remaining bytes is less than one block size.  */
@@ -566,7 +566,7 @@ UINT        offset;
             /* For RAM driver, determine if the boot record is valid.  */
             if ((source_buffer[0] != (UCHAR) 0xEB)  ||
                ((source_buffer[1] != (UCHAR) 0x34)  &&
-                (source_buffer[1] != (UCHAR) 0x76)) ||      /* exFAT jump code.  */
+                (source_buffer[1] != (UCHAR) 0x76)) ||
                 (source_buffer[2] != (UCHAR) 0x90))
             {
 
@@ -578,15 +578,6 @@ UINT        offset;
             /* For RAM disk only, pickup the bytes per sector.  */
             bytes_per_sector =  _fx_utility_16_unsigned_read(&source_buffer[FX_BYTES_SECTOR]);
 
-#ifdef FX_ENABLE_EXFAT
-            /* if byte per sector is zero, then treat it as exFAT volume.  */
-            if (bytes_per_sector == 0 && (source_buffer[1] == (UCHAR) 0x76))
-            {
-
-                /* Pickup the byte per sector shift, and calculate byte per sector.  */
-                bytes_per_sector = (UINT)(1 << source_buffer[FX_EF_BYTE_PER_SECTOR_SHIFT]);
-            }
-#endif /* FX_ENABLE_EXFAT */
 
             /* Ensure this is less than the destination.  */
 
@@ -713,15 +704,7 @@ UINT        log_status = FX_FAULT_TOLERANT_LOG_ERROR;
     }
 
     /* Determine the type of FAT and setup variables accordingly.  */
-#ifdef FX_ENABLE_EXFAT
-    if (media_ptr -> fx_media_FAT_type == FX_exFAT)
-    {
-        fat_reserved = FX_RESERVED_1_exFAT;
-    }
-    else if (media_ptr -> fx_media_FAT_type == FX_FAT32) 
-#else
     if (media_ptr -> fx_media_32_bit_FAT)
-#endif /* FX_ENABLE_EXFAT */
     {
         fat_reserved = FX_RESERVED_1_32;
     }

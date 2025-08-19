@@ -1,6 +1,6 @@
 /* This FileX test concentrates on the Fault-Tolerant log recover operation.  */
 /*
-For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
+For FAT 12, 16, 32, one cluster size is 1024 bytes;
 
         1024         1024          1024       1024          1024         1024
     |------------|------------|-----------|------------|------------|------------|
@@ -41,13 +41,8 @@ void    filex_fault_tolerant_log_recover_fat_test_application_define(void *first
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
-#ifdef FX_ENABLE_EXFAT
-#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
-#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
-#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
-#endif
 
 
 /* Define the ThreadX and FileX object control blocks...  */
@@ -81,25 +76,13 @@ static UINT                     fat_write_interrupt_2 = FX_FALSE;
 static UINT                     fat_updated_flag = FX_FALSE;
 static UINT                     write_index;    
 static UINT                     i;
-#ifdef FX_ENABLE_EXFAT
-static CHAR                     write_buffer[4*FX_EXFAT_SECTOR_SIZE];          
-static UINT                     write_buffer_size = 4*FX_EXFAT_SECTOR_SIZE;
-static CHAR                     read_buffer[4*FX_EXFAT_SECTOR_SIZE];
-static UINT                     read_buffer_size = 4*FX_EXFAT_SECTOR_SIZE;  
-static UCHAR                    data_buffer[4*FX_EXFAT_SECTOR_SIZE];
-#else
 static CHAR                     write_buffer[2048];          
 static UINT                     write_buffer_size = 2048;
 static CHAR                     read_buffer[4096];
 static UINT                     read_buffer_size = 4096;  
 static UCHAR                    data_buffer[4096];
-#endif
                                                        
-#ifdef FX_ENABLE_EXFAT
-#define TEST_COUNT              4            /* FAT12, 16, 32 and exFAT.  */
-#else              
 #define TEST_COUNT              3            /* FAT12, 16, 32.  */
-#endif
 
 /* Define thread prototypes.  */
 
@@ -179,7 +162,7 @@ ULONG       actual;
     for (write_index = 0; write_index < write_buffer_size; write_index ++)
         write_buffer[write_index] = (CHAR)rand();
                   
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -236,26 +219,6 @@ ULONG       actual;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            status =  fx_media_exFAT_format(&ram_disk, 
-                                            _fx_ram_driver,         // Driver entry            
-                                            ram_disk_memory_large,  // RAM disk memory pointer
-                                            cache_buffer,           // Media buffer pointer
-                                            CACHE_SIZE,             // Media buffer size 
-                                            "MY_RAM_DISK",          // Volume Name
-                                            1,                      // Number of FATs
-                                            0,                      // Hidden sectors
-                                            256,                    // Total sectors 
-                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
-                                            4,                      // exFAT Sectors per cluster
-                                            12345,                  // Volume ID
-                                            0);                     // Boundary unit
-        }
-#endif
         return_if_fail( status == FX_SUCCESS);
 
         /* Open the ram_disk.  */
@@ -509,14 +472,7 @@ static void    ftest_1_entry(ULONG thread_input)
 #endif
     }              
 
-    /* Write 1024 bytes to the file, then update the FAT table.  (bytes should be greate than one cluster).  */
-#ifdef FX_ENABLE_EXFAT
-    if(ram_disk.fx_media_FAT_type == FX_exFAT)
-    {
-        fx_file_write(&my_file, (void *) (write_buffer + 1000), 4 * FX_EXFAT_SECTOR_SIZE);
-    }
-    else
-#endif
+    /* Write 1024 bytes to the file, then update the FAT table.  (bytes should be greater than one cluster).  */
     {
         fx_file_write(&my_file, (void *) (write_buffer + 1000), 2048);
     }

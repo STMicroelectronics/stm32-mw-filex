@@ -195,7 +195,7 @@ UCHAR       specified_ascii_name[] = { 0xe5, 'a', 'b', 'c', 0};
     }
 #endif /* FX_DISABLE_ERROR_CHECKING */
 
-    /* Create a hiearchy of files and sub-directories.   */
+    /* Create a hierarchy of files and sub-directories.   */
     status =   fx_file_create(&ram_disk,      "RootFile01");
     status +=  fx_file_create(&ram_disk,      "RootFile02");
     status +=  fx_directory_create(&ram_disk, "RootDir03");
@@ -536,7 +536,7 @@ UCHAR       specified_ascii_name[] = { 0xe5, 'a', 'b', 'c', 0};
         test_control_return(15);
     }
 
-    /* Okay, now postion to the deepest sub-directory and ensure that the directory first/next 
+    /* Okay, now position to the deepest sub-directory and ensure that the directory first/next 
        operations work properly there as well.  */
 
     /* Set the current path. This should be / or NULL.   */
@@ -833,7 +833,7 @@ UCHAR       specified_ascii_name[] = { 0xe5, 'a', 'b', 'c', 0};
         test_control_return(32);
     }   
     
-    /* Now get all the directory entires.   */
+    /* Now get all the directory entries.   */
     status =  fx_directory_next_entry_find(&ram_disk, name);    /* .          */
     status =  fx_directory_next_entry_find(&ram_disk, name);    /* ..          */
     status =  fx_directory_next_entry_find(&ram_disk, name);    /* TEST1.TXT  */
@@ -869,7 +869,7 @@ UCHAR       specified_ascii_name[] = { 0xe5, 'a', 'b', 'c', 0};
         test_control_return(34);
     }
 
-    /* Now make another request to get the FX_NO_MORE_ENTRIES error, but artifically move the current entry ahead.  */
+    /* Now make another request to get the FX_NO_MORE_ENTRIES error, but artificially move the current entry ahead.  */
     temp =  ram_disk.fx_media_default_path.fx_path_current_entry;
     ram_disk.fx_media_default_path.fx_path_current_entry =  100;
     status =  fx_directory_next_entry_find(&ram_disk, name);    /* END of Directory! */
@@ -1126,7 +1126,7 @@ UCHAR       specified_ascii_name[] = { 0xe5, 'a', 'b', 'c', 0};
         test_control_return(47);
     }   
     
-    /* Now get all the directory entires.   */
+    /* Now get all the directory entries.   */
     status =  fx_directory_next_full_entry_find(&ram_disk, name, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, &second);    /* .          */
     status =  fx_directory_next_full_entry_find(&ram_disk, name, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, &minute, FX_NULL);    /* ..         */
     status =  fx_directory_next_full_entry_find(&ram_disk, name, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, &second);    /* TEST1.TXT  */
@@ -1162,7 +1162,7 @@ UCHAR       specified_ascii_name[] = { 0xe5, 'a', 'b', 'c', 0};
         test_control_return(49);
     }
 
-    /* Now make another request to get the FX_NO_MORE_ENTRIES error, but artifically move the current entry ahead.  */
+    /* Now make another request to get the FX_NO_MORE_ENTRIES error, but artificially move the current entry ahead.  */
     temp =  ram_disk.fx_media_default_path.fx_path_current_entry;
     ram_disk.fx_media_default_path.fx_path_current_entry =  100;
     status =  fx_directory_next_full_entry_find(&ram_disk, name, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, &second);    /* END of Directory! */
@@ -1288,7 +1288,7 @@ UCHAR       specified_ascii_name[] = { 0xe5, 'a', 'b', 'c', 0};
     // Test the file whose name's first byte is 0xe5.
     status = fx_directory_first_full_entry_find(&ram_disk, name, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, &second);
 
-    /* Now get all the directory entires.   */
+    /* Now get all the directory entries.   */
     status +=  fx_directory_next_full_entry_find(&ram_disk, name, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, FX_NULL, &second);
     return_value_if_fail(status == FX_SUCCESS, 56);
 

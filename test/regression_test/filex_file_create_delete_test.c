@@ -889,7 +889,7 @@ UINT        temp_attr;
     file_6.fx_file_current_available_size =  actual64;
     return_if_fail( status == FX_NO_MORE_SPACE);
 
-    /* Now test a maximium size allocation.  */
+    /* Now test a maximum size allocation.  */
     status  =  fx_file_extended_best_effort_allocate(&file_6, 0xFFFFFFFFFFFFFFF8ULL, &actual64);
     return_if_fail( status == FX_NO_MORE_SPACE);
     

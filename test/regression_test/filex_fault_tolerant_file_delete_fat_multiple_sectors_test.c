@@ -35,13 +35,8 @@ void    filex_fault_tolerant_file_delete_fat_multple_sectors_test_application_de
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
-#ifdef FX_ENABLE_EXFAT
-#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
-#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
-#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
-#endif
 
 
 
@@ -414,7 +409,7 @@ static UCHAR *last_block_ptr = FX_NULL;
     if ((sector_type == FX_FAT_SECTOR) && (_filex_fault_tolerant_log_check(media_ptr) & FX_FAULT_TOLERANT_LOG_REDO_DONE))
     {
 
-        /* Skip FAT operations not spaning two sectors.  */
+        /* Skip FAT operations not spanning two sectors.  */
         if (last_block_ptr != (ram_disk_memory_large + 512))
         {
             last_block_ptr = block_ptr;

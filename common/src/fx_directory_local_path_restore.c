@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -108,7 +107,7 @@ UINT  _fx_directory_local_path_restore(FX_MEDIA *media_ptr, FX_LOCAL_PATH *local
     FX_TRACE_IN_LINE_INSERT(FX_TRACE_DIRECTORY_LOCAL_PATH_RESTORE, media_ptr, local_path_ptr, 0, 0, FX_TRACE_DIRECTORY_EVENTS, 0, 0)
 
     /* Setup thread control block to use this local path pointer.  */
-    _tx_thread_current_ptr -> tx_thread_filex_ptr =  (VOID *)local_path_ptr;
+    fx_os_current_thread_tls_set((VOID *)local_path_ptr);
 
     /* Default directory restore is complete, return status.  */
     return(FX_SUCCESS);

@@ -1,6 +1,6 @@
-/* This FileX test concentrates on the Fault-Tolerant direcotry write interrupt operation.  */
+/* This FileX test concentrates on the Fault-Tolerant directory write interrupt operation.  */
 /*          
-    For FAT 12, 16, 32 and exFAT, one cluster size is 1024 bytes;
+    For FAT 12, 16, 32, one cluster size is 1024 bytes;
                            
 Check directory interrupt for fx_file_allocate(): 
 Step1: Format and open the media; 
@@ -34,13 +34,8 @@ void    filex_fault_tolerant_file_allocate_directory_interrupt_test_application_
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA) && defined (FX_UPDATE_FILE_SIZE_ON_ALLOCATE)
 
 #define     DEMO_STACK_SIZE         4096
-#ifdef FX_ENABLE_EXFAT
-#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
-#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
-#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
-#endif
 
 
 
@@ -72,11 +67,7 @@ static UINT                   directory_write_interrupt = FX_FALSE;
 static CHAR                   read_buffer[2048];          
 static UINT                   read_buffer_size = 2048;     
 
-#ifdef FX_ENABLE_EXFAT
-#define TEST_COUNT              4
-#else              
 #define TEST_COUNT              3
-#endif
 
 
 /* Define thread prototypes.  */
@@ -149,7 +140,7 @@ UINT        i;
     /* Print out some test information banners.  */
     printf("FileX Test:   Fault Tolerant File Allocate DIR Interrupt Test........");
                    
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i == 0)
@@ -206,26 +197,6 @@ UINT        i;
                                      1,                      // Heads
                                      1);                     // Sectors per track 
         }  
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            status =  fx_media_exFAT_format(&ram_disk, 
-                                            _fx_ram_driver,         // Driver entry            
-                                            ram_disk_memory_large,  // RAM disk memory pointer
-                                            cache_buffer,           // Media buffer pointer
-                                            CACHE_SIZE,             // Media buffer size 
-                                            "MY_RAM_DISK",          // Volume Name
-                                            1,                      // Number of FATs
-                                            0,                      // Hidden sectors
-                                            256,                    // Total sectors 
-                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
-                                            4,                      // exFAT Sectors per cluster
-                                            12345,                  // Volume ID
-                                            0);                     // Boundary unit
-        }
-#endif
 
         /* Determine if the format had an error.  */
         if (status)

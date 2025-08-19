@@ -1,55 +1,24 @@
   /**
   ******************************************************************************
   * @file    st_readme.txt
-  * @author  MCD Application Team
+  * @author  GPM Application Team
   * @brief   This file lists the main changes done by STMicroelectronics on
-  *          Azure RTOS FileX for STM32 devices.
+  *          FileX for STM32 devices.
   ******************************************************************************
   */
-### V6.4.0 (19-04-2024) ###
-============================
-- Upgrade to Azure RTOS FileX 6.4.0
 
-### V6.2.1 (15-12-2023) ###
-============================
-- Add STM32U0 series to Azure RTOS licensed hardware list
+### V6.4.1 (11-08-2025) ###
+=================================
+- SA0038 issue is fixed (Buffer overflow issue in FileX STM32 RAM driver)
 
-### V6.2.1 (14-07-2023) ###
-============================
-- Upgrade to Azure RTOS FileX 6.2.1
-
-### V6.2.0 (23-12-2022) ###
-============================
-- Upgrade to Azure RTOS FileX 6.2.0
-- Add STM32H5/STM32WBA series to Azure RTOS licensed hardware list
-
-### V6.1.12 (30-09-2022) ###
-============================
-- Upgrade to Azure RTOS FileX 6.1.12 with additional following patch
-  + Fix memory buffer and compile warning when FX_DISABLE_CACHE flag is defined
-
-### V6.1.10 (01-04-2022) ###
-============================
-- Upgrade to Azure RTOS FileX 6.1.10
-
-### V6.1.8 (28-01-2022) ###
-===========================
-- Add STM32C0 series to Azure RTOS licensed hardware list
-- Fix compile errors when FX_DISABLE_CACHE flag is defined
-
-### V6.1.8 (13-12-2021) ###
-===========================
-- Add STM32WL/STM32WB/STM32G0 series to Azure RTOS licensed hardware list
-
-### V6.1.8 (05-11-2021) ###
-===========================
-- Upgrade to Azure RTOS FileX 6.1.8
-- Add STM32G4/STM32F7/STM32L5 series to Azure RTOS licensed hardware list
-
-### V6.1.7 (24-09-2021) ###
-===========================
-- Add STM32L4/STM32L4+ series to Azure RTOS licensed hardware list
-
-### V6.1.7 (03-09-2021) ###
-===========================
-- Add STM32F4 Series to Azure RTOS licensed hardware list
+### V6.4.1 (30-05-2025) ###
+=========================
+- Implement RTOS agnostic capabilities to support FreeRTOS and standalone modes:
+  - Add fx_port.h to the ports/freertos/inc directory.
+  - Remove all macros related to ThreadX from fx_api.h.
+  - Move all macros related to ThreadX from fx_port.h located under ports/generic/inc to fx_port.h located under ports/threadx/inc.
+  - Add APIs for the creation of mutexes and timers in the following files under the ports/freertos/src directory:
+     * fx_os_mutex_create.c
+     * fx_os_mutex_delete.c
+     * fx_os_timer_create.c
+- Add FileX 6.4.1 from Eclipse ThreadX

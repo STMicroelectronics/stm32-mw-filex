@@ -21,13 +21,8 @@ void  filex_fault_tolerant_file_delete_test_application_define(void *first_unuse
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
-#ifdef FX_ENABLE_EXFAT
-#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
-#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
-#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
-#endif
 
 
 
@@ -58,11 +53,7 @@ static UINT                    fat_write_interrupt = FX_FALSE;
 static CHAR                    read_buffer[1024];
 static UINT                    read_buffer_size = 1024;
 
-#ifdef FX_ENABLE_EXFAT
-#define TEST_COUNT              3      // exFAT will not update the FAT table when delete the file, so remove the test pointer for exFAT. 
-#else              
 #define TEST_COUNT              3
-#endif
 
 /* Define thread prototypes.  */
 
@@ -146,7 +137,7 @@ static void    ftest_0_entry(ULONG thread_input)
     /* Print out some test information banners.  */
     printf("FileX Test:   Fault Tolerant File Delete Test........................");
 
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i++)
     {
         if (i == 0)
@@ -203,26 +194,6 @@ static void    ftest_0_entry(ULONG thread_input)
                 1,                      // Heads
                 1);                     // Sectors per track 
         }
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            status = fx_media_exFAT_format(&ram_disk,
-                _fx_ram_driver,         // Driver entry            
-                ram_disk_memory_large,  // RAM disk memory pointer
-                cache_buffer,           // Media buffer pointer
-                CACHE_SIZE,             // Media buffer size 
-                "MY_RAM_DISK",          // Volume Name
-                1,                      // Number of FATs
-                0,                      // Hidden sectors
-                256,                    // Total sectors 
-                FX_EXFAT_SECTOR_SIZE,   // Sector size   
-                4,                      // exFAT Sectors per cluster
-                12345,                  // Volume ID
-                0);                     // Boundary unit
-        }
-#endif
 
         /* Determine if the format had an error.  */
         if (status)
@@ -375,7 +346,7 @@ static void    ftest_1_entry(ULONG thread_input)
     /* Set the callback function to simulate poweoff operation when write FAT entry.  */
     driver_write_callback = my_driver_write;
 
-    /* Register our terrible dirver to make IO ERROR at a particular time. */
+    /* Register our terrible driver to make IO ERROR at a particular time. */
     ram_disk.fx_media_driver_entry = _fx_terrible_driver;
 
     /* Create a file called TEST2.TXT in the root directory.  */

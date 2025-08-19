@@ -248,29 +248,6 @@ UINT        i;
         test_control_return(11);
     }
 #endif /* FX_DISABLE_ERROR_CHECKING */
-
-    /* only test this if exFAT is enabled */
-#ifdef FX_ENABLE_EXFAT
-//omitted because FX_ENABLE_EXFAT is not defined in the src
-    
-    /* set media attribute to exFAT and get to generate an error */
-//    UCHAR uc_temp = ram_disk.fx_media_FAT_type;
-//    ram_disk.fx_media_FAT_type = FX_exFAT;
-//    ram_disk.fx_media_id = FX_MEDIA_ID;
-//    status = fx_unicode_short_name_get(&ram_disk, directory_name, length, (CHAR *) destination_name);
-//    if (status != FX_NOT_IMPLEMENTED)
-//    {
-//        printf("ERROR!\n");
-//        test_control_return(12);
-//    }
-//    status = fx_unicode_name_get(&ram_disk, (CHAR *) destination_name, destination_name, &length);
-//    if (status != FX_NOT_IMPLEMENTED)
-//    {
-//        printf("ERROR!\n");
-//        test_control_return(23);
-//    }
-//    ram_disk.fx_media_FAT_type = uc_temp;
-#endif /* FX_ENABLE_EXFAT */
     
     /* Create the a short and long unicode file name.  */
     length =  fx_unicode_length_get(short_unicode_name);
@@ -281,7 +258,7 @@ UINT        i;
     status += fx_directory_short_name_get(&ram_disk, "abcdefghijklmnop", (CHAR *) destination_name);
     status += fx_media_flush(&ram_disk);
 
-    /* Check for erros.  */
+    /* Check for errors.  */
     if (status != FX_SUCCESS)
     {
 
@@ -332,7 +309,7 @@ UINT        i;
     status =  fx_unicode_directory_create(&ram_disk,  directory_name, length, (CHAR *) destination_name);
     status += fx_file_create(&ram_disk, "qrstuvwxyz");
     
-    /* Check for erros.  */
+    /* Check for errors.  */
     if (status != FX_SUCCESS)
     {
 
@@ -383,7 +360,7 @@ UINT        i;
     status += fx_file_create(&ram_disk, "qrstuvwxyz");
     status += fx_media_flush(&ram_disk);
 
-    /* Check for erros.  */
+    /* Check for errors.  */
     if (status != FX_SUCCESS)
     {
 
@@ -447,7 +424,7 @@ UINT        i;
     status += fx_unicode_short_name_get(&ram_disk, short_unicode_name, length, (CHAR *) destination_name);
     status += fx_file_delete(&ram_disk, (CHAR *) destination_name);             
     
-    /* Check for erros.  */
+    /* Check for errors.  */
     if (status != FX_SUCCESS)
     {
 
@@ -577,7 +554,7 @@ UINT        i;
         test_control_return(29);
     }
 
-    /*  At the circumstance of the same lenth of unicode name,there are no more than 26 unicode names
+    /*  At the circumstance of the same length of unicode name,there are no more than 26 unicode names
         with the first character ranging from 'a'to 'z'.If you create one more unicode name, an error will
         occur.Now test this case */
     length = fx_unicode_length_get(long_unicode_name);
@@ -593,7 +570,7 @@ UINT        i;
     for (i = 1; i < 27; i++)
     {
 
-        /* creat the same lenth  files but Them differ in the first character of file name.  */
+        /* creat the same length  files but Them differ in the first character of file name.  */
         status = fx_file_create(&ram_disk, (CHAR *)unicode_temp_long_file_name);
         if (status)
             break;

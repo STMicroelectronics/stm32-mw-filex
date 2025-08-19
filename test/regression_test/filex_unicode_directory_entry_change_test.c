@@ -170,7 +170,7 @@ UINT   status, length;
     entry_ptr->fx_dir_entry_log_sector = ram_disk.fx_media_data_sector_start ;
     ram_disk.fx_media_fat_cache[8].fx_fat_cache_entry_cluster = 20;
 
-    /* Register our terrible dirver to make IO ERROR at a particular time. */
+    /* Register our terrible driver to make IO ERROR at a particular time. */
     ram_disk.fx_media_driver_entry = _fx_terrible_driver;
     status = _fx_unicode_directory_entry_change(&ram_disk, entry_ptr, long_unicode_name1, length);
     /* Unregister our terrible driver. */

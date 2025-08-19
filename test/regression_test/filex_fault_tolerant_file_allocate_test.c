@@ -15,13 +15,8 @@ void    filex_fault_tolerant_file_allocate_test_application_define(void *first_u
 #if defined (FX_ENABLE_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT) && defined (FX_FAULT_TOLERANT_DATA)
 
 #define     DEMO_STACK_SIZE         4096
-#ifdef FX_ENABLE_EXFAT
-#define CACHE_SIZE                  FX_EXFAT_SECTOR_SIZE
-#define FAULT_TOLERANT_SIZE         FX_EXFAT_SECTOR_SIZE
-#else
 #define CACHE_SIZE                  2048
 #define FAULT_TOLERANT_SIZE         FX_FAULT_TOLERANT_MINIMAL_BUFFER_SIZE
-#endif
 
 
 
@@ -50,11 +45,7 @@ static UINT                     error_couter = 0;
 static UINT                     i;
 
 #define SEEK_COUNT              5
-#ifdef FX_ENABLE_EXFAT
-#define FAT_COUNT               4            /* FAT12, 16, 32 and exFAT.  */
-#else
 #define FAT_COUNT               3            /* FAT12, 16, 32.  */
-#endif
 #define TEST_COUNT              FAT_COUNT * SEEK_COUNT
 
 /* Define thread prototypes.  */
@@ -119,7 +110,7 @@ ULONG64     available_bytes_after_write;
     /* Print out some test information banners.  */
     printf("FileX Test:   Fault Tolerant File Allocate Test......................");
 
-    /* Loop to test FAT 12, 16, 32 and exFAT.   */
+    /* Loop to test FAT 12, 16, 32.   */
     for (i = 0; i < TEST_COUNT; i ++)
     {
         if (i < 5)
@@ -176,26 +167,6 @@ ULONG64     available_bytes_after_write;
                                      1,                      // Heads
                                      1);                     // Sectors per track
         }
-#ifdef FX_ENABLE_EXFAT
-        else
-        {
-
-            /* Format the media with exFAT.  This needs to be done before opening it!  */
-            status =  fx_media_exFAT_format(&ram_disk,
-                                            _fx_ram_driver,         // Driver entry
-                                            ram_disk_memory_large,  // RAM disk memory pointer
-                                            cache_buffer,           // Media buffer pointer
-                                            CACHE_SIZE,             // Media buffer size
-                                            "MY_RAM_DISK",          // Volume Name
-                                            1,                      // Number of FATs
-                                            0,                      // Hidden sectors
-                                            256,                    // Total sectors
-                                            FX_EXFAT_SECTOR_SIZE,   // Sector size
-                                            4,                      // exFAT Sectors per cluster
-                                            12345,                  // Volume ID
-                                            0);                     // Boundary unit
-        }
-#endif
 
         /* Determine if the format had an error.  */
         if (status)
@@ -296,20 +267,6 @@ ULONG64     available_bytes_after_write;
 
         /* Get available bytes after write. */
         fx_media_extended_space_available(&ram_disk, &available_bytes_after_write);
-#ifdef FX_ENABLE_EXFAT
-        if(ram_disk.fx_media_FAT_type == FX_exFAT)
-        {
-           /* 1 cluster gets allocated to the file as requested size is 2048
-           available_bytes_after_write = (Sectors per cluster) * (sector size) */
-            if ((available_bytes_before_write - available_bytes_after_write) != 4 * FX_EXFAT_SECTOR_SIZE)
-            {
-
-                printf("ERROR!\n");
-                test_control_return(37);
-            }
-        }
-        else
-#endif
         {
             if ((available_bytes_before_write - available_bytes_after_write) != 2048)
             {

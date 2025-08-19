@@ -111,13 +111,6 @@ FX_DIR_ENTRY    dir_entry;
     /* Now try to remove one of the duplicate dir entries. */
     dir_entry.fx_dir_entry_name[0] =  (CHAR)FX_DIR_ENTRY_FREE;
     dir_entry.fx_dir_entry_short_name[0] =  (CHAR)FX_DIR_ENTRY_FREE;
-#ifdef FX_ENABLE_EXFAT
-    if (media_ptr -> fx_media_FAT_type == FX_exFAT)
-    {
-        _fx_directory_exFAT_entry_write(media_ptr, &dir_entry, UPDATE_FILE);
-    }
-    else
-#endif /* FX_ENABLE_EXFAT */
     {
         _fx_directory_entry_write(media_ptr, &dir_entry);
     }
@@ -199,13 +192,6 @@ FX_MEDIA       *media_ptr = &ram_disk;
 
     /* Duplicate the dir entry. */
     dir_entry.fx_dir_entry_byte_offset += FX_DIR_ENTRY_SIZE;
-#ifdef FX_ENABLE_EXFAT
-    if (ram_disk.fx_media_FAT_type == FX_exFAT)
-    {
-        status =  _fx_directory_exFAT_entry_write(&ram_disk, &dir_entry, UPDATE_FILE);
-    }
-    else
-#endif /* FX_ENABLE_EXFAT */
     {
         status =  _fx_directory_entry_write(&ram_disk, &dir_entry);
     }

@@ -1,18 +1,18 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+  * Copyright (c) 2024 Microsoft Corporation
+  * Copyright (c) 2024 STMicroelectronics
+  *
+  * This program and the accompanying materials are made available under the
+  * terms of the MIT License which is available at
+  * https://opensource.org/licenses/MIT.
+  *
+  * SPDX-License-Identifier: MIT
+  **************************************************************************/
 
 #include "fx_stm32_sd_driver.h"
 
-TX_SEMAPHORE sd_tx_semaphore;
-TX_SEMAPHORE sd_rx_semaphore;
+SemaphoreHandle_t sd_tx_semaphore;
+SemaphoreHandle_t sd_rx_semaphore;
 
 extern SD_HandleTypeDef hsd1;
 #if (FX_STM32_SD_INIT == 1)
@@ -162,7 +162,7 @@ void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 
   /* USER CODE END PRE_TX_CMPLT */
 
-  tx_semaphore_put(&sd_tx_semaphore);
+  xSemaphoreGiveFromISR(sd_tx_semaphore, NULL);
 
   /* USER CODE BEGIN POST_TX_CMPLT */
 
@@ -181,7 +181,7 @@ void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 
   /* USER CODE END PRE_RX_CMPLT */
 
-  tx_semaphore_put(&sd_rx_semaphore);
+  xSemaphoreGiveFromISR(sd_rx_semaphore, NULL);
 
   /* USER CODE BEGIN POST_RX_CMPLT */
 

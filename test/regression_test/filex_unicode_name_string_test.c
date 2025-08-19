@@ -143,7 +143,7 @@ FX_LOCAL_PATH local_path;
 
     buffer[255] = 0;
 
-    /* Chenged to the specified directory and ensure the string related to current position is end as zero. */
+    /* Changed to the specified directory and ensure the string related to current position is end as zero. */
     status = fx_directory_create( &ram_disk, (CHAR *)buffer);
 #ifndef FX_STANDALONE_ENABLE
         status =   fx_directory_local_path_set(&ram_disk, &local_path, (CHAR *)buffer);

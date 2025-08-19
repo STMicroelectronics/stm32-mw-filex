@@ -1,13 +1,13 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+  * Copyright (c) 2024 Microsoft Corporation
+  * Copyright (c) 2024 STMicroelectronics
+  *
+  * This program and the accompanying materials are made available under the
+  * terms of the MIT License which is available at
+  * https://opensource.org/licenses/MIT.
+  *
+  * SPDX-License-Identifier: MIT
+  **************************************************************************/
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef FX_STM32_LX_NOR_DRIVER_H
@@ -25,6 +25,7 @@ extern "C" {
 /* #define LX_NOR_OSPI_DRIVER */
 /* #define LX_NOR_QSPI_DRIVER */
 /* #define LX_NOR_CUSTOM_DRIVER */
+/* #define LX_NOR_XSPI_DRIVER */
 
 #ifdef LX_NOR_SIMULATOR_DRIVER
 #include "lx_stm32_nor_simulator_driver.h"
@@ -45,6 +46,13 @@ extern "C" {
 
 #define LX_NOR_QSPI_DRIVER_ID           0x03
 #define LX_NOR_QSPI_DRIVER_NAME         "FX Levelx QuadSPI driver"
+#endif
+
+#ifdef LX_NOR_XSPI_DRIVER
+#include "lx_stm32_xspi_driver.h"
+
+#define LX_NOR_XSPI_DRIVER_ID           0x04
+#define LX_NOR_XSPI_DRIVER_NAME         "FX Levelx XSPI driver"
 #endif
 
 #ifdef LX_NOR_CUSTOM_DRIVER
@@ -94,7 +102,7 @@ extern UCHAR lx_stm32_nor_custom_extended_cache_memory[LX_STM32_CUSTOM_OBSOLETE_
 /* USER CODE END DEFAULT_DRIVER */
 #endif
 
-#if !defined(NOR_DEFAULT_DRIVER) && !defined(LX_NOR_CUSTOM_DRIVERS) && !defined(LX_NOR_SIMULATOR_DRIVER) && !defined(LX_NOR_QSPI_DRIVER)  && !defined(LX_NOR_OSPI_DRIVER)
+#if !defined(NOR_DEFAULT_DRIVER) && !defined(LX_NOR_CUSTOM_DRIVERS) && !defined(LX_NOR_SIMULATOR_DRIVER) && !defined(LX_NOR_QSPI_DRIVER)  && !defined(LX_NOR_OSPI_DRIVER) && !defined(LX_NOR_XSPI_DRIVER)
 #error "[This error was thrown on purpose] : No NOR lowlevel driver defined"
 #endif
 

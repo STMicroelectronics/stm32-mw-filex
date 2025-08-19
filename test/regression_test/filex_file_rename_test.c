@@ -154,7 +154,7 @@ UINT        i;
     ram_disk.fx_media_driver_write_protect = FX_FALSE;
     return_if_fail( status == FX_WRITE_PROTECT);
     
-    /* try to rename a file that cant be found */
+    /* try to rename a file that can't be found */
     status = fx_file_rename(&ram_disk, "MYTEST", "OURTEST");
     return_if_fail( status != FX_SUCCESS);
     
@@ -210,7 +210,7 @@ UINT        i;
     status += fx_file_delete(&ram_disk, ".OURTEST");    
     return_if_fail( status == FX_SUCCESS);
     
-    /* try to rename a file that isnt a file */
+    /* try to rename a file that isn't a file */
     status = fx_file_rename(&ram_disk, "subdir1", "OURTEST");
     return_if_fail( status == FX_NOT_A_FILE);
 
@@ -284,7 +284,7 @@ UINT        i;
     status =  fx_file_rename(&ram_disk, long_name2, long_name1);
     return_if_fail( status == FX_SUCCESS);
 
-    /* Now open the long file name so we can get that logic excercised in the rename logic.  */
+    /* Now open the long file name so we can get that logic exercised in the rename logic.  */
     status =  fx_file_open(&ram_disk, &my_file, long_name1, FX_OPEN_FOR_WRITE);
     status += fx_file_rename(&ram_disk, long_name1, long_name2);
     return_if_fail( status == FX_SUCCESS);

@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -78,7 +77,7 @@ UINT  _fx_media_write(FX_MEDIA *media_ptr, ULONG logical_sector, VOID *buffer_pt
 
 UINT                   status;
 
-#ifdef TX_ENABLE_EVENT_TRACE
+#ifdef FX_ENABLE_EVENT_TRACE
 TX_TRACE_BUFFER_ENTRY *trace_event;
 ULONG                  trace_timestamp;
 #endif
@@ -118,7 +117,7 @@ ULONG                  trace_timestamp;
     /* Write the logical sector.  */
     status =  _fx_utility_logical_sector_write(media_ptr, (ULONG64) logical_sector, buffer_ptr, ((ULONG) 1), FX_DATA_SECTOR);
 
-#ifdef TX_ENABLE_EVENT_TRACE
+#ifdef FX_ENABLE_EVENT_TRACE
 
     /* Check for successful status.  */
     if (status == FX_SUCCESS)
