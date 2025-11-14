@@ -1,6 +1,6 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
- * Copyright (c) 2024 STMicroelectronics
+ * Copyright (c) 2025 STMicroelectronics
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
@@ -36,30 +36,28 @@
 */
 UINT fx_os_mutex_create(FX_MUTEX *mutex, const CHAR* mutex_name)
 {
-    if (mutex != FX_NULL)
+    if (mutex != NULL)
     {
         /* Call FreeRTOS to create the Mutex object.  */
-        *mutex = xSemaphoreCreateRecursiveMutex();
+        mutex->mutex_handle = xSemaphoreCreateRecursiveMutex();
 
-#if (configQUEUE_REGISTRY_SIZE > 0)
-        if ((*mutex != FX_NULL) && (mutex_name != FX_NULL))
-        {
-            vQueueAddToRegistry((QueueHandle_t) *mutex, mutex_name);
-        }
-#endif
-
-        if (*mutex != FX_NULL)
-        {
-            return FX_SUCCESS;
-        }
-        else
+        if (mutex->mutex_handle == NULL)
         {
             return FX_PTR_ERROR;
         }
+
+#if (configQUEUE_REGISTRY_SIZE > 0)
+        if ((mutex_name != NULL))
+        {
+            vQueueAddToRegistry((QueueHandle_t) mutex->mutex_handle, mutex_name);
+        }
+#endif
+
     }
     else
     {
         return FX_PTR_ERROR;
     }
+    return FX_SUCCESS;
 }
 

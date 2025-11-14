@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright (c) 2025 Microsoft Corporation
+ * Copyright (c) 2024 Microsoft Corporation
  * Copyright (c) 2025 STMicroelectronics
  *
  * This program and the accompanying materials are made available under the

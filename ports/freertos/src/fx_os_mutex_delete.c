@@ -1,6 +1,6 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
- * Copyright (c) 2024 STMicroelectronics
+ * Copyright (c) 2025 STMicroelectronics
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
@@ -37,14 +37,16 @@ VOID fx_os_mutex_delete(FX_MUTEX *mutex)
 {
     if (mutex != FX_NULL)
     {
-        if (*mutex != FX_NULL)
+        if (mutex->mutex_handle != FX_NULL)
         {
 #if (configQUEUE_REGISTRY_SIZE > 0)
-            vQueueUnregisterQueue((QueueHandle_t) *mutex);
+            vQueueUnregisterQueue((QueueHandle_t) mutex->mutex_handle);
 #endif
             /* Call FreeRTOS to delete the Mutex object. */
-            vSemaphoreDelete(*mutex);
-            *mutex = FX_NULL;
+            vSemaphoreDelete(mutex->mutex_handle);
+
+            /* Reset the mutex handle */
+            mutex->mutex_handle = 0U;
         }
     }
 }

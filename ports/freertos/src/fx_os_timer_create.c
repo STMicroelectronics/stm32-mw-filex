@@ -1,6 +1,6 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
- * Copyright (c) 2024 STMicroelectronics
+ * Copyright (c) 2025 STMicroelectronics
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
@@ -43,11 +43,11 @@ UINT fx_os_timer_create(FX_TIMER  *fx_system_timer, const CHAR *timer_name, VOID
   if (fx_system_timer != FX_NULL)
     {
       /* Call FreeRTOS to create the timer object. */
-      *fx_system_timer = xTimerCreate(timer_name, (TickType_t) initial_ticks, pdTRUE,(TimerHandle_t) expiration_input, (TimerCallbackFunction_t) expiration_function);
-      if (*fx_system_timer != NULL)
+      fx_system_timer->timer_handle = xTimerCreate(timer_name, (TickType_t) initial_ticks, pdTRUE,(TimerHandle_t) expiration_input, (TimerCallbackFunction_t) expiration_function);
+      if (fx_system_timer->timer_handle != NULL)
       {
         /* Start the timer. */
-        status = xTimerStart(*fx_system_timer, initial_ticks);
+        status = xTimerStart(fx_system_timer->timer_handle, initial_ticks);
 
         if(status == pdPASS)
         {

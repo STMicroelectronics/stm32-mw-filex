@@ -1,6 +1,6 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
- * Copyright (c) 2024 STMicroelectronics
+ * Copyright (c) 2025 STMicroelectronics
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
@@ -155,9 +155,22 @@ typedef unsigned long long                      ULONG64;
 #define FX_RESTORE_INTS                         taskENABLE_INTERRUPTS();
 
 /* Map generic FileX types to FreeRTOS equivalent ones. */
+typedef struct
+{
+  SemaphoreHandle_t semaphore_handle;
+} fx_semaphore_t;
+typedef struct
+{
+  SemaphoreHandle_t mutex_handle;
+} fx_mutex_t;
+typedef struct
+{
+  TimerHandle_t timer_handle;
+} fx_timer_t;
 
-#define FX_MUTEX                                SemaphoreHandle_t
-#define FX_TIMER                                TimerHandle_t
+#define FX_MUTEX                                           fx_mutex_t
+#define FX_SEMAPHORE                                       fx_semaphore_t
+#define FX_TIMER                                           fx_timer_t
 
 
 /* Define filex FX_PROTECT and FX_UNPROTECT macro to respectively locking and unlocking a Mutex object.  */
@@ -167,8 +180,8 @@ typedef unsigned long long                      ULONG64;
 #define FX_UNPROTECT
 #else
 #define FX_PROTECT                              if (media_ptr -> fx_media_id != FX_MEDIA_ID) return(FX_MEDIA_NOT_OPEN); \
-                                                else if (xSemaphoreTakeRecursive(media_ptr -> fx_media_protect, portMAX_DELAY) != pdTRUE) return(FX_MEDIA_NOT_OPEN);
-#define FX_UNPROTECT                            xSemaphoreGiveRecursive(media_ptr -> fx_media_protect);
+                                                else if (xSemaphoreTakeRecursive(media_ptr -> fx_media_protect.mutex_handle, portMAX_DELAY) != pdTRUE) return(FX_MEDIA_NOT_OPEN);
+#define FX_UNPROTECT                            xSemaphoreGiveRecursive(media_ptr -> fx_media_protect.mutex_handle);
 #endif
 
 
