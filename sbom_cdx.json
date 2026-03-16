@@ -1,0 +1,131 @@
+{
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.5",
+    "serialNumber": "urn:uuid:3a146f89-1260-4d59-a75f-454b7f284402",
+    "version": 1,
+    "metadata": {
+        "timestamp": "2026-03-06T14:16:10Z",
+        "tools": [
+            {
+                "vendor": "Black Duck",
+                "name": "Hub",
+                "version": "2025.10.0"
+            },
+            {
+                "vendor": "CycloneDX",
+                "name": "cyclonedx-core-java",
+                "version": "5.0.5"
+            }
+        ],
+        "authors": [
+            {
+                "name": "STMicroelectronics NV"
+            }
+        ],
+        "component": {
+            "type": "application",
+            "bom-ref": "fbf0c498-10e9-4130-b9ea-a0ba7189a9f9",
+            "supplier": {
+                "name": ""
+            },
+            "name": "FileX",
+            "version": "2.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "pedigree": {
+                "notes": "MIT License"
+            },
+            "properties": [
+                {
+                    "name": "BlackDuck-Component",
+                    "value": "e756ad52-6678-4f1d-ab50-e73c126cc8ca"
+                },
+                {
+                    "name": "BlackDuck-ComponentVersion",
+                    "value": "fbf0c498-10e9-4130-b9ea-a0ba7189a9f9"
+                }
+            ]
+        }
+    },
+    "components": [
+        {
+            "type": "library",
+            "bom-ref": "3f8a46e7-1eec-4329-a23b-658ad5467e48",
+            "supplier": {
+                "name": "Organization: eclipse-threadx"
+            },
+            "name": "eclipse-threadx/filex",
+            "version": "v6.4.2.202503_rel",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "cpe": "cpe:2.3:a:eclipse_threadx:filex:6.4.2.202503:*:*:*:*:*:*:*",
+            "purl": "pkg:github/eclipse-threadx/filex@v6.4.2.202503_rel",
+            "pedigree": {
+                "notes": "MIT License"
+            },
+            "properties": [
+                {
+                    "name": "BlackDuck-Component",
+                    "value": "a20210fd-df3a-4199-b4fe-0959167472a1"
+                },
+                {
+                    "name": "BlackDuck-ComponentVersion",
+                    "value": "3f8a46e7-1eec-4329-a23b-658ad5467e48"
+                },
+                {
+                    "name": "BlackDuck-ComponentOrigin",
+                    "value": "970237d3-77ee-4c54-a329-fc1e9a9c5825"
+                }
+            ]
+        },
+        {
+            "type": "library",
+            "bom-ref": "4c742be2-767c-4864-8d3c-2d29d0992f8f",
+            "supplier": {
+                "name": ""
+            },
+            "author": "STMicroelectronics",
+            "name": "eclipse-threadx/filex_STM32",
+            "version": "v6.4.2.202503_rel/ ST modified",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "pedigree": {
+                "notes": "MIT License"
+            },
+            "properties": [
+                {
+                    "name": "BlackDuck-Component",
+                    "value": "212d2f23-04b7-4702-998f-dfa3560d1f6e"
+                },
+                {
+                    "name": "BlackDuck-ComponentVersion",
+                    "value": "4c742be2-767c-4864-8d3c-2d29d0992f8f"
+                }
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "ref": "fbf0c498-10e9-4130-b9ea-a0ba7189a9f9",
+            "dependsOn": [
+                "3f8a46e7-1eec-4329-a23b-658ad5467e48",
+                "4c742be2-767c-4864-8d3c-2d29d0992f8f"
+            ]
+        }
+    ]
+}

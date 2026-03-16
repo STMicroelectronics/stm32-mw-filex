@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stm32="https://developer.st.com/schemas/stm32cube/1.0.0" schemaVersion="1.7.55" xsi:noNamespaceSchemaLocation="PACK.xsd" xsi:schemaLocation="https://developer.st.com/schemas/stm32cube/1.0.0 stm32cube.xsd" Dvendor="STMicroelectronics:13" Dname="STM32*">
+  <vendor>STMicroelectronics</vendor>
+  <name>filex</name>
+  <environments>
+    <environment name="STM32Cube">
+      <stm32:pack type="MW" friendlyName="filex" shortDesc="FileX Middleware">
+        <relocation-info parent="middleware" layer="" element=""/>
+      </stm32:pack>
+    </environment>
+  </environments>
+  <ECCN>
+    <ECCN-EU>NEC</ECCN-EU>
+    <ECCN-US>EAR99</ECCN-US>
+  </ECCN>
+  <description>STMicroelectronics filex pack</description>
+  <repository type="git">https://github.com/STMicroelectronics/stm32-mw-filex/tree/hal2</repository>
+  <url>https://developer.st.com/st-pack-server/api/v1/pack/</url>
+  <license>LICENSE.md</license>
+  <releases>
+    <release date="2026-03-06" version="2.0.0">
+      Official release of FileX Middleware based on FileX v6.4.2.
+      ## Main changes
+        * Official release of FileX aligned with HAL2.
+        * Supported interfaces: NOR and NAND flash, along with SD and MMC storage devices.
+    </release>
+  </releases>
+  <changelogs>
+    <changelog id="Release Notes" name="ST_Release_Notes.html"/>
+  </changelogs>
+  <keywords>
+    <keyword>Cortex-M</keyword>
+    <keyword>STMicroelectronics</keyword>
+    <keyword>FileX</keyword>
+    <keyword>STM32</keyword>
+  </keywords>
+  <conditions>
+    <condition id="USE FAULT TOLERANCE ENV">
+    </condition>
+    <condition id="USE SD DMA OS ENV">
+    </condition>
+    <condition id="USE SD DMA NO OS ENV">
+    </condition>
+    <condition id="USE SD POLLING ENV">
+    </condition>
+    <condition id="USE MMC DMA OS ENV">
+    </condition>
+    <condition id="USE MMC DMA NO OS ENV">
+    </condition>
+    <condition id="USE MMC POLLING ENV">
+    </condition>
+    <condition id="USE NOR ENV">
+    </condition>
+    <condition id="USE NAND ENV">
+    </condition>
+    <condition id="filex standalone condition">
+      <require Cclass="File System" Cgroup="FileX" Csub="No_OS"/>
+    </condition>
+    <condition id="filex freertos condition">
+      <deny Cclass="File System" Cgroup="FileX" Csub="No_OS"/>
+      <require Cclass="RTOS" Cgroup="FreeRTOS" Csub="Core"/>
+    </condition>
+    <condition id="Operating System Used">
+    </condition>
+    <condition id="FX Core Condition">
+      <description>FX common condition :dependency to FileX Core</description>
+      <require Cclass="File System" Cgroup="FileX" Csub="Core"/>
+      <require condition="USE FAULT TOLERANCE ENV"/>
+      <require condition="Operating System Used"/>
+      <require condition="USE SD DMA OS ENV"/>
+      <require condition="USE SD DMA NO OS ENV"/>
+      <require condition="USE SD POLLING ENV"/>
+      <require condition="USE MMC DMA OS ENV"/>
+      <require condition="USE MMC DMA NO OS ENV"/>
+      <require condition="USE MMC POLLING ENV"/>
+      <require condition="USE NOR ENV"/>
+      <require condition="USE NAND ENV"/>
+    </condition>
+  </conditions>
+  <generators>
+    <!-- This generator is launched if any component referencing this generator by 'id' is selected and the specified <gpdsc> file does not exist -->
+    <generator id="filex_mx2codegen">
+      <description>STMicroelectronics: STM32Cube Code Generator for FileX Pack</description>
+      <exe>
+        <command host="win">.config/gen_code.bat</command>
+        <command host="linux">.config/gen_code.sh</command>
+        <command host="mac">.config/gen_code.sh</command>
+        <!-- $S = Device Family Pack base folder -->
+        <argument>$S</argument>
+        <!-- D = Device (Dname/Dvariant as configured by environment) -->
+        <argument>$D</argument>
+        <!-- Project path and project name (as configured by environment) -->
+        <argument>$P</argument>
+        <argument>#P</argument>
+        <!-- #name of the gpdsc template contained in this PACK and aligned with GPDSC name-->
+        <argument>STMicroelectronics.filex.gpdsc.hbs</argument>
+        <!-- passing the generator name-->
+        <argument>filex_mx2codegen</argument>
+        <argument>$G</argument>
+        <!-- Flag to indicate that this Generator is dry-run capable  -->
+        <argument mode="dry-run">--dry-run</argument>
+      </exe>
+      <!-- workingDir></workingDir -->
+      <!-- path is specified either absolute or relative to PDSC or GPDSC file. If not specified it is the project directory configured by the environment -->
+      <gpdsc name="$P/STMicroelectronics.filex.gpdsc"/>
+    </generator>
+  </generators>
+  <components>
+    <component Cclass="File System" Cgroup="FileX" Csub="Core" Cversion="6.4.2" maxInstances="1">
+      <description>FileX core component</description>
+      <files>
+        <!-- common files -->
+        <file category="doc" name="README.md"/>
+        <file category="doc" name="ST_Release_Notes.md"/>
+        <file category="doc" name="ST_Release_Notes.html"/>
+        <file category="doc" name="SW_Security_Level.md"/>
+        <file category="doc" name="docs/filex-features.png"/>
+        <file category="doc" name="docs/deps.png"/>
+        <file category="source" name="common/src/fx_directory_attributes_read.c"/>
+        <file category="source" name="common/src/fx_directory_attributes_set.c"/>
+        <file category="source" name="common/src/fx_directory_create.c"/>
+        <file category="source" name="common/src/fx_directory_default_get.c"/>
+        <file category="source" name="common/src/fx_directory_default_get_copy.c"/>
+        <file category="source" name="common/src/fx_directory_default_set.c"/>
+        <file category="source" name="common/src/fx_directory_delete.c"/>
+        <file category="source" name="common/src/fx_directory_entry_read.c"/>
+        <file category="source" name="common/src/fx_directory_entry_write.c"/>
+        <file category="source" name="common/src/fx_directory_first_entry_find.c"/>
+        <file category="source" name="common/src/fx_directory_first_full_entry_find.c"/>
+        <file category="source" name="common/src/fx_directory_free_search.c"/>
+        <file category="source" name="common/src/fx_directory_information_get.c"/>
+        <file category="source" name="common/src/fx_directory_local_path_clear.c"/>
+        <file category="source" name="common/src/fx_directory_local_path_get.c"/>
+        <file category="source" name="common/src/fx_directory_local_path_get_copy.c"/>
+        <file category="source" name="common/src/fx_directory_local_path_restore.c"/>
+        <file category="source" name="common/src/fx_directory_local_path_set.c"/>
+        <file category="source" name="common/src/fx_directory_long_name_get.c"/>
+        <file category="source" name="common/src/fx_directory_long_name_get_extended.c"/>
+        <file category="source" name="common/src/fx_directory_name_extract.c"/>
+        <file category="source" name="common/src/fx_directory_name_test.c"/>
+        <file category="source" name="common/src/fx_directory_next_entry_find.c"/>
+        <file category="source" name="common/src/fx_directory_next_full_entry_find.c"/>
+        <file category="source" name="common/src/fx_directory_rename.c"/>
+        <file category="source" name="common/src/fx_directory_search.c"/>
+        <file category="source" name="common/src/fx_directory_short_name_get.c"/>
+        <file category="source" name="common/src/fx_directory_short_name_get_extended.c"/>
+        <file category="source" name="common/src/fx_file_allocate.c"/>
+        <file category="source" name="common/src/fx_file_attributes_read.c"/>
+        <file category="source" name="common/src/fx_file_attributes_set.c"/>
+        <file category="source" name="common/src/fx_file_best_effort_allocate.c"/>
+        <file category="source" name="common/src/fx_file_close.c"/>
+        <file category="source" name="common/src/fx_file_create.c"/>
+        <file category="source" name="common/src/fx_file_date_time_set.c"/>
+        <file category="source" name="common/src/fx_file_delete.c"/>
+        <file category="source" name="common/src/fx_file_extended_allocate.c"/>
+        <file category="source" name="common/src/fx_file_extended_best_effort_allocate.c"/>
+        <file category="source" name="common/src/fx_file_extended_relative_seek.c"/>
+        <file category="source" name="common/src/fx_file_extended_seek.c"/>
+        <file category="source" name="common/src/fx_file_extended_truncate.c"/>
+        <file category="source" name="common/src/fx_file_extended_truncate_release.c"/>
+        <file category="source" name="common/src/fx_file_open.c"/>
+        <file category="source" name="common/src/fx_file_read.c"/>
+        <file category="source" name="common/src/fx_file_relative_seek.c"/>
+        <file category="source" name="common/src/fx_file_rename.c"/>
+        <file category="source" name="common/src/fx_file_seek.c"/>
+        <file category="source" name="common/src/fx_file_truncate.c"/>
+        <file category="source" name="common/src/fx_file_truncate_release.c"/>
+        <file category="source" name="common/src/fx_file_write.c"/>
+        <file category="source" name="common/src/fx_file_write_notify_set.c"/>
+        <file category="source" name="common/src/fx_media_abort.c"/>
+        <file category="source" name="common/src/fx_media_boot_info_extract.c"/>
+        <file category="source" name="common/src/fx_media_cache_invalidate.c"/>
+        <file category="source" name="common/src/fx_media_check.c"/>
+        <file category="source" name="common/src/fx_media_check_FAT_chain_check.c"/>
+        <file category="source" name="common/src/fx_media_check_lost_cluster_check.c"/>
+        <file category="source" name="common/src/fx_media_close.c"/>
+        <file category="source" name="common/src/fx_media_close_notify_set.c"/>
+        <file category="source" name="common/src/fx_media_extended_space_available.c"/>
+        <file category="source" name="common/src/fx_media_flush.c"/>
+        <file category="source" name="common/src/fx_media_format.c"/>
+        <file category="source" name="common/src/fx_media_format_oem_name_set.c"/>
+        <file category="source" name="common/src/fx_media_format_type_set.c"/>
+        <file category="source" name="common/src/fx_media_format_volume_id_set.c"/>
+        <file category="source" name="common/src/fx_media_open.c"/>
+        <file category="source" name="common/src/fx_media_open_notify_set.c"/>
+        <file category="source" name="common/src/fx_media_read.c"/>
+        <file category="source" name="common/src/fx_media_space_available.c"/>
+        <file category="source" name="common/src/fx_media_volume_get.c"/>
+        <file category="source" name="common/src/fx_media_volume_get_extended.c"/>
+        <file category="source" name="common/src/fx_media_volume_set.c"/>
+        <file category="source" name="common/src/fx_media_write.c"/>
+        <file category="source" name="common/src/fx_partition_offset_calculate.c"/>
+        <file category="source" name="common/src/fx_system_date_get.c"/>
+        <file category="source" name="common/src/fx_system_date_set.c"/>
+        <file category="source" name="common/src/fx_system_initialize.c"/>
+        <file category="source" name="common/src/fx_system_time_get.c"/>
+        <file category="source" name="common/src/fx_system_time_set.c"/>
+        <file category="source" name="common/src/fx_system_timer_entry.c"/>
+        <file category="source" name="common/src/fx_unicode_directory_create.c"/>
+        <file category="source" name="common/src/fx_unicode_directory_entry_change.c"/>
+        <file category="source" name="common/src/fx_unicode_directory_entry_read.c"/>
+        <file category="source" name="common/src/fx_unicode_directory_rename.c"/>
+        <file category="source" name="common/src/fx_unicode_directory_search.c"/>
+        <file category="source" name="common/src/fx_unicode_file_create.c"/>
+        <file category="source" name="common/src/fx_unicode_file_rename.c"/>
+        <file category="source" name="common/src/fx_unicode_length_get.c"/>
+        <file category="source" name="common/src/fx_unicode_length_get_extended.c"/>
+        <file category="source" name="common/src/fx_unicode_name_get.c"/>
+        <file category="source" name="common/src/fx_unicode_name_get_extended.c"/>
+        <file category="source" name="common/src/fx_unicode_short_name_get.c"/>
+        <file category="source" name="common/src/fx_unicode_short_name_get_extended.c"/>
+        <file category="source" name="common/src/fx_utility_16_unsigned_read.c"/>
+        <file category="source" name="common/src/fx_utility_16_unsigned_write.c"/>
+        <file category="source" name="common/src/fx_utility_32_unsigned_read.c"/>
+        <file category="source" name="common/src/fx_utility_32_unsigned_write.c"/>
+        <file category="source" name="common/src/fx_utility_64_unsigned_read.c"/>
+        <file category="source" name="common/src/fx_utility_64_unsigned_write.c"/>
+        <file category="source" name="common/src/fx_utility_absolute_path_get.c"/>
+        <file category="source" name="common/src/fx_utility_FAT_entry_read.c"/>
+        <file category="source" name="common/src/fx_utility_FAT_entry_write.c"/>
+        <file category="source" name="common/src/fx_utility_FAT_flush.c"/>
+        <file category="source" name="common/src/fx_utility_FAT_map_flush.c"/>
+        <file category="source" name="common/src/fx_utility_FAT_sector_get.c"/>
+        <file category="source" name="common/src/fx_utility_logical_sector_cache_entry_read.c"/>
+        <file category="source" name="common/src/fx_utility_logical_sector_flush.c"/>
+        <file category="source" name="common/src/fx_utility_logical_sector_read.c"/>
+        <file category="source" name="common/src/fx_utility_logical_sector_write.c"/>
+        <file category="source" name="common/src/fx_utility_memory_copy.c"/>
+        <file category="source" name="common/src/fx_utility_memory_set.c"/>
+        <file category="source" name="common/src/fx_utility_string_length_get.c"/>
+        <file category="source" name="common/src/fx_utility_token_length_get.c"/>
+        <file category="source" name="common/src/fxe_directory_attributes_read.c"/>
+        <file category="source" name="common/src/fxe_directory_attributes_set.c"/>
+        <file category="source" name="common/src/fxe_directory_create.c"/>
+        <file category="source" name="common/src/fxe_directory_default_get.c"/>
+        <file category="source" name="common/src/fxe_directory_default_get_copy.c"/>
+        <file category="source" name="common/src/fxe_directory_default_set.c"/>
+        <file category="source" name="common/src/fxe_directory_delete.c"/>
+        <file category="source" name="common/src/fxe_directory_first_entry_find.c"/>
+        <file category="source" name="common/src/fxe_directory_first_full_entry_find.c"/>
+        <file category="source" name="common/src/fxe_directory_information_get.c"/>
+        <file category="source" name="common/src/fxe_directory_local_path_clear.c"/>
+        <file category="source" name="common/src/fxe_directory_local_path_get.c"/>
+        <file category="source" name="common/src/fxe_directory_local_path_get_copy.c"/>
+        <file category="source" name="common/src/fxe_directory_local_path_restore.c"/>
+        <file category="source" name="common/src/fxe_directory_local_path_set.c"/>
+        <file category="source" name="common/src/fxe_directory_long_name_get.c"/>
+        <file category="source" name="common/src/fxe_directory_long_name_get_extended.c"/>
+        <file category="source" name="common/src/fxe_directory_name_test.c"/>
+        <file category="source" name="common/src/fxe_directory_next_entry_find.c"/>
+        <file category="source" name="common/src/fxe_directory_next_full_entry_find.c"/>
+        <file category="source" name="common/src/fxe_directory_rename.c"/>
+        <file category="source" name="common/src/fxe_directory_short_name_get.c"/>
+        <file category="source" name="common/src/fxe_directory_short_name_get_extended.c"/>
+        <file category="source" name="common/src/fxe_fault_tolerant_enable.c"/>
+        <file category="source" name="common/src/fxe_file_allocate.c"/>
+        <file category="source" name="common/src/fxe_file_attributes_read.c"/>
+        <file category="source" name="common/src/fxe_file_attributes_set.c"/>
+        <file category="source" name="common/src/fxe_file_best_effort_allocate.c"/>
+        <file category="source" name="common/src/fxe_file_close.c"/>
+        <file category="source" name="common/src/fxe_file_create.c"/>
+        <file category="source" name="common/src/fxe_file_date_time_set.c"/>
+        <file category="source" name="common/src/fxe_file_delete.c"/>
+        <file category="source" name="common/src/fxe_file_extended_allocate.c"/>
+        <file category="source" name="common/src/fxe_file_extended_best_effort_allocate.c"/>
+        <file category="source" name="common/src/fxe_file_extended_relative_seek.c"/>
+        <file category="source" name="common/src/fxe_file_extended_seek.c"/>
+        <file category="source" name="common/src/fxe_file_extended_truncate.c"/>
+        <file category="source" name="common/src/fxe_file_extended_truncate_release.c"/>
+        <file category="source" name="common/src/fxe_file_open.c"/>
+        <file category="source" name="common/src/fxe_file_read.c"/>
+        <file category="source" name="common/src/fxe_file_relative_seek.c"/>
+        <file category="source" name="common/src/fxe_file_rename.c"/>
+        <file category="source" name="common/src/fxe_file_seek.c"/>
+        <file category="source" name="common/src/fxe_file_truncate.c"/>
+        <file category="source" name="common/src/fxe_file_truncate_release.c"/>
+        <file category="source" name="common/src/fxe_file_write.c"/>
+        <file category="source" name="common/src/fxe_file_write_notify_set.c"/>
+        <file category="source" name="common/src/fxe_media_abort.c"/>
+        <file category="source" name="common/src/fxe_media_cache_invalidate.c"/>
+        <file category="source" name="common/src/fxe_media_check.c"/>
+        <file category="source" name="common/src/fxe_media_close.c"/>
+        <file category="source" name="common/src/fxe_media_close_notify_set.c"/>
+        <file category="source" name="common/src/fxe_media_extended_space_available.c"/>
+        <file category="source" name="common/src/fxe_media_flush.c"/>
+        <file category="source" name="common/src/fxe_media_format.c"/>
+        <file category="source" name="common/src/fxe_media_open.c"/>
+        <file category="source" name="common/src/fxe_media_open_notify_set.c"/>
+        <file category="source" name="common/src/fxe_media_read.c"/>
+        <file category="source" name="common/src/fxe_media_space_available.c"/>
+        <file category="source" name="common/src/fxe_media_volume_get.c"/>
+        <file category="source" name="common/src/fxe_media_volume_get_extended.c"/>
+        <file category="source" name="common/src/fxe_media_volume_set.c"/>
+        <file category="source" name="common/src/fxe_media_write.c"/>
+        <file category="source" name="common/src/fxe_system_date_get.c"/>
+        <file category="source" name="common/src/fxe_system_date_set.c"/>
+        <file category="source" name="common/src/fxe_system_time_get.c"/>
+        <file category="source" name="common/src/fxe_system_time_set.c"/>
+        <file category="source" name="common/src/fxe_unicode_directory_create.c"/>
+        <file category="source" name="common/src/fxe_unicode_directory_rename.c"/>
+        <file category="source" name="common/src/fxe_unicode_file_create.c"/>
+        <file category="source" name="common/src/fxe_unicode_file_rename.c"/>
+        <file category="source" name="common/src/fxe_unicode_name_get.c"/>
+        <file category="source" name="common/src/fxe_unicode_name_get_extended.c"/>
+        <file category="source" name="common/src/fxe_unicode_short_name_get.c"/>
+        <file category="source" name="common/src/fxe_unicode_short_name_get_extended.c"/>
+        <file category="header" name="common/inc/fx_api.h"/>
+        <file category="include" name="common/inc/"/>
+        <!-- files in RTOS mode -->
+        <file category="source" name="ports/freertos/src/fx_os_mutex_create.c" condition="filex freertos condition"/>
+        <file category="source" name="ports/freertos/src/fx_os_mutex_delete.c" condition="filex freertos condition"/>
+        <file category="source" name="ports/freertos/src/fx_os_timer_create.c" condition="filex freertos condition"/>
+        <file category="source" name="ports/freertos/src/fx_os_current_thread_tls_get.c" condition="filex freertos condition"/>
+        <file category="source" name="ports/freertos/src/fx_os_current_thread_tls_set.c" condition="filex freertos condition"/>
+        <!-- include file in RTOS mode -->
+        <file category="include" name="ports/freertos/inc/" condition="filex freertos condition"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="No_OS" Cversion="6.4.2">
+      <description>FileX Standalone Mode </description>
+      <files>
+        <!-- case of standalone mode -->
+        <file category="include" name="ports/generic/inc/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="Fault Tolerance Support" condition="USE FAULT TOLERANCE ENV" Cversion="6.4.2" maxInstances="1">
+      <description>Fault tolerance support component</description>
+      <files>
+        <!-- common files -->
+        <file category="source" name="common/src/fx_fault_tolerant_add_bitmap_log.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_add_checksum_log.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_add_dir_log.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_add_FAT_log.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_apply_logs.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_calculate_checksum.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_cleanup_FAT_chain.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_create_log_file.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_enable.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_read_directory_sector.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_read_FAT.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_read_log_file.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_recover.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_reset_log_file.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_set_FAT_chain.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_transaction_end.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_transaction_fail.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_transaction_start.c"/>
+        <file category="source" name="common/src/fx_fault_tolerant_write_log_file.c"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="sd_polling_itf" condition="USE SD POLLING ENV" Cversion="6.4.2" maxInstances="1">
+      <description>SD Polling interface component </description>
+      <files>
+        <file category="source" name="interfaces/sd/stm32_fx_sd_polling_driver.c"/>
+        <file category="header" name="interfaces/sd/stm32_fx_sd_polling_driver.h"/>
+        <file category="include" name="interfaces/sd/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="sd_dma_os_itf" condition="USE SD DMA OS ENV" Cversion="6.4.2" maxInstances="1">
+      <description>SD DMA OS interface component</description>
+      <files>
+        <file category="source" name="interfaces/sd/stm32_fx_sd_dma_os_driver.c" condition="filex freertos condition"/>
+        <file category="header" name="interfaces/sd/stm32_fx_sd_dma_os_driver.h" condition="filex freertos condition"/>
+        <file category="include" name="interfaces/sd/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="sd_dma_no_os_itf" condition="USE SD DMA NO OS ENV" Cversion="6.4.2" maxInstances="1">
+      <description>SD DMA NO OS interface component</description>
+      <files>
+        <file category="source" name="interfaces/sd/stm32_fx_sd_dma_no_os_driver.c" condition="filex standalone condition"/>
+        <file category="header" name="interfaces/sd/stm32_fx_sd_dma_no_os_driver.h" condition="filex standalone condition"/>
+        <file category="include" name="interfaces/sd/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="nor_flash_itf" condition="USE NOR ENV" Cversion="6.4.2" maxInstances="1">
+      <description>FileX NOR Flash Interface</description>
+      <files>
+        <file category="source" name="interfaces/nor/stm32_fx_nor_flash_driver.c"/>
+        <file category="header" name="interfaces/nor/stm32_fx_nor_flash_driver.h"/>
+        <file category="include" name="interfaces/nor/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="nand_flash_itf" condition="USE NAND ENV" Cversion="6.4.2" maxInstances="1">
+      <description>FileX NAND Flash Interface</description>
+      <files>
+        <file category="source" name="interfaces/nand/stm32_fx_nand_flash_driver.c"/>
+        <file category="header" name="interfaces/nand/stm32_fx_nand_flash_driver.h"/>
+        <file category="include" name="interfaces/nand/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="mmc_polling_itf" condition="USE MMC POLLING ENV" Cversion="6.4.2" maxInstances="1">
+      <description>MMC Polling interface component</description>
+      <files>
+        <file category="source" name="interfaces/mmc/stm32_fx_mmc_polling_driver.c"/>
+        <file category="header" name="interfaces/mmc/stm32_fx_mmc_polling_driver.h"/>
+        <file category="include" name="interfaces/mmc/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="mmc_dma_os_itf" condition="USE MMC DMA OS ENV" Cversion="6.4.2" maxInstances="1">
+      <description>MMC Polling interface component</description>
+      <files>
+        <file category="source" name="interfaces/mmc/stm32_fx_mmc_dma_os_driver.c"/>
+        <file category="header" name="interfaces/mmc/stm32_fx_mmc_dma_os_driver.h"/>
+        <file category="include" name="interfaces/mmc/"/>
+      </files>
+    </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="mmc_dma_no_os_itf" condition="USE MMC DMA NO OS ENV" Cversion="6.4.2" maxInstances="1">
+      <description>MMC Polling interface component</description>
+      <files>
+        <file category="source" name="interfaces/mmc/stm32_fx_mmc_dma_no_os_driver.c"/>
+        <file category="header" name="interfaces/mmc/stm32_fx_mmc_dma_no_os_driver.h"/>
+        <file category="include" name="interfaces/mmc/"/>
+      </files>
+    </component>
+    <!-- START: STMicroelectronics MW FileX CODE GEN -->
+    <component generator="filex_mx2codegen" Cclass="File System" Cgroup="STM32CubeMX2 Config" Csub="FileX" condition="FX Core Condition" Cversion="2.0.0">
+      <description>STMicroelectronics: STM32Cube Configuration Code Generation for FileX</description>
+      <environments>
+        <environment name="STM32Cube">
+        </environment>
+      </environments>
+      <files>
+        <file category="genAsset" name=".config/gen_code.bat"/>
+        <file category="genAsset" name=".config/gen_code.sh"/>
+        <file category="genAsset" name=".config/STMicroelectronics.filex.gpdsc.hbs"/>
+        <file category="genAsset" name=".config/template/fx_user_template.h.hbs"/>
+        <file category="genAsset" name=".config/template/mx_filex_app_template.c.hbs"/>
+        <file category="genAsset" name=".config/template/mx_filex_app_template.h.hbs"/>
+        <file category="genAsset" name=".config/template/mx_filex_interfaces_template.c.hbs"/>
+        <file category="genAsset" name=".config/template/mx_filex_interfaces_template.h.hbs"/>
+        <file category="genAsset" name=".config/filex_config_parameters.json"/>
+        <file category="genAsset" name=".config/template/helpers/filex_helpers.js"/>
+        <!-- License files -->
+        <file category="genAsset" name=".config/template/partials/LICENSE_partial.hbs"/>
+        <file category="genAsset" name=".config/template/license/mx_filex_license_template.md.hbs"/>
+      </files>
+    </component>
+  </components>
+</package>
