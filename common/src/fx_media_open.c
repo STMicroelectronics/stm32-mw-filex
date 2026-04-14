@@ -1,6 +1,6 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
- * Copyright (c) 2025 STMicroelectronics
+ * Copyright (c) 2025-2026 STMicroelectronics
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
@@ -264,7 +264,7 @@ FX_INT_SAVE_AREA
     /* Initialize the supplied media I/O driver.  First, build the
        initialize driver request.  */
     media_ptr -> fx_media_driver_request =              FX_DRIVER_INIT;
-    media_ptr -> fx_media_driver_status =               FX_IO_ERROR;
+    media_ptr -> fx_media_driver_status =               FX_MEDIA_NOT_OPEN;
     media_ptr -> fx_media_driver_info =                 driver_info_ptr;
     media_ptr -> fx_media_driver_write_protect =        FX_FALSE;
     media_ptr -> fx_media_driver_free_sector_update =   FX_FALSE;

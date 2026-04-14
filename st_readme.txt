@@ -13,6 +13,13 @@
   * SPDX-License-Identifier: MIT
   *****************************************************************************/
 
+### V6.4.2 (03-04-2026) ###
+=================================
+- Upgrade to FileX 6.4.2.
+- Update driver initialization status in fx_media_format.c and fx_media_open.c.
+- Update FileX files headers.
+- Add SW_Security_Level.md file.
+
 ### V6.4.1 (12-11-2025) ###
 =================================
 - Revise copyright information in file headers

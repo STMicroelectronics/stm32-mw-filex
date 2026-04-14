@@ -1,6 +1,6 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
- * Copyright (c) 2025 STMicroelectronics
+ * Copyright (c) 2025-2026 STMicroelectronics
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
@@ -123,10 +123,9 @@ extern   "C" {
 /* Define the major/minor version information that can be used by the application
    and the FileX source as well.  */
 
-#define AZURE_RTOS_FILEX
 #define FILEX_MAJOR_VERSION     6
 #define FILEX_MINOR_VERSION     4
-#define FILEX_PATCH_VERSION     1
+#define FILEX_PATCH_VERSION     2
 
 /* Define the following symbols for backward compatibility */
 #define EL_PRODUCT_FILEX

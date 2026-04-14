@@ -30,13 +30,16 @@ void    thread_0_entry(ULONG thread_input);
 
 /* Define FileX global data structures.  */
 
+#define TOTAL_SECTORS 256
+#define SECTOR_SIZE 512
+
 FX_MEDIA        ram_disk;
 FX_FILE         my_file;
 
 #ifndef FX_STANDALONE_ENABLE
 CHAR            *ram_disk_memory;
 #else
-unsigned char   ram_disk_memory[256*512];
+unsigned char   ram_disk_memory[TOTAL_SECTORS*SECTOR_SIZE];
 #endif
 
 /* Define ThreadX global data structures.  */
@@ -102,8 +105,12 @@ CHAR  local_buffer[30];
 
 
     /* Format the RAM disk - the memory for the RAM disk was setup in
-       tx_application_define above.  */
-    fx_media_format(&ram_disk,
+       tx_application_define above.
+
+       Important Note: The user must ensure there is enough RAM for the format
+                       specified.  Otherwise, memory corruption can occur. 
+    */
+    status = fx_media_format(&ram_disk
                     _fx_ram_driver,               // Driver entry
                     ram_disk_memory,              // RAM disk memory pointer
                     media_memory,                 // Media buffer pointer
@@ -112,26 +119,33 @@ CHAR  local_buffer[30];
                     1,                            // Number of FATs
                     32,                           // Directory Entries
                     0,                            // Hidden sectors
-                    256,                          // Total sectors
-                    512,                          // Sector size
+                    TOTAL_SECTORS,                // Total sectors
+                    SECTOR_SIZE,                  // Sector size
                     8,                            // Sectors per cluster
                     1,                            // Heads
                     1);                           // Sectors per track
 
 
+    /* Determine if the RAM disk format was successful.  */
+    if (status != FX_SUCCESS)
+    {
+        /* Error formatting the RAM disk.  */
+        printf("HTTPS RAM disk format failed, error: %x\n", status);
+        return; 
+    }
+
     /* Loop to repeat the demo over and over!  */
     do
     {
-
         /* Open the RAM disk.  */
         status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, media_memory, sizeof(media_memory));
 
-        /* Check the media open status.  */
+        /* Determine if the RAM disk open was successful.  */
         if (status != FX_SUCCESS)
         {
-
-            /* Error, break the loop!  */
-            break;
+            /* Error opening the RAM disk. */
+            printf("RAM disk open failed, error: %x\n", status);
+            return; 
         }
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
