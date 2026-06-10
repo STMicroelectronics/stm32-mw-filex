@@ -1,6 +1,6 @@
 # Middleware FileX Component
 
-![latest tag](https://img.shields.io/github/v/tag/STMicroelectronics/stm32-mw-filex.svg?color=green)
+![tag](https://img.shields.io/badge/tag-v6.4.0_260403-brightgreen.svg)
 
 ## Overview
 The Middleware FileX component is a STM32 tailored fork of the [AzureRTOS FileX](https://github.com/azure-rtos/filex).
@@ -50,5 +50,4 @@ It is **crucial** that you use a consistent set of versions.
 
 ## Troubleshooting
 Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) guide.
-
 
