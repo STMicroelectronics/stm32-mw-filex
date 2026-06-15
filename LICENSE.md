@@ -1,6 +1,4 @@
-
-
-<!-- License terms for [MIT]-->
+<!-- License terms for [MIT] -->
 MIT
 
 Copyright [YEAR] [COPYRIGHT HOLDER]
@@ -13,22 +11,24 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 
 <!-- End of License terms -->
+
 <BR>
 <BR>
 
-<!-- Copyrights statements for [eclipse-threadx/filex]-->
+<!-- Copyrights statements for [eclipse-threadx/filex] [MIT] -->
 Copyrights statements for [eclipse-threadx/filex]
 
 	Copyright (c) 2024 Microsoft Corporation
-	
-<!-- End of Copyrights statements for [eclipse-threadx/filex]-->
-<!-- Copyrights statements for [eclipse-threadx/filex_STM32]-->
+
+<!-- End of Copyrights statements for [eclipse-threadx/filex] -->
+
+<!-- Copyrights statements for [eclipse-threadx/filex_STM32] [MIT] -->
 Copyrights statements for [eclipse-threadx/filex_STM32]
 
 	Copyright (c) 2024 Microsoft Corporation
-	
+
 	Copyright (c) 2025-2026 STMicroelectronics
-	
+
 	Copyright (c) 2026 STMicroelectronics
-		
-<!-- End of Copyrights statements for [eclipse-threadx/filex_STM32]-->
+
+<!-- End of Copyrights statements for [eclipse-threadx/filex_STM32] -->

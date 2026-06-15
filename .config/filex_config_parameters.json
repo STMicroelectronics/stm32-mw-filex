@@ -1,0 +1,1116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "version": "0.0.1",
+  "type": "object",
+  "grammarVersion": "3.9.0",
+  "componentid": "File System:STM32CubeMX2 Config:FileX",
+  "functions": [
+    {
+      "path": ".config/template/helpers/filex_helpers.js",
+      "accessor": "filex"
+    }
+  ],
+  "properties": {
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "type": "object",
+          "title": "General information",
+          "properties": {
+            "version": {
+              "title": "FileX version",
+              "type": "string",
+              "default": "6.4.2",
+              "actions": [
+                {
+                  "type": "disable",
+                  "condition": "true",
+                  "message": "The FileX version is fixed and cannot be modified."
+                }
+              ]
+            }
+          }
+        },
+        "profile": {
+          "title": "Profile",
+          "type": "object",
+          "properties": {
+            "profile_type": {
+              "title": "Profile selection",
+              "type": "string",
+              "oneOf": [
+                {
+                  "title": "Default",
+                  "const": "Default"
+                },
+                {
+                  "title": "Low Footprint",
+                  "const": "Low_Footprint",
+                  "actions": [
+                    {
+                      "type": "disable",
+                      "condition": "true",
+                      "message": "The Low Footprint profile is currently not supported."
+                    }
+                 ]
+                }
+              ],
+              "default": "Default"
+            }
+          }
+        },
+        "core": {
+          "type": "object",
+          "title": "Core",
+          "properties": {
+            "basic": {
+              "title": "Main features",
+              "type": "object",
+              "properties": {
+                "filex_core": {
+                  "type": "object",
+                  "title": "Core",
+                  "properties": {
+                    "fx_standalone": {
+                      "type": "string",
+                      "title": "Operating system",
+                      "description": "When set to 'No_OS', FileX runs in standalone mode. Conversely, when set to 'FreeRTOS', FileX operates within a FreeRTOS environment. To enable and use this option, the FreeRTOS middleware must be activated in the project.",
+                      "default": "No_OS",
+                      "oneOf": [
+                        {
+                          "title": "No OS",
+                          "const": "No_OS"
+                        },
+                        {
+                          "title": "FreeRTOS",
+                          "const": "FreeRTOS",
+                          "actions": [
+                            {
+                              "type": "enable",
+                              "condition": "$get('swproject.hasRTOSenabled')",
+                              "message": "Enable the FreeRTOS middleware to select this operating system."
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "fx_disable_error_checking": {
+                      "title": "Error checking behavior",
+                      "description": "Removes the config FileX error checking API, resulting in improved performance (up to 30%) and smaller code size.",
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "fx_fat_map_size": {
+                      "title": "Number of sectors for FAT",
+                      "description": "Specifies the number of sectors that can be represented in the FAT update map. Larger values help reduce unneeded updates of secondary FAT sectors.",
+                      "type": "integer",
+                      "default": 128,
+                      "minimum": 1,
+                      "maximum": 32768,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "fx_max_fat_cache": {
+                      "title": "Maximum number of FAT cache entries",
+                      "description": "Specifies the size of the FAT cache used by FileX for this media. A higher value allows more FAT entries to be cached, which can reduce FAT access overhead and improve file system performance, at the cost of increased memory usage.",
+                      "type": "integer",
+                      "default": 16,
+                      "minimum": 8,
+                      "maximum": 16384,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "fx_max_long_name_len": {
+                      "title": "Maximum length of long file names",
+                      "description": "Specifies the upper limit for the length of long file names that FileX can handle on this media.",
+                      "type": "integer",
+                      "default": 256,
+                      "minimum": 13,
+                      "maximum": 256,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "fx_max_sector_cache": {
+                      "title": "Maximum number of cached sectors",
+                      "description": "The cache buffer provided to FileX in the `fx_media_open()` API determines how many sectors can actually be cached.",
+                      "type": "integer",
+                      "default": 256,
+                      "minimum": 2,
+                      "maximum": 16384,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "fx_update_rate_in_seconds": {
+                      "title": "Time update interval in seconds",
+                      "description": "Controls the period used by FileX to perform its internal periodic maintenance tasks on this media. The value is expressed in seconds and determines how often these background operations are executed.",
+                      "type": "integer",
+                      "default": 10,
+                      "minimum": 10,
+                      "maximum": 60,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "fx_update_rate_in_ticks": {
+                      "title": "Time update interval in RTOS ticks",
+                      "description": "Specifies the number of RTOS ticks between two consecutive FileX periodic maintenance operations on this media. This value controls how frequently these background tasks are executed within an RTOS-based configuration.",
+                      "type": "integer",
+                      "default": 10000,
+                      "minimum": 10000,
+                      "maximum": 60000,
+                      "display_format": [
+                        "dec"
+                      ]
+                    },
+                    "fx_disable_cache": {
+                      "title": "File system cache usage",
+                      "description": "When this parameter is set to true, the file system does not use a cache for storage access. All read and write operations are performed directly on the mass storage, which may reduce performance but limits RAM usage.",
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "fx_no_local_path": {
+                      "title": "Local path support",
+                      "description": "When enabled, local path support is disabled.",
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "fx_single_thread": {
+                      "title": "Single-thread mode",
+                      "description": "Eliminates FreeRTOS protection logic from the FileX source. Use if FileX is being used only from one thread or without FreeRTOS.",
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "more": {
+                      "type": "object",
+                      "title": "More",
+                      "properties": {
+                        "fx_disable_direct_data_read_cache_fill": {
+                          "title": "Direct data read cache fill",
+                          "description": "If enabled, the direct read sector update of cache is disabled.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_dont_update_open_files": {
+                          "title": "Don't update open files",
+                          "description": "If enabled, FileX does not update already opened files.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_driver_use_64bit_lba": {
+                          "title": "Use 64-bit LBA in driver",
+                          "description": "If enabled, 64-bit sector addresses are used in the I/O driver.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_max_last_name_len": {
+                          "title": "Maximum file name length",
+                          "description": "Defines the maximum file name length, including the full path name. Must be as large or larger than Max Long Name Length.",
+                          "type": "integer",
+                          "default": 256,
+                          "minimum": 13,
+                          "maximum": 256,
+                          "display_format": [
+                            "dec"
+                          ]
+                        },
+                        "fx_rename_path_inherit": {
+                          "title": "Inherit path on rename",
+                          "description": "Controls whether the new path inherits attributes from the original path during a rename operation. When enabled, FileX preserves directory path information and associated attributes when a file or directory is renamed.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_single_open_legacy": {
+                          "title": "Legacy single open",
+                          "description": "When set to true, FileX prevents multiple concurrent opens of the same file.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_disable_file_close": {
+                          "title": "File close operation",
+                          "description": "When set to true, calls to close a file are ignored and the file remains logically open inside FileX. This is intended for very specific debugging or integration scenarios.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_disable_fast_open": {
+                          "title": "Fast file opening",
+                          "description": "When set to true, the fast open optimization is disabled. FileX then performs a full directory search for each file open, which can simplify behavior but may reduce performance.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_disable_force_memory_operation": {
+                          "title": "Forced memory operations",
+                          "description": "When set to true, FileX skips certain forced memory operations (such as explicit flushes or cache updates) in critical paths. This can slightly reduce overhead but may impact robustness in corner cases.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_disable_build_options": {
+                          "title": "Build options usage",
+                          "description": "When set to true, FileX build option strings and related metadata are not compiled in. This reduces code size but removes this diagnostic information at runtime.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_disable_one_line_function": {
+                          "title": "Single-line functions",
+                          "description": "When set to true, small one-line wrapper functions are not used. This can make debugging stack traces more explicit, at the cost of slightly larger call sites.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_disable_fat_entry_refresh": {
+                          "title": "FAT entry refresh",
+                          "description": "When set to true, automatic refresh of FAT entries in memory is reduced or skipped. This lowers overhead but can delay the visibility of FAT changes made by other components.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_disable_consecutive_detect": {
+                          "title": "Consecutive sector detection",
+                          "description": "When set to true, FileX no longer tries to detect and group consecutive sectors into larger transfers. This simplifies driver behavior but may decrease I/O throughput.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_media_statistics_disable": {
+                          "title": "Media statistics collection",
+                          "description": "When set to true, FileX does not collect media statistics such as operation counters. This reduces runtime overhead and memory usage, but removes useful diagnostic data.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_media_disable_search_cache": {
+                          "title": "File search cache",
+                          "description": "When set to true, the internal cache used to speed up file and directory searches is disabled. Every lookup then performs a full directory scan, which can simplify behavior but impact performance.",
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "fx_no_timer": {
+                          "title": "Timer updates",
+                          "description": "When set to true, FileX does not update time and date information for files and directories from a system timer. Timestamps remain static or must be handled by the application.",
+                          "type": "boolean",
+                          "default": false
+                        }
+                      }
+                    }
+                  }
+                },
+                "fault_tolerance": {
+                  "type": "object",
+                  "title": "Fault tolerance",
+                  "properties": {
+                    "fx_enable_fault_tolerant": {
+                      "type": "boolean",
+                      "title": "Fault tolerance service",
+                      "description": "Enables the FileX fault-tolerant service. This parameter can only be activated if the following conditions are met:\n\n- The project uses NOR or NAND flash memory\n- NOR flash or NAND flash support is activated in the LevelX middleware\n- The corresponding NOR or NAND interface is added to FileX\n\nWhen enabled, FileX provides mechanisms to recover from unexpected power loss or data corruption, ensuring file system integrity.",
+                      "default": false,
+                      "oneOf": [
+                        {
+                          "title": "Active",
+                          "const": true,
+                          "actions": [
+                            {
+                              "type": "enable",
+                              "condition": "(($get('envVar.value', 'NOR_Flash') && $filex.filexHasInterfaceType($interfaces, 'NOR_ITF')) || ($get('envVar.value', 'NAND_Flash') && $filex.filexHasInterfaceType($interfaces, 'NAND_ITF')))",
+                              "message": "Add a NOR or NAND FileX interface to activate fault tolerance service."
+                            }
+                          ]
+                        },
+                        {
+                          "title": "Inactive",
+                          "const": false
+                        }
+                      ],
+                      "variables": [
+                        {
+                          "on": "update-value",
+                          "condition": "$value === true",
+                          "name": "Fault_tolerance",
+                          "semaphore": true,
+                          "value": true
+                        }
+                      ]
+                    },
+                    "fx_fault_tolerant": {
+                      "title": "Immediate system sector writes",
+                      "description": "If enabled, system sector write requests (including FAT and directory entry requests) are flushed immediately to the driver.",
+                      "type": "boolean",
+                      "default": false,
+                      "actions": [
+                        {
+                          "type": "enable",
+                          "condition": "$core.basic.fault_tolerance.fx_enable_fault_tolerant && ($filex.filexHasInterfaceType($interfaces, 'NOR_ITF') || $filex.filexHasInterfaceType($interfaces, 'NAND_ITF'))",
+                          "message": "Enable the Fault tolerance service to configure this parameter."
+                        }
+                      ]
+                    },
+                    "fx_fault_tolerant_data": {
+                      "title": "Data flush on write requests",
+                      "description": "If enabled, data sector write requests are flushed immediately to the driver.",
+                      "type": "boolean",
+                      "default": false,
+                      "actions": [
+                        {
+                          "type": "enable",
+                          "condition": "$core.basic.fault_tolerance.fx_enable_fault_tolerant && ($filex.filexHasInterfaceType($interfaces, 'NOR_ITF') || $filex.filexHasInterfaceType($interfaces, 'NAND_ITF'))",
+                          "message": "Enable the Fault tolerance service to configure this parameter."
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "applicative": {
+              "title": "Applicative",
+              "type": "object",
+              "properties": {
+                "filex_generate_init_code": {
+                  "title": "Generate initialization code",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Enable this option to configure the task settings.",
+                  "oneOf": [
+                    {
+                      "title": "Generate",
+                      "const": true,
+                      "actions": [
+                        {
+                          "type": "enable",
+                          "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS'",
+                          "message": "Enable FreeRTOS and set operating system to FreeRTOS to generate initialization code."
+                        }
+                      ]
+                    },
+                    {
+                      "title": "Do not generate",
+                      "const": false
+                    }
+                  ]
+                },
+                "filex_app_task_entry": {
+                  "title": "Application task entry name",
+                  "description": "Specify the name of the main thread entry function for the FileX application.",
+                  "type": "string",
+                  "default": "fx_task_entry",
+                  "actions": [
+                    {
+                      "type": "enable",
+                      "condition": "$core.applicative.filex_generate_init_code && $core.basic.filex_core.fx_standalone === 'FreeRTOS'",
+                      "message": "Enable initialization code generation and set operating system to FreeRTOS to configure this field."
+                    }
+                  ]
+                },
+                "filex_app_task_name": {
+                  "title": "Application task name",
+                  "description": "Specify the name of the task for the FileX application.",
+                  "type": "string",
+                  "default": "fx_main_task",
+                  "actions": [
+                    {
+                      "type": "enable",
+                      "condition": "$core.applicative.filex_generate_init_code && $core.basic.filex_core.fx_standalone === 'FreeRTOS'",
+                      "message": "Enable initialization code generation and set operating system to FreeRTOS to configure this field."
+                    }
+                  ]
+                },
+                "filex_application_task_priority": {
+                  "title": "Application task priority",
+                  "description": "Set the priority value for the FileX application task, determining its execution precedence.",
+                  "type": "integer",
+                  "default": 10,
+                  "minimum": 0,
+                  "maximum": 56,
+                  "display_format": [
+                    "dec"
+                  ],
+                  "actions": [
+                    {
+                      "type": "enable",
+                      "condition": "$core.applicative.filex_generate_init_code && $core.basic.filex_core.fx_standalone === 'FreeRTOS'",
+                      "message": "Enable initialization code generation and set operating system to FreeRTOS to configure this field."
+                    }
+                  ]
+                },
+                "filex_application_task_stack_size": {
+                  "title": "Application task stack size",
+                  "description": "Define the stack size for the FileX application task, ensuring adequate memory allocation.",
+                  "type": "integer",
+                  "default": 1024,
+                  "minimum": 1024,
+                  "maximum": 8192,
+                  "display_format": [],
+                  "actions": [
+                    {
+                      "type": "enable",
+                      "condition": "$core.applicative.filex_generate_init_code && $core.basic.filex_core.fx_standalone === 'FreeRTOS'",
+                      "message": "Enable initialization code generation and set operating system to FreeRTOS to configure this field."
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "interfaces": {
+          "type": "array",
+          "title": "Interfaces",
+          "items": {
+            "type": "object",
+            "properties": {
+              "logical_config": {
+                "title": "Logical interface",
+                "type": "object",
+                "properties": {
+                  "interface_type": {
+                    "type": "string",
+                    "title": "Interface",
+                    "description": "Choose the type of memory interface to be used for this configuration.\n\nThe available options depend on the hardware and middleware setup in your project.\n\nActivation conditions for each interface:\n- SD: requires SDMMC enabled and configured in SD mode.\n- MMC: requires SDMMC enabled and configured in MMC mode.\n- NOR: requires LevelX middleware with NOR flash support enabled.\n- NAND: requires LevelX middleware with NAND flash support enabled.\n\nSelecting the correct interface ensures proper communication between FileX and the underlying memory hardware. If no compatible interface is detected, this parameter will be disabled.",
+                    "oneOf": [
+                      {
+                        "title": "SD",
+                        "const": "SD_ITF",
+                        "actions": [
+                          {
+                            "type": "enable",
+                            "condition": "$get('swproject.hasComponent', 'STMicroelectronics::Device:STM32CubeMX2 Config:SD') && $get('peripheral.isPhysicallyAvailableInCurrentDevice', 'sdmmc')",
+                            "message": "Enable the SDMMC IP and configure in SD mode to select this interface."
+                          },
+                          {
+                            "type": "include",
+                            "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'sdmmc')"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "MMC",
+                        "const": "MMC_ITF",
+                        "actions": [
+                          {
+                            "type": "enable",
+                            "condition": "$get('swproject.hasComponent', 'STMicroelectronics::Device:STM32CubeMX2 Config:MMC') && $get('peripheral.isPhysicallyAvailableInCurrentDevice', 'sdmmc')",
+                            "message": "Enable the SDMMC IP and configure in MMC mode to select this interface."
+                          },
+                          {
+                            "type": "include",
+                            "condition": "$get('peripheral.isPhysicallyAvailableInCurrentDevice', 'sdmmc')"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "NOR",
+                        "const": "NOR_ITF",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$get('envVar.value', 'NOR_Flash')"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "NAND",
+                        "const": "NAND_ITF",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$get('envVar.value', 'NAND_Flash')"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "",
+                        "const": ""
+                      }
+                    ],
+                    "variables": [
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'NOR_ITF'",
+                        "name": "generated_nor",
+                        "semaphore": true
+                      },
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'NAND_ITF'",
+                        "name": "generated_nand",
+                        "semaphore": true
+                      }
+                    ],
+                    "default": ""
+                  },
+                  "interface_mode": {
+                    "title": "Interface mode",
+                    "type": "string",
+                    "actions": [
+                      {
+                        "type": "include",
+                        "condition": "$item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF'"
+                      }
+                    ],
+                    "description": "Select the interface mode used for SD or MMC communication. The available options depend on the selected interface type. 'DMA OS' or 'POLLING' modes requires FreeRTOS to be enabled and FileX to be configured in RTOS mode. When using the \"DMA OS\" mode with FreeRTOS, configure the NVIC interrupt priority of the SDMMC IP to a numerical value greater than FreeRTOS configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY flag value.",
+                    "oneOf": [
+                      {
+                        "title": "DMA OS",
+                        "const": "DMA_OS",
+                        "actions": [
+                          {
+                            "type": "enable",
+                            "condition": "($get('swproject.hasRTOSenabled')) && ($core.basic.filex_core.fx_standalone === 'FreeRTOS')",
+                            "message": "Enable FreeRTOS to activate this feature"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "DMA NO OS",
+                        "const": "DMA_NO_OS"
+                      },
+                      {
+                        "title": "POLLING",
+                        "const": "POLLING"
+                      },
+                      {
+                        "title": "",
+                        "const": ""
+                      }
+                    ],
+                    "variables": [
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'SD_ITF' && $value === 'POLLING'",
+                        "name": "generated_sd_polling",
+                        "semaphore": true
+                      },
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'SD_ITF' && $value === 'DMA_OS'",
+                        "name": "generated_sd_dma_os",
+                        "semaphore": true
+                      },
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'SD_ITF' && $value === 'DMA_NO_OS'",
+                        "name": "generated_sd_dma_no_os",
+                        "semaphore": true
+                      },
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'MMC_ITF' && $value === 'POLLING'",
+                        "name": "generated_mmc_polling",
+                        "semaphore": true
+                      },
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'MMC_ITF' && $value === 'DMA_OS'",
+                        "name": "generated_mmc_dma_os",
+                        "semaphore": true
+                      },
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'MMC_ITF' && $value === 'DMA_NO_OS'",
+                        "name": "generated_mmc_dma_no_os",
+                        "semaphore": true
+                      }
+                    ],
+                    "default": ""
+                  },
+                  "filex_sd_flag_none": {
+                    "title": "Disactivate all SD flags",
+                    "description": "Disable all special flags for the SD card operations. This is the default state with no additional features enabled.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "include",
+                        "condition": "( $item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'SD_ITF')"
+                      }
+                    ]
+                  },
+                  "filex_sd_flag_cache_maintenance": {
+                    "title": "Cache maintenance",
+                    "description": "Enable cache maintenance operations for the SD card. This helps in ensuring data consistency and performance.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "disable",
+                        "condition": "$item.logical_config.filex_sd_flag_none === true",
+                        "message": "Clear 'Disactivate all SD flags' to configure individual SD flags."
+                      },
+                      {
+                        "type": "include",
+                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'SD_ITF')"
+                      }
+                    ]
+                  },
+                  "filex_sd_flag_scratch_buffer": {
+                    "title": "Scratch buffer",
+                    "description": "Enable the use of a scratch buffer for DMA operations when reading sectors from the SD card. This buffer should be 512 bytes in size.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "disable",
+                        "condition": "$item.logical_config.filex_sd_flag_none === true ",
+                        "message": "Clear 'Disactivate all SD flags' to configure individual SD flags."
+                      },
+                      {
+                        "type": "include",
+                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'SD_ITF')"
+                      }
+                    ]
+                  },
+                  "filex_mmc_flag_none": {
+                    "title": "Disactivate all MMC flags",
+                    "description": "Disable all special flags for the MMC card operations. This is the default state with no additional features enabled.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "include",
+                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'MMC_ITF')"
+                      }
+                    ]
+                  },
+                  "filex_mmc_flag_cache_maintenance": {
+                    "title": "Cache maintenance",
+                    "description": "Enable cache maintenance operations for the MMC card. This helps in ensuring data consistency and performance.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "disable",
+                        "condition": "$item.logical_config.filex_mmc_flag_none === true",
+                        "message": "Clear 'Disactivate all MMC flags' to configure individual MMC flags."
+                      },
+                      {
+                        "type": "include",
+                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'MMC_ITF')"
+                      }
+                    ]
+                  },
+                  "filex_mmc_flag_scratch_buffer": {
+                    "title": "Scratch buffer",
+                    "description": "Enable the use of a scratch buffer for DMA operations when reading sectors from the MMC card. This buffer should be 512 bytes in size.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "disable",
+                        "condition": "$item.logical_config.filex_mmc_flag_none === true",
+                        "message": "Clear 'Disactivate all MMC flags' to configure individual MMC flags."
+                      },
+                      {
+                        "type": "include",
+                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'MMC_ITF')"
+                      }
+                    ]
+                  },
+                  "filex_nor_flag_none": {
+                    "title": "Disactivate all NOR flash driver flags",
+                    "description": "No special NOR flash driver flags enabled.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "include",
+                        "condition": "$item.logical_config.interface_type === 'NOR_ITF'"
+                      }
+                    ]
+                  },
+                  "filex_nor_flag_format_on_init": {
+                    "title": "Format NOR flash on initialization",
+                    "description": "Activate formatting of the NOR flash memory during initialization.",
+                    "type": "boolean",
+                    "default": false,
+                    "actions": [
+                      {
+                        "type": "disable",
+                        "condition": "$item.logical_config.filex_nor_flag_none === true",
+                        "message": "Clear 'Disactivate all NOR flash driver flags' to configure individual NOR flags."
+                      },
+                      {
+                        "type": "include",
+                        "condition": "$item.logical_config.interface_type === 'NOR_ITF'"
+                      }
+                    ]
+                  },
+                  "applicative": {
+                    "title": "Applicative",
+                    "type": "object",
+                    "actions": [
+                      {
+                        "type": "include",
+                        "condition": "(($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && $item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF' || $item.logical_config.interface_type === 'MMC_ITF' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING'))"
+                      }
+                    ],
+                    "properties": {
+                      "filex_configure_task": {
+                        "title": "Task per interface",
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable this option to configure the task settings",
+                        "oneOf": [
+                          {
+                            "title": "Generate",
+                            "const": true,
+                            "actions": [
+                              {
+                                "type": "enable",
+                                "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF')",
+                                "message": "Enable FreeRTOS, set operating system to FreeRTOS, and configure a valid interface to generate a task."
+                              }
+                            ]
+                         },
+                         {
+                            "title": "Do not generate",
+                            "const": false
+                         }
+                        ]
+                      },
+                      "filex_app_task_entry": {
+                        "title": "Application task entry name",
+                        "description": "Specify the name of the main thread entry function for the FileX application.",
+                        "type": "string",
+                        "default": "fx_task_interface_entry",
+                        "actions": [
+                          {
+                            "type": "enable",
+                            "condition": "$item.logical_config.applicative.filex_configure_task",
+                            "message": "Enable Task per interface to configure this field."
+                          },
+                          {
+                            "type": "enable",
+                            "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF') || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF')",
+                            "message": "Enable FreeRTOS, set operating system to FreeRTOS, and configure a valid interface to edit this field."
+                          }
+                        ]
+                      },
+                      "filex_app_task_name": {
+                        "title": "Application task name",
+                        "description": "Specify the name of the task for the FileX application.",
+                        "type": "string",
+                        "default": "fx_task_interface_entry",
+                        "actions": [
+                          {
+                            "type": "enable",
+                            "condition": "$item.logical_config.applicative.filex_configure_task",
+                            "message": "Enable Task per interface to configure this field."
+                          },
+                          {
+                            "type": "enable",
+                            "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF') || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF')",
+                            "message": "Enable FreeRTOS, set operating system to FreeRTOS, and configure a valid interface to edit this field."
+                          }
+                        ]
+                      },
+                      "filex_application_task_priority": {
+                        "title": "Application task priority",
+                        "description": "Set the priority value for the FileX application task, determining its execution precedence.",
+                        "type": "integer",
+                        "default": 10,
+                        "minimum": 0,
+                        "maximum": 56,
+                        "display_format": [
+                          "dec"
+                        ],
+                        "actions": [
+                          {
+                            "type": "enable",
+                            "condition": "$item.logical_config.applicative.filex_configure_task",
+                            "message": "Enable Task per interface to configure this field."
+                          },
+                          {
+                            "type": "enable",
+                            "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF') || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF')",
+                            "message": "Enable FreeRTOS, set Operating system to FreeRTOS, and configure a valid interface to edit this field."
+                          }
+                        ]
+                      },
+                      "filex_application_task_stack_size": {
+                        "title": "Application task stack size",
+                        "description": "Define the stack size for the FileX application task, ensuring adequate memory allocation.",
+                        "type": "integer",
+                        "default": 1024,
+                        "minimum": 1024,
+                        "maximum": 8192,
+                        "display_format": [],
+                        "actions": [
+                          {
+                            "type": "enable",
+                            "condition": "$item.logical_config.applicative.filex_configure_task",
+                            "message": "Enable Task per interface to configure this field."
+                          },
+                          {
+                            "type": "enable",
+                            "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF') || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF')",
+                            "message": "Enable FreeRTOS, set operating system to FreeRTOS, and configure a valid interface to edit this field."
+                          }
+                        ]
+                      },
+                      "filex_media_open": {
+                        "type": "boolean",
+                        "default": false,
+                        "title": "Open media",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' || $item.logical_config.interface_type === 'NOR_ITF'  || $item.logical_config.interface_type === 'NAND_ITF'"
+                          }
+                        ]
+                      },
+                      "filex_format_media": {
+                        "type": "boolean",
+                        "default": false,
+                        "title": "Format media",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "$item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF'"
+                          }
+                        ]
+                      },
+                      "more": {
+                        "type": "object",
+                        "title": "More",
+                        "description": "Settings shared for all interface types.",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "($item.logical_config.applicative.filex_format_media || $item.logical_config.applicative.filex_media_open )"
+                          }
+                        ],
+                        "properties": {
+                          "filex_volume_name": {
+                            "title": "Volume name",
+                            "description": "Define the volume name for memory.",
+                            "type": "string",
+                            "default": "STM32_VOLUME",
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "($item.logical_config.applicative.filex_format_media || $item.logical_config.applicative.filex_media_open )"
+                              }
+                            ]
+                          },
+                          "filex_max_timeout": {
+                            "title": "Maximum timeout",
+                            "description": "This parameter defines the maximum timeout in milliseconds for a specific operation. The default value is 10,000 ms, which equals 10 seconds.",
+                            "type": "integer",
+                            "default": 10000,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "($item.logical_config.applicative.filex_format_media || $item.logical_config.applicative.filex_media_open )"
+                              }
+                            ],
+                            "display_format": [
+                              "dec"
+                            ]
+                          },
+                          "filex_driver_buffer": {
+                            "title": "Define the driver buffer size",
+                            "description": "Define the FileX NAND driver working buffer size in ULONG elements. The default value 8192 corresponds to 32 KB when ULONG is 4 bytes.",
+                            "type": "integer",
+                            "default": 2048,
+                            "display_format": ["dec"],
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.interface_type === 'NAND_ITF' && ($item.logical_config.applicative.filex_format_media || $item.logical_config.applicative.filex_media_open)"
+                              }
+                            ]
+                          },
+                          "filex_sector_size": {
+                            "title": "Sector size",
+                            "description": "Define the sector size.",
+                            "type": "integer",
+                            "default": 512,
+                            "display_format": ["dec"],
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.applicative.filex_format_media"
+                              }
+                            ]
+                          },
+                          "filex_number_of_fats": {
+                            "title": "Number of fats",
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1,
+                            "maximum": 2,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.applicative.filex_format_media"
+                              }
+                            ],
+                            "display_format": ["dec"]
+                          },
+                          "filex_hidden_sectors": {
+                            "title": "Hidden sectors",
+                            "type": "integer",
+                            "default": 1,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.applicative.filex_format_media"
+                              }
+                            ],
+                            "display_format": ["dec"]
+                          },
+                          "filex_directory_entries": {
+                            "title": "Directory entries",
+                            "type": "integer",
+                            "default": 32,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.applicative.filex_format_media"
+                              }
+                            ],
+                            "display_format": ["dec"]
+                          },
+                          "filex_sectors_per_cluster": {
+                            "title": "Sectors per cluster",
+                            "type": "integer",
+                            "default": 8,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.applicative.filex_format_media"
+                              }
+                            ],
+                            "display_format": ["dec"]
+                          },
+                          "filex_heads": {
+                            "title": "Number of heads",
+                            "type": "integer",
+                            "default": 1,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.applicative.filex_format_media"
+                              }
+                            ],
+                            "display_format": ["dec"]
+                          },
+                          "filex_sectors_per_track": {
+                            "title": "Sectors per track",
+                            "type": "integer",
+                            "default": 1,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "$item.logical_config.applicative.filex_format_media"
+                              }
+                            ],
+                            "display_format": ["dec"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "resources_allocation": {
+                "title": "HW resources allocation",
+                "type": "object",
+                "actions": [
+                  {
+                    "type": "include",
+                    "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && $item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF'"
+                  }
+                ],
+                "properties": {
+                  "memory_selection": {
+                    "title": "Media selection",
+                    "type": "string",
+                    "description": "Select the media peripheral instance used for this interface.",
+                    "default": "",
+                    "actions": [
+                      {
+                        "type": "include",
+                        "condition": "$item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF'"
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "$value === ''",
+                          "message": "Select a media peripheral instance to complete this interface configuration."
+                      }
+                    ],
+                    "oneOf": [
+                      {
+                        "title": "MX25LM51245G NOR flash",
+                        "const": "MX25LM51245G_NOR_FLASH",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "($filex.levelxHasInterfaceType($get('sw-config.middleware-parameter-value', 'LevelX', 'interfaces'), 'MX25LM51245G_NOR_FLASH_INTERFACE'))"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "MX66UW1G45G NOR flash",
+                        "const": "MX66UW1G45G_NOR_FLASH",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "($filex.levelxHasInterfaceType($get('sw-config.middleware-parameter-value', 'LevelX', 'interfaces'), 'MX66UW1G45G_NOR_FLASH_INTERFACE'))"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "W25Q128J NOR flash",
+                        "const": "W25Q128J_NOR_FLASH",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "($filex.levelxHasInterfaceType($get('sw-config.middleware-parameter-value', 'LevelX', 'interfaces'), 'W25Q128J_NOR_FLASH_INTERFACE'))"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "W25N01GVXX NAND flash",
+                        "const": "W25N01GVXX_NAND_FLASH",
+                        "actions": [
+                          {
+                            "type": "include",
+                            "condition": "($filex.levelxHasInterfaceType($get('sw-config.middleware-parameter-value', 'LevelX', 'interfaces'), 'W25N01GVXX_NAND_FLASH_INTERFACE'))"
+                          }
+                        ]
+                      },
+                      {
+                        "title": "",
+                        "const": ""
+                      }
+                    ]
+                  },
+                  "hw_selection": {
+                    "title": "Media selection",
+                    "type": "object",
+                    "description": "Select the SDMMC peripheral instance used for this interface.",
+                    "actions": [
+                      {
+                        "type": "include",
+                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF') "
+                        },
+                        {
+                          "type": "warning",
+                          "condition": "!$item.resources_allocation.hw_selection?.selection",
+                          "message": "No SDMMC peripheral instance is selected. Pick one in 'Media selection'. If there is no SDMMC instance available, activate one in the peripherals view."
+                      }
+                    ],
+                    "objectType": "bind.peripheral.config",
+                    "criteria": {
+                      "peripheralType": ["sdmmc"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

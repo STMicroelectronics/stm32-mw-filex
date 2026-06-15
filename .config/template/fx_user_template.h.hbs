@@ -1,0 +1,234 @@
+{{assign "filexFilter" (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "FileX"}')~}}
+{{assign 'filex_context' (@root.SWConfigurationAPI.getInstancesConfiguration @root.filexFilter)~}}
+{{assign 'filex_cxt' @root.filex_context.[0].settings.parameters~}}
+/***************************************************************************
+  * Copyright (c) 2024 Microsoft Corporation
+  *
+  * This program and the accompanying materials are made available under the
+  * terms of the MIT License which is available at
+  * https://opensource.org/licenses/MIT.
+  *
+  * SPDX-License-Identifier: MIT
+{{> LICENSE}}
+
+/**************************************************************************/
+/**************************************************************************/
+/**                                                                       */
+/**   FileX Component                                                    */
+/**                                                                       */
+/**   User Specific                                                       */
+/**                                                                       */
+/**************************************************************************/
+/**************************************************************************/
+
+#ifndef FX_USER_H
+#define FX_USER_H
+
+/* Define various build options for the FileX port. The application should either make changes
+   here by commenting or un-commenting the conditional compilation defined OR supply the defines
+   through the compiler's equivalent of the -D option. */
+{{#with @root.filex_cxt~}}
+{{#with core~}}
+{{#with basic~}}
+{{#with filex_core~}}
+/* Configure the FileX in Standalone mode */
+{{#if (eq fx_standalone 'No_OS')}}
+#define FX_STANDALONE_ENABLE
+{{else}}
+/* #define FX_STANDALONE_ENABLE */
+{{/if}}
+
+/* Determine if error checking is desired. If so, map API functions
+   to the appropriate error checking front-ends. Otherwise, map API
+   functions to the core functions that actually perform the work.
+   Note: error checking is enabled by default. */
+
+{{#if fx_disable_error_checking}}#define FX_DISABLE_ERROR_CHECKING
+{{else}} /* #define FX_DISABLE_ERROR_CHECKING */
+{{/if}}
+
+/* Defines the size in bytes of the bit map used to update the secondary FAT sectors.
+   The larger the value the less unnecessary secondary FAT sector writes. */
+
+{{#if (eq fx_fat_map_size 128)}}/* #define FX_FAT_MAP_SIZE 128 */
+{{else}}#define FX_FAT_MAP_SIZE {{fx_fat_map_size}}
+{{/if}}
+
+/* Defines the number of entries in the FAT cache. */
+
+{{#if (eq fx_max_fat_cache 16)}}/* #define FX_MAX_FAT_CACHE 16 */
+{{else}}#define FX_MAX_FAT_CACHE {{fx_max_fat_cache}}
+{{/if}}
+
+/* Defines the maximum size of long file names supported by FileX.
+   The minimum value is 13 et la valeur maximale est 256. */
+
+{{#if (eq fx_max_long_name_len 256)}}/* #define FX_MAX_LONG_NAME_LEN 256 */
+{{else}}#define FX_MAX_LONG_NAME_LEN {{fx_max_long_name_len}}
+{{/if}}
+
+/* Defines the maximum number of logical sectors that can be cached by FileX. The cache memory
+   supplied to FileX at fx_media_open determines how many sectors can actually be cached. */
+
+{{#if (eq fx_max_sector_cache 256)}}/* #define FX_MAX_SECTOR_CACHE 256 */
+{{else}}#define FX_MAX_SECTOR_CACHE {{fx_max_sector_cache}}
+{{/if}}
+
+/* Defines the number of seconds the time parameters are updated in FileX. */
+
+{{#if (eq fx_update_rate_in_seconds 10)}}/* #define FX_UPDATE_RATE_IN_SECONDS 10 */
+{{else}}#define FX_UPDATE_RATE_IN_SECONDS {{fx_update_rate_in_seconds}}
+{{/if}}
+
+/* Defines the number of FreeRTOS timer ticks required to achieve the update rate specified by
+   FX_UPDATE_RATE_IN_SECONDS defined previously. */
+
+{{#if (eq fx_update_rate_in_ticks 10000)}}/* #define FX_UPDATE_RATE_IN_TICKS 10000 */
+{{else}}#define FX_UPDATE_RATE_IN_TICKS {{fx_update_rate_in_ticks}}
+{{/if}}
+
+/* Determine if cache is disabled. */
+
+{{#if fx_disable_cache}}#define FX_DISABLE_CACHE
+{{else}}/* #define FX_DISABLE_CACHE */
+{{/if}}
+
+/* When defined the local path support is disabled */
+
+{{#if fx_no_local_path}}#define FX_NO_LOCAL_PATH
+{{else}}/* #define FX_NO_LOCAL_PATH */
+{{/if}}
+
+/* Define FileX internal protection macros. If FX_SINGLE_THREAD is defined,
+   these protection macros are effectively disabled. However, for multi-thread
+   uses, the macros are setup to utilize a FreeRTOS mutex for multiple thread
+   access control into an open media. */
+
+{{#if fx_single_thread}}#define FX_SINGLE_THREAD
+{{else}}/* #define FX_SINGLE_THREAD */
+{{/if}}
+
+/* Include additional configurations from the 'more' section */
+
+{{#with more~}}
+/* Defined, FileX does not update already opened files. */
+
+{{#if fx_dont_update_open_files}}#define FX_DONT_UPDATE_OPEN_FILES
+{{else}}/* #define FX_DONT_UPDATE_OPEN_FILES */
+{{/if}}
+
+/* Direct read sector cache will be disabled if cache is disabled. */
+
+{{#if fx_disable_direct_data_read_cache_fill}}#define FX_DISABLE_DIRECT_DATA_READ_CACHE_FILL
+{{else}} /* #define FX_DISABLE_DIRECT_DATA_READ_CACHE_FILL */
+{{/if}}
+
+/* Defines the maximum size of long file names supported by FileX. */
+
+{{#if (eq fx_max_last_name_len 256)}}/* #define FX_MAX_LAST_NAME_LEN 256 */
+{{else}}#define FX_MAX_LAST_NAME_LEN {{fx_max_last_name_len}}
+{{/if}}
+
+/* Defined, enables 64-bits sector addresses used in I/O driver. */
+
+{{#if fx_driver_use_64bit_lba}}#define FX_DRIVER_USE_64BIT_LBA
+{{else}}/* #define FX_DRIVER_USE_64BIT_LBA */
+{{/if}}
+
+/* If defined, build options is disabled. */
+
+{{#if fx_disable_build_options}}#define FX_DISABLE_BUILD_OPTIONS
+{{else}}/* #define FX_DISABLE_BUILD_OPTIONS */
+{{/if}}
+
+/* If defined, single-line functions are disabled. */
+
+{{#if fx_disable_one_line_function}}#define FX_DISABLE_ONE_LINE_FUNCTION
+{{else}}/* #define FX_DISABLE_ONE_LINE_FUNCTION */
+{{/if}}
+
+/* If defined, FAT entry refresh is disabled. */
+
+{{#if fx_disable_fat_entry_refresh}}#define FX_DISABLE_FAT_ENTRY_REFRESH
+{{else}}/* #define FX_DISABLE_FAT_ENTRY_REFRESH */
+{{/if}}
+
+/* If defined, consecutive sector detection is disabled. */
+
+{{#if fx_disable_consecutive_detect}}#define FX_DISABLE_CONSECUTIVE_DETECT
+{{else}}/* #define FX_DISABLE_CONSECUTIVE_DETECT */
+{{/if}}
+
+/* Defined, gathering of media statistics is disabled. */
+
+{{#if fx_media_statistics_disable}}#define FX_MEDIA_STATISTICS_DISABLE
+{{else}} /* #define FX_MEDIA_STATISTICS_DISABLE */
+{{/if}}
+
+/* Defined, the file search cache optimization is disabled. */
+
+{{#if fx_media_disable_search_cache}}#define FX_MEDIA_DISABLE_SEARCH_CACHE
+{{else}}/* #define FX_MEDIA_DISABLE_SEARCH_CACHE */
+{{/if}}
+
+/* Defined, FileX is built without updating the time parameters. */
+
+{{#if fx_no_timer}}#define FX_NO_TIMER
+{{else}}/* #define FX_NO_TIMER */
+{{/if}}
+
+/* Defined, renaming inherits path information. */
+
+{{#if fx_rename_path_inherit}}#define FX_RENAME_PATH_INHERIT
+{{else}}/* #define FX_RENAME_PATH_INHERIT */
+{{/if}}
+
+/* Defined, legacy single open logic for the same file is enabled. */
+
+{{#if fx_single_open_legacy}}#define FX_SINGLE_OPEN_LEGACY
+{{else}}/* #define FX_SINGLE_OPEN_LEGACY */
+{{/if}}
+
+/* If defined, file close is disabled. */
+
+{{#if fx_disable_file_close}}#define FX_DISABLE_FILE_CLOSE
+{{else}}/* #define FX_DISABLE_FILE_CLOSE */
+{{/if}}
+
+/* If defined, fast open is disabled. */
+
+{{#if fx_disable_fast_open}}#define FX_DISABLE_FAST_OPEN
+{{else}}/* #define FX_DISABLE_FAST_OPEN */
+{{/if}}
+
+/* If defined, force memory operations are disabled. */
+
+{{#if fx_disable_force_memory_operation}}#define FX_DISABLE_FORCE_MEMORY_OPERATION
+{{else}}/* #define FX_DISABLE_FORCE_MEMORY_OPERATION */
+{{/if}}
+{{/with}}
+{{/with}}
+{{#with fault_tolerance~}}
+
+/* Defined, enables FileX fault tolerant service. */
+
+{{#if fx_enable_fault_tolerant}}#define FX_ENABLE_FAULT_TOLERANT
+{{else}}/* #define FX_ENABLE_FAULT_TOLERANT */
+{{/if}}
+
+/* Defined, data sector write requests are flushed immediately to the driver. */
+
+{{#if fx_fault_tolerant}}#define FX_FAULT_TOLERANT
+{{else}}/* #define FX_FAULT_TOLERANT */
+{{/if}}
+
+/* Defined, data sector write requests are flushed immediately to the driver. */
+
+{{#if fx_fault_tolerant_data}}#define FX_FAULT_TOLERANT_DATA
+{{else}}/* #define FX_FAULT_TOLERANT_DATA */
+{{/if}}
+{{/with}}
+{{/with}}
+{{/with}}
+{{/with}}
+#endif /* FX_USER_H */

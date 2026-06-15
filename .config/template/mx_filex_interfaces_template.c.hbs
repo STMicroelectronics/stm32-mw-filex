@@ -1,0 +1,356 @@
+{{!
+/**
+  ******************************************************************************
+  * file           : mx_filex_interfaces_template.c.hbs
+  * brief          : FileX applicative file.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+~}}
+
+/**
+  ******************************************************************************
+  * @file           : mx_filex_interfaces.c
+  * @brief          : FileX applicative file.
+{{> LICENSE}}
+{{assign "filexFilter" (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "FileX"}')~}}
+{{assign 'filex_context' (@root.SWConfigurationAPI.getInstancesConfiguration @root.filexFilter)~}}
+{{assign 'filex_cxt' @root.filex_context.[0].settings.parameters~}}
+{{assign 'used_components_filex' (@root.SWProjectAPI.getUsedComponents 'asObject' cgroup="FileX")~}}
+{{assign 'used_components_freertos' (@root.SWProjectAPI.getUsedComponents 'asObject' cgroup="FreeRTOS")~}}
+{{assign 'used_components_hal' (@root.SWProjectAPI.getUsedComponents 'asObject' cgroup="STM32 HAL")~}}
+{{#with filex_cxt.core.basic.filex_core}}
+    {{#if (eq fx_standalone 'No_OS')}}
+      {{assign 'No_OS_Mode' true~}}
+    {{/if}}
+    {{#if (eq fx_standalone 'FreeRTOS')}}
+      {{assign 'FreeRTOS_Mode' true~}}
+    {{/if}}
+{{/with}}
+
+/* Includes ------------------------------------------------------------------*/
+#include "mx_filex_interfaces.h"
+
+/* Private includes ----------------------------------------------------------*/
+
+/* Private typedef -----------------------------------------------------------*/
+
+/* Private define ------------------------------------------------------------*/
+
+/* Private macro -------------------------------------------------------------*/
+
+/* Private variables ---------------------------------------------------------*/
+{{#with @root.filex_cxt~}}
+{{#each interfaces as |iface i|}}
+{{#with iface.logical_config~}}
+{{#if applicative.filex_media_open}}
+{{#if (eq interface_type "SD_ITF")}}
+static STM32_FX_SD_DRIVER_CONTEXT mx_stm32_fx_sd_ctx_{{i}};
+{{else if (eq interface_type "MMC_ITF")}}
+static STM32_FX_MMC_DRIVER_CONTEXT mx_stm32_fx_mmc_ctx_{{i}};
+{{else if (eq interface_type "NOR_ITF")}}
+static STM32_FX_NOR_FLASH_DRIVER_CONTEXT mx_stm32_fx_nor_flash_ctx_{{i}};
+static LX_NOR_FLASH mx_stm32_fx_nor_flash_{{i}};
+
+#ifndef LX_NOR_DISABLE_EXTENDED_CACHE
+static ULONG extended_cache_memory[((LX_NOR_FLASH_{{i}}_BITMAP_CACHE_SIZE + LX_NOR_FLASH_{{i}}_OBSOLETE_COUNT_CACHE_SIZE)) / 4];
+#endif /* LX_NOR_DISABLE_EXTENDED_CACHE */
+{{else if (eq interface_type "NAND_ITF")}}
+static STM32_FX_NAND_FLASH_DRIVER_CONTEXT mx_stm32_fx_nand_flash_ctx_{{i}};
+static LX_NAND_FLASH mx_stm32_fx_nand_flash_{{i}};
+ULONG mx_lx_nand_driver_buffer[{{applicative.more.filex_driver_buffer}}];
+{{/if}}
+{{else if applicative.filex_format_media}}
+{{#if (eq interface_type "SD_ITF")}}
+static STM32_FX_SD_DRIVER_CONTEXT mx_stm32_fx_sd_ctx_{{i}};
+{{else if (eq interface_type "MMC_ITF")}}
+static STM32_FX_MMC_DRIVER_CONTEXT mx_stm32_fx_mmc_ctx_{{i}};
+{{else if (eq interface_type "NOR_ITF")}}
+static STM32_FX_NOR_FLASH_DRIVER_CONTEXT mx_stm32_fx_nor_flash_ctx_{{i}};
+static LX_NOR_FLASH mx_stm32_fx_nor_flash_{{i}};
+
+#ifndef LX_NOR_DISABLE_EXTENDED_CACHE
+static ULONG extended_cache_memory[((LX_NOR_FLASH_{{i}}_BITMAP_CACHE_SIZE + LX_NOR_FLASH_{{i}}_OBSOLETE_COUNT_CACHE_SIZE)) / 4];
+#endif /* LX_NOR_DISABLE_EXTENDED_CACHE */
+{{else if (eq interface_type "NAND_ITF")}}
+static STM32_FX_NAND_FLASH_DRIVER_CONTEXT mx_stm32_fx_nand_flash_ctx_{{i}};
+static LX_NAND_FLASH mx_stm32_fx_nand_flash_{{i}};
+ULONG mx_lx_nand_driver_buffer[{{applicative.more.filex_driver_buffer}}];
+{{/if}}
+{{/if}}
+{{#if applicative.filex_format_media}}
+{{#if (eq interface_type "SD_ITF")}}
+static MX_FILEX_MEDIA_FORMAT_CONFIG media_{{i}}_format_cfg;
+{{else if (eq interface_type "MMC_ITF")}}
+static MX_FILEX_MEDIA_FORMAT_CONFIG media_{{i}}_format_cfg;
+{{else if (eq interface_type "NOR_ITF")}}
+static MX_FILEX_MEDIA_FORMAT_CONFIG media_{{i}}_format_cfg;
+{{else if (eq interface_type "NAND_ITF")}}
+static MX_FILEX_MEDIA_FORMAT_CONFIG media_{{i}}_format_cfg;
+{{/if}}
+{{/if}}
+{{/with}}
+{{/each}}
+{{/with}}
+
+/* Private function prototypes -----------------------------------------------*/
+{{#with @root.filex_cxt~}}
+  {{#each interfaces as |iface i|}}
+    {{#with iface.logical_config~}}
+  {{#if applicative.filex_media_open}}
+        {{#if (eq interface_type "SD_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  {{#if (eq interface_mode "POLLING")}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
+  {{else if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+    {{#if (and filex_sd_flag_cache_maintenance filex_sd_flag_scratch_buffer)}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_ALL;
+    {{else if filex_sd_flag_cache_maintenance}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_CACHE_MAINTENANCE;
+    {{else if filex_sd_flag_scratch_buffer}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_SCRATCH_BUFFER;
+    {{else}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
+    {{/if}}
+  {{else}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
+  {{/if}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_max_timeout = {{applicative.more.filex_max_timeout}};
+  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc1_gethandle();
+  {{/if}}
+  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc2_gethandle();
+  {{/if}}
+  return (VOID *)&mx_stm32_fx_sd_ctx_{{i}};
+}
+        {{else if (eq interface_type "MMC_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  {{#if (eq interface_mode "POLLING")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
+  {{else if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+    {{#if (and filex_mmc_flag_cache_maintenance filex_mmc_flag_scratch_buffer)}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_ALL;
+    {{else if filex_mmc_flag_cache_maintenance}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_CACHE_MAINTENANCE;
+    {{else if filex_mmc_flag_scratch_buffer}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_SCRATCH_BUFFER;
+    {{else}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
+    {{/if}}
+  {{else}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
+  {{/if}}
+    {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc1_gethandle();
+  {{/if}}
+  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc2_gethandle();
+  {{/if}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_max_timeout = {{applicative.more.filex_max_timeout}};
+
+  return (VOID *)&mx_stm32_fx_mmc_ctx_{{i}};
+}
+{{else if (eq interface_type "NOR_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  VOID *mx_lx_driver_{{i}}_ctx;
+  {{#if filex_nor_flag_format_on_init}}
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_fx_nor_flash_flags = STM32_FX_NOR_FLAG_FORMAT_ON_INIT;
+  {{else}}
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_fx_nor_flash_flags = STM32_FX_NOR_FLAG_NONE;
+  {{/if}}
+
+  /* Get the NOR flash context */
+  mx_lx_driver_{{i}}_ctx = mx_lx_nor_flash_driver_{{i}}_get_ctx();
+
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_lx_nor_flash_handle      = &mx_stm32_fx_nor_flash_{{i}};
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_lx_nor_flash_driver_init = mx_lx_nor_flash_driver_{{i}}_initialize;
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_lx_nor_flash_driver_context = mx_lx_driver_{{i}}_ctx;
+
+#ifndef LX_NOR_DISABLE_EXTENDED_CACHE
+  mx_stm32_fx_nor_flash_ctx_{{i}}.extended_cache_memory          = (VOID *)extended_cache_memory;
+  mx_stm32_fx_nor_flash_ctx_{{i}}.extended_cache_memory_size     = sizeof(extended_cache_memory);
+#endif /* LX_NOR_DISABLE_EXTENDED_CACHE */
+  return (VOID *)&mx_stm32_fx_nor_flash_ctx_{{i}};
+}
+
+{{else if (eq interface_type "NAND_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  VOID * mx_lx_driver_{{i}}_ctx;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_fx_nand_flash_flags = STM32_FX_NAND_FLAG_NONE;
+
+  /* Get the NAND flash context */
+  mx_lx_driver_{{i}}_ctx = mx_lx_nand_flash_driver_{{i}}_get_ctx();
+  mx_stm32_fx_nand_flash_{{i}}.lx_nand_flash_driver_info_ptr = mx_lx_driver_{{i}}_ctx;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_flash_handle = &mx_stm32_fx_nand_flash_{{i}};
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_flash_driver_init = mx_lx_nand_flash_driver_{{i}}_initialize;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_flash_driver_context = mx_lx_driver_{{i}}_ctx;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_driver_buffer = mx_lx_nand_driver_buffer;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_driver_buffer_size = sizeof(mx_lx_nand_driver_buffer);
+  
+  return (VOID *)&mx_stm32_fx_nand_flash_ctx_{{i}};
+}
+  {{/if}}
+  {{else if applicative.filex_format_media}}
+  {{#if (eq interface_type "SD_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  {{#if (eq interface_mode "POLLING")}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
+  {{else if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+    {{#if (and filex_sd_flag_cache_maintenance filex_sd_flag_scratch_buffer)}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_ALL;
+    {{else if filex_sd_flag_cache_maintenance}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_CACHE_MAINTENANCE;
+    {{else if filex_sd_flag_scratch_buffer}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_SCRATCH_BUFFER;
+    {{else}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
+    {{/if}}
+  {{else}}
+  mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
+  {{/if}}
+  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc1_gethandle();
+  {{/if}}
+  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc2_gethandle();
+  {{/if}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_max_timeout = {{applicative.more.filex_max_timeout}};
+
+  return (VOID *)&mx_stm32_fx_sd_ctx_{{i}};
+}
+{{else if (eq interface_type "MMC_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  {{#if (eq interface_mode "POLLING")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
+  {{else if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+    {{#if (and filex_mmc_flag_cache_maintenance filex_mmc_flag_scratch_buffer)}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_ALL;
+    {{else if filex_mmc_flag_cache_maintenance}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_CACHE_MAINTENANCE;
+    {{else if filex_mmc_flag_scratch_buffer}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_SCRATCH_BUFFER;
+    {{else}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
+    {{/if}}
+  {{else}}
+  mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
+  {{/if}}
+  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc1_gethandle();
+  {{/if}}
+  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc2_gethandle();
+  {{/if}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_max_timeout = {{applicative.more.filex_max_timeout}};
+  return (VOID *)&mx_stm32_fx_mmc_ctx_{{i}};
+}
+  {{else if (eq interface_type "NOR_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  VOID *mx_lx_driver_{{i}}_ctx;
+  {{#if filex_nor_flag_format_on_init}}
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_fx_nor_flash_flags = STM32_FX_NOR_FLAG_FORMAT_ON_INIT;
+  {{else}}
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_fx_nor_flash_flags = STM32_FX_NOR_FLAG_NONE;
+  {{/if}}
+
+  /* Get the NOR flash context */
+  mx_lx_driver_{{i}}_ctx = mx_lx_nor_flash_driver_{{i}}_get_ctx();
+
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_lx_nor_flash_handle      = &mx_stm32_fx_nor_flash_{{i}};
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_lx_nor_flash_driver_init = mx_lx_nor_flash_driver_{{i}}_initialize;
+  mx_stm32_fx_nor_flash_ctx_{{i}}.stm32_lx_nor_flash_driver_context = mx_lx_driver_{{i}}_ctx;
+
+#ifndef LX_NOR_DISABLE_EXTENDED_CACHE
+  mx_stm32_fx_nor_flash_ctx_{{i}}.extended_cache_memory          = (VOID *)extended_cache_memory;
+  mx_stm32_fx_nor_flash_ctx_{{i}}.extended_cache_memory_size     = sizeof(extended_cache_memory);
+#endif /* LX_NOR_DISABLE_EXTENDED_CACHE */
+
+  return (VOID *)&mx_stm32_fx_nor_flash_ctx_{{i}};
+}
+ {{else if (eq interface_type "NAND_ITF")}}
+/* get the internal object */
+VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
+{
+  VOID * mx_lx_driver_{{i}}_ctx;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_fx_nand_flash_flags = STM32_FX_NAND_FLAG_NONE;
+
+  /* Get the NAND flash context */
+  mx_lx_driver_{{i}}_ctx = mx_lx_nand_flash_driver_{{i}}_get_ctx();
+  mx_stm32_fx_nand_flash_{{i}}.lx_nand_flash_driver_info_ptr = mx_lx_driver_{{i}}_ctx;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_flash_handle = &mx_stm32_fx_nand_flash_{{i}};
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_flash_driver_init = mx_lx_nand_flash_driver_{{i}}_initialize;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_flash_driver_context = mx_lx_driver_{{i}}_ctx;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_driver_buffer = mx_lx_nand_driver_buffer;
+  mx_stm32_fx_nand_flash_ctx_{{i}}.stm32_lx_nand_driver_buffer_size = sizeof(mx_lx_nand_driver_buffer);
+
+  return (VOID *)&mx_stm32_fx_nand_flash_ctx_{{i}};
+}
+        {{/if}}
+      {{/if}}
+    {{/with}}
+  {{/each}}
+{{/with}}
+
+{{#with @root.filex_cxt~}}
+  {{#each interfaces as |iface i|}}
+    {{#with iface.logical_config~}}
+  {{#if applicative.filex_format_media}}
+MX_FILEX_MEDIA_FORMAT_CONFIG *mx_filex_driver_{{i}}_get_media_format_config(VOID)
+{
+  {{#if (eq interface_type "NOR_ITF")}}
+  media_{{i}}_format_cfg.bytes_per_sector    = LX_NOR_SECTOR_SIZE * sizeof(ULONG);
+  {{else if (eq interface_type "NAND_ITF")}}
+  media_{{i}}_format_cfg.bytes_per_sector    = LX_NAND_FLASH_0_SECTOR_SIZE;
+  {{else}}
+  media_{{i}}_format_cfg.bytes_per_sector    = {{applicative.more.filex_sector_size}};
+  {{/if}}
+  {{#if (eq interface_type "SD_ITF")}}
+  hal_sd_card_info_t CardInfo;
+  HAL_SD_GetCardInfo(mx_stm32_fx_sd_ctx_{{i}}.sd_handle, &CardInfo);
+  media_{{i}}_format_cfg.total_sectors       = CardInfo.blk_nbr;
+  {{else if (eq interface_type "MMC_ITF")}}
+  hal_mmc_card_info_t CardInfo;
+  HAL_MMC_GetCardInfo(mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle, &CardInfo);
+  media_{{i}}_format_cfg.total_sectors       = CardInfo.blk_nbr;
+  {{else if (eq interface_type "NOR_ITF")}}
+  media_{{i}}_format_cfg.total_sectors       = LX_NOR_FLASH_0_SIZE / LX_NOR_SECTOR_SIZE * sizeof(ULONG);
+  {{else if (eq interface_type "NAND_ITF")}}
+  media_{{i}}_format_cfg.total_sectors       = LX_NAND_FLASH_0_SIZE / LX_NAND_FLASH_0_SECTOR_SIZE;
+  {{else}}
+  media_{{i}}_format_cfg.total_sectors       = 512;
+  {{/if}}
+  media_{{i}}_format_cfg.directory_entries   = {{applicative.more.filex_directory_entries}}U;
+  media_{{i}}_format_cfg.hidden_sectors      = {{applicative.more.filex_hidden_sectors}}U;
+  media_{{i}}_format_cfg.heads               = {{applicative.more.filex_heads}}U;
+  media_{{i}}_format_cfg.number_of_fats      = {{applicative.more.filex_number_of_fats}}U;
+  media_{{i}}_format_cfg.sectors_per_cluster = {{applicative.more.filex_sectors_per_cluster}}UL;
+  media_{{i}}_format_cfg.sectors_per_track   = {{applicative.more.filex_sectors_per_track}}U;
+  return &media_{{i}}_format_cfg;
+}
+      {{/if}}
+    {{/with}}
+  {{/each}}
+{{/with}}
