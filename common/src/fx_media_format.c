@@ -1,10 +1,11 @@
 /***************************************************************************
- * Copyright (c) 2024 Microsoft Corporation 
- * 
+ * Copyright (c) 2024 Microsoft Corporation
+ * Copyright (c) 2026-present Eclipse ThreadX contributors
+ *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
  * https://opensource.org/licenses/MIT.
- * 
+ *
  * SPDX-License-Identifier: MIT
  **************************************************************************/
 
@@ -105,25 +106,6 @@ ULONG _fx_media_format_volume_id =  1;
 /*                                                                        */
 /*    Application Code                                                    */
 /*                                                                        */
-/*  RELEASE HISTORY                                                       */
-/*                                                                        */
-/*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */
-/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
-/*  09-30-2020     William E. Lamie         Modified comment(s), and      */
-/*                                            added conditional to        */
-/*                                            disable force memset,       */
-/*                                            resulting in version 6.1    */
-/*  03-02-2021     William E. Lamie         Modified comment(s),          */
-/*                                            resulting in version 6.1.5  */
-/*  08-02-2021     Bhupendra Naphade        Modified comment(s), and      */
-/*                                            updated boot write logic,   */
-/*                                            resulting in version 6.1.8  */
-/*  04-25-2022     Bhupendra Naphade        Modified comment(s), and      */
-/*                                            updated reserved FAT entry  */
-/*                                            value,                      */
-/*                                            resulting in version 6.1.11 */
-/*                                                                        */
 /**************************************************************************/
 UINT  _fx_media_format(FX_MEDIA *media_ptr, VOID (*driver)(FX_MEDIA *media), VOID *driver_info_ptr, UCHAR *memory_ptr, UINT memory_size,
                        CHAR *volume_name, UINT number_of_fats, UINT directory_entries, UINT hidden_sectors,
@@ -161,7 +143,9 @@ UINT   sectors_per_fat, f, s;
     media_ptr -> fx_media_hidden_sectors =              hidden_sectors;
 
     /* Initialize the supplied media I/O driver.  First, build the
-       initialize driver request.  */
+       initialize driver request. Set the fx_media_driver_status to FX_MEDIA_INVALID
+       to let the driver know that the request is issued from a fx_media_format() call
+     */
     media_ptr -> fx_media_driver_request =              FX_DRIVER_INIT;
     media_ptr -> fx_media_driver_status =               FX_MEDIA_INVALID;
     media_ptr -> fx_media_driver_info =                 driver_info_ptr;
@@ -686,6 +670,22 @@ UINT   sectors_per_fat, f, s;
             return(FX_IO_ERROR);
         }
     }
+
+#ifndef FX_MEDIA_STATISTICS_DISABLE
+
+    /* Increment the number of driver flush requests.  */
+    media_ptr -> fx_media_driver_flush_requests++;
+#endif
+
+    /* Build the "flush" I/O driver request.  */
+    media_ptr -> fx_media_driver_request =      FX_DRIVER_FLUSH;
+    media_ptr -> fx_media_driver_status =       FX_IO_ERROR;
+
+    /* If trace is enabled, insert this event into the trace buffer.  */
+    FX_TRACE_IN_LINE_INSERT(FX_TRACE_INTERNAL_IO_DRIVER_FLUSH, media_ptr, 0, 0, 0, FX_TRACE_INTERNAL_EVENTS, 0, 0)
+
+    /* Call the specified I/O driver with the flush request.  */
+    (driver)(media_ptr);
 
     /* Build the "uninitialize" I/O driver request.  */
     media_ptr -> fx_media_driver_request =      FX_DRIVER_UNINIT;

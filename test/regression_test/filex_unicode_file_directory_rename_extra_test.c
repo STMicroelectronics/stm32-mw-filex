@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* Test the condition of fat entry broken. */
 #ifndef FX_STANDALONE_ENABLE
 #include   "tx_api.h"
@@ -46,13 +57,13 @@ void    filex_unicode_file_directory_rename_extra_test_application_define(void *
 #ifndef FX_STANDALONE_ENABLE
 UCHAR    *pointer;
 
-    
+
     /* Setup the working pointer.  */
     pointer =  (UCHAR *) first_unused_memory;
 
     /* Create the main thread.  */
-    tx_thread_create(&ftest_0, "thread 0", ftest_0_entry, 0,  
-            pointer, DEMO_STACK_SIZE, 
+    tx_thread_create(&ftest_0, "thread 0", ftest_0_entry, 0,
+            pointer, DEMO_STACK_SIZE,
             4, 4, TX_NO_TIME_SLICE, TX_AUTO_START);
 
     pointer =  pointer + DEMO_STACK_SIZE;
@@ -71,9 +82,9 @@ UCHAR    *pointer;
 #endif
 }
 
-static UCHAR                    new_file_name5[] =      {'a', 0, 'b', 0, 'c', 0, 0, 0}; 
-static UCHAR                    new_file_name5_bak[] =  {'a', 0, 'b', 0, 'c', 0, 0, 0}; 
-static UCHAR                    new_file_name6[] =      {'1', 0, 'b', 0, 'c', 0, 'd', 0, 0, 0}; 
+static UCHAR                    new_file_name5[] =      {'a', 0, 'b', 0, 'c', 0, 0, 0};
+static UCHAR                    new_file_name5_bak[] =  {'a', 0, 'b', 0, 'c', 0, 0, 0};
+static UCHAR                    new_file_name6[] =      {'1', 0, 'b', 0, 'c', 0, 'd', 0, 0, 0};
 static UCHAR                    destination_name[100];
 
 /* Define the test threads.  */
@@ -90,20 +101,20 @@ UCHAR temp;
     printf("FileX Test:   Unicode file directory rename extra test...............");
 
     /* Format the media with FAT32.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
-                              _fx_ram_driver,         // Driver entry            
+    status =  fx_media_format(&ram_disk,
+                              _fx_ram_driver,         // Driver entry
                               ram_disk_memory_large,  // RAM disk memory pointer
                               cache_buffer,           // Media buffer pointer
-                              CACHE_SIZE,             // Media buffer size 
+                              CACHE_SIZE,             // Media buffer size
                               "MY_RAM_DISK",          // Volume Name
                               1,                      // Number of FATs
                               32,                     // Directory Entries
                               0,                      // Hidden sectors
-                              70000 * 8,              // Total sectors 
-                              256,                    // Sector size   
+                              70000 * 8,              // Total sectors
+                              256,                    // Sector size
                               8,                      // Sectors per cluster
                               1,                      // Heads
-                              1);                     // Sectors per track 
+                              1);                     // Sectors per track
 
     return_value_if_fail( status == FX_SUCCESS, 1);
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory_large, cache_buffer, CACHE_SIZE);
@@ -114,7 +125,7 @@ UCHAR temp;
     return_value_if_fail( status == FX_SUCCESS, 3);
 
     temp = new_file_name5[0];
-    
+
     /* Attempt to create more than 26 files with unicode names with the same length. */
     for ( count = 0; count < 28; count++)
     {
@@ -158,20 +169,20 @@ UCHAR temp;
     fx_media_abort( &ram_disk);
 
     /* Format the media with FAT32.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
-                              _fx_ram_driver,         // Driver entry            
+    status =  fx_media_format(&ram_disk,
+                              _fx_ram_driver,         // Driver entry
                               ram_disk_memory_large,  // RAM disk memory pointer
                               cache_buffer,           // Media buffer pointer
-                              CACHE_SIZE,             // Media buffer size 
+                              CACHE_SIZE,             // Media buffer size
                               "MY_RAM_DISK",          // Volume Name
                               1,                      // Number of FATs
                               32,                     // Directory Entries
                               0,                      // Hidden sectors
-                              70000 * 8,              // Total sectors 
-                              256,                    // Sector size   
+                              70000 * 8,              // Total sectors
+                              256,                    // Sector size
                               8,                      // Sectors per cluster
                               1,                      // Heads
-                              1);                     // Sectors per track 
+                              1);                     // Sectors per track
 
     return_value_if_fail( status == FX_SUCCESS, 1);
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory_large, cache_buffer, CACHE_SIZE);
@@ -182,7 +193,7 @@ UCHAR temp;
     return_value_if_fail( status == FX_SUCCESS, 3);
 
     temp = new_file_name5[0];
-    
+
     /* Attempt to create more than 26 files with unicode names with the same length. */
     for ( count = 0; count < 28; count++)
     {

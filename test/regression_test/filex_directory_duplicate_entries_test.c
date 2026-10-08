@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This FileX test concentrates on recovery operation when there are duplicate entries.  */
 
 #ifndef FX_STANDALONE_ENABLE
@@ -35,10 +46,10 @@ static CHAR                     name[256];
 #ifndef FX_STANDALONE_ENABLE
 static UCHAR                    ram_disk_memory[1024 * 1024];
 static UCHAR                    *cache_buffer;
-static UCHAR                    *fault_tolerant_buffer;   
+static UCHAR                    *fault_tolerant_buffer;
 #else
 static UCHAR                    cache_buffer[CACHE_SIZE];
-static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE]; 
+static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
 #endif
 
 extern ULONG   _fx_ram_driver_copy_default_format;

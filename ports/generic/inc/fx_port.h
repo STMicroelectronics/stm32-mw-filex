@@ -1,11 +1,12 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
  * Copyright (c) 2025-2026 STMicroelectronics
- * 
+ * Copyright (c) 2026-present Eclipse ThreadX contributors
+ *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
  * https://opensource.org/licenses/MIT.
- * 
+ *
  * SPDX-License-Identifier: MIT
  **************************************************************************/
 
@@ -26,7 +27,7 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */
 /*                                                                        */
 /*    fx_port.h                                            Generic        */
-/*                                                           6.4.1        */
+/*                                                           6.3.0        */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -39,21 +40,6 @@
 /*    different processor architectures.  For example, the byte offset of */
 /*    various entries in the boot record, and directory entries are       */
 /*    defined in this file.                                               */
-/*                                                                        */
-/*  RELEASE HISTORY                                                       */
-/*                                                                        */
-/*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */
-/*  11-09-2020     William E. Lamie         Initial Version 6.1.2         */
-/*  03-02-2021     William E. Lamie         Modified comment(s), and      */
-/*                                            added standalone support,   */
-/*                                            resulting in version 6.1.5  */
-/*  10-31-2023     Xiuwen Cai               Modified comment(s),          */
-/*                                            added basic types guards,   */
-/*                                            resulting in version 6.3.0  */
-/*  28-05-2024     STMicroelectronics       Modified the code             */
-/*                                            to be RTOS agnostic support */
-/*                                            resulting in version 6.4.1  */
 /*                                                                        */
 /**************************************************************************/
 

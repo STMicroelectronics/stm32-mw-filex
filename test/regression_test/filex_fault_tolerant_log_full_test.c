@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This FileX test concentrates on the Fault-Tolerant redo log write interrupt operation.
  * The available bytes before/after file write should be decreased write_buffer_size only. */
 
@@ -40,7 +51,7 @@ static UCHAR                    *thread_buffer;
 #else
 static UCHAR                    cache_buffer[CACHE_SIZE];
 static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
-#endif 
+#endif
 static CHAR                     write_buffer[2048];
 static UINT                     i;
 

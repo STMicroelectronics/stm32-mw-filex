@@ -1,6 +1,7 @@
 /***************************************************************************
  * Copyright (c) 2024 Microsoft Corporation
  * Copyright (c) 2025-2026 STMicroelectronics
+ * Copyright (c) 2026-present Eclipse ThreadX contributors
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which is available at
@@ -117,24 +118,6 @@
 /*  CALLED BY                                                             */
 /*                                                                        */
 /*    Application Code                                                    */
-/*                                                                        */
-/*  RELEASE HISTORY                                                       */
-/*                                                                        */
-/*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */
-/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
-/*  09-30-2020     William E. Lamie         Modified comment(s), and      */
-/*                                            added conditional to        */
-/*                                            disable force memset,       */
-/*                                            build options and cache,    */
-/*                                            resulting in version 6.1    */
-/*  01-31-2022     William E. Lamie         Modified comment(s), fixed    */
-/*                                            errors without cache,       */
-/*                                            resulting in version 6.1.10 */
-/*  10-31-2022     Tiejun Zhou              Modified comment(s),          */
-/*                                            fixed memory buffer when    */
-/*                                            cache is disabled,          */
-/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 UINT  _fx_media_open(FX_MEDIA *media_ptr, CHAR *media_name,
@@ -262,7 +245,9 @@ FX_INT_SAVE_AREA
     FX_TRACE_IN_LINE_INSERT(FX_TRACE_MEDIA_OPEN, media_ptr, media_driver, memory_ptr, memory_size, FX_TRACE_MEDIA_EVENTS, 0, 0)
 
     /* Initialize the supplied media I/O driver.  First, build the
-       initialize driver request.  */
+       initialize driver request. Set the fx_media_driver_status to FX_MEDIA_NOT_OPEN
+       to let the driver understand that the request is issued from a fx_media_open() call.
+    */
     media_ptr -> fx_media_driver_request =              FX_DRIVER_INIT;
     media_ptr -> fx_media_driver_status =               FX_MEDIA_NOT_OPEN;
     media_ptr -> fx_media_driver_info =                 driver_info_ptr;

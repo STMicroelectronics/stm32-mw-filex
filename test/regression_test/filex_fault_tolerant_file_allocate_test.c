@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This FileX test concentrates on the Fault-Tolerant the file allocate related API test.
  * The offset of file is not changed after file allocate operation. */
 
@@ -24,7 +35,7 @@ void    filex_fault_tolerant_file_allocate_test_application_define(void *first_u
 /* Define the ThreadX and FileX object control blocks...  */
 
 #ifndef FX_STANDALONE_ENABLE
-static TX_THREAD                ftest_0;  
+static TX_THREAD                ftest_0;
 static TX_THREAD                ftest_1;
 #endif
 static FX_MEDIA                 ram_disk;
@@ -40,7 +51,7 @@ static UCHAR                    *thread_buffer;
 #else
 static UCHAR                    cache_buffer[CACHE_SIZE];
 static UCHAR                    fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
-#endif 
+#endif
 static UINT                     error_couter = 0;
 static UINT                     i;
 
@@ -205,7 +216,7 @@ ULONG64     available_bytes_after_write;
         /* Get available bytes before write. */
         fx_media_extended_space_available(&ram_disk, &available_bytes_after_write);
         if (available_bytes_before_write != (available_bytes_after_write +
-                    ram_disk.fx_media_fault_tolerant_clusters * ram_disk.fx_media_bytes_per_sector * ram_disk.fx_media_sectors_per_cluster)) 
+                    ram_disk.fx_media_fault_tolerant_clusters * ram_disk.fx_media_bytes_per_sector * ram_disk.fx_media_sectors_per_cluster))
         {
 
             printf("ERROR!\n");

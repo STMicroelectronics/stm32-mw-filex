@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This FileX test concentrates on the Fault-Tolerant undo log write interrupt operation.  */
 /*
 For FAT 12, 16, 32, one cluster size is 1024 bytes;
@@ -46,7 +57,7 @@ void    filex_fault_tolerant_file_truncate_release_undo_log_interrupt_test_appli
 static TX_THREAD              ftest_0;
 static TX_THREAD              ftest_1;
 #else
-static pthread_t                ptid1; 
+static pthread_t                ptid1;
 #endif
 static FX_MEDIA               ram_disk;
 static FX_FILE                my_file;
@@ -61,7 +72,7 @@ static UCHAR                  *thread_buffer;
 #else
 static UCHAR                  cache_buffer[CACHE_SIZE];
 static UCHAR                  fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
-#endif 
+#endif
 static UINT                   error_couter = 0;
 static UINT                   log_write_interrupt = FX_FALSE;
 static CHAR                   write_buffer[2048];
@@ -76,11 +87,11 @@ static ULONG64                sector_check_index;
 
 /* Define thread prototypes.  */
 
-static void    ftest_0_entry(ULONG thread_input);  
+static void    ftest_0_entry(ULONG thread_input);
 #ifndef FX_STANDALONE_ENABLE
 static void    ftest_1_entry(ULONG thread_input);
 #else
-static void    *ftest_1_entry(void * thread_input);  
+static void    *ftest_1_entry(void * thread_input);
 #endif
 
 extern void    _fx_ram_driver(FX_MEDIA *media_ptr);
@@ -686,7 +697,7 @@ static void    ftest_1_entry(ULONG thread_input)
 
 #ifdef FX_STANDALONE_ENABLE
     UINT oldtype;
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);  
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);
 #endif
 

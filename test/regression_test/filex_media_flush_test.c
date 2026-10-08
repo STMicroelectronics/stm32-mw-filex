@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This FileX test concentrates on the media flush operation.  */
 
 #ifndef FX_STANDALONE_ENABLE
@@ -52,13 +63,13 @@ void    filex_media_flush_application_define(void *first_unused_memory)
 #ifndef FX_STANDALONE_ENABLE
 UCHAR    *pointer;
 
-    
+
     /* Setup the working pointer.  */
     pointer =  (UCHAR *) first_unused_memory;
 
     /* Create the main thread.  */
-    tx_thread_create(&ftest_0, "thread 0", ftest_0_entry, 0,  
-            pointer, DEMO_STACK_SIZE, 
+    tx_thread_create(&ftest_0, "thread 0", ftest_0_entry, 0,
+            pointer, DEMO_STACK_SIZE,
             4, 4, TX_NO_TIME_SLICE, TX_AUTO_START);
 
     pointer =  pointer + DEMO_STACK_SIZE;
@@ -95,7 +106,7 @@ ULONG       i;
 
     /* Print out some test information banners.  */
     printf("FileX Test:   Media flush test.......................................");
-    
+
 /* Only run this if error checking is enabled */
 #ifndef FX_DISABLE_ERROR_CHECKING
     /* send null pointer to generate an error */
@@ -108,20 +119,20 @@ ULONG       i;
 #endif /* FX_DISABLE_ERROR_CHECKING */
 
     /* Format the media.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             32,                     // Directory Entries
                             0,                      // Hidden sectors
-                            256,                    // Total sectors 
-                            128,                    // Sector size   
+                            256,                    // Total sectors
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -130,7 +141,7 @@ ULONG       i;
         printf("ERROR!\n");
         test_control_return(2);
     }
-    
+
     /* try to flush the media before it is opened */
     status = fx_media_flush(&ram_disk);
     if (status != FX_MEDIA_NOT_OPEN)
@@ -150,7 +161,7 @@ ULONG       i;
         printf("ERROR!\n");
         test_control_return(21);
     }
-    
+
     /* try to flush the media while it is write protected */
     ram_disk.fx_media_driver_write_protect = FX_TRUE;
     status = fx_media_flush(&ram_disk);
@@ -185,7 +196,7 @@ ULONG       i;
 
     /* Pickup the available bytes in the media.  */
     status =  fx_media_space_available(&ram_disk, &available_bytes);
-    
+
     /* Check for available bytes error.  */
     if ((status != FX_SUCCESS) || (available_bytes < sizeof(ULONG)))
     {
@@ -199,7 +210,7 @@ ULONG       i;
     write_value =  0;
     while (i < available_bytes)
     {
-    
+
         /* Write 4 bytes to the file.  */
         status =  fx_file_write(&my_file, (void *) &write_value, sizeof(ULONG));
 
@@ -210,17 +221,17 @@ ULONG       i;
             printf("ERROR!\n");
             test_control_return(6);
         }
-        
+
         /* Increment byte count.  */
         i =  i + sizeof(ULONG);
-        
+
         /* Increment write value.  */
         write_value++;
     }
-    
+
     /* Pickup the available bytes in the media again.  */
     status =  fx_media_space_available(&ram_disk, &i);
-    
+
     /* Check for available bytes error.  */
     if ((status != FX_SUCCESS) || (i != 0))
     {
@@ -228,7 +239,7 @@ ULONG       i;
         printf("ERROR!\n");
         test_control_return(7);
     }
-    
+
 /* Only run this if error checking is enabled */
 #ifndef FX_DISABLE_ERROR_CHECKING
     /* send null pointer to generate an error */
@@ -239,11 +250,11 @@ ULONG       i;
         test_control_return(11);
     }
 #endif /* FX_DISABLE_ERROR_CHECKING */
-    
-    /* At this point, we should flush the media to ensure that all 
+
+    /* At this point, we should flush the media to ensure that all
        dirty sectors are written.  */
     status =  fx_media_flush(&ram_disk);
-    
+
 #ifndef FX_DISABLE_CACHE
     /* Check for flush errors.  */
     if ((status != FX_SUCCESS) || (ram_disk.fx_media_sector_cache_dirty_count))
@@ -253,7 +264,7 @@ ULONG       i;
         test_control_return(8);
     }
 #endif
-    
+
     /* Seek to the beginning of the test file.  */
     status =  fx_file_seek(&my_file, 0);
 
@@ -270,7 +281,7 @@ ULONG       i;
     read_value =  0;
     while (i < available_bytes)
     {
-    
+
         /* Read 4 bytes from the file.  */
         status =  fx_file_read(&my_file, (void *) &read_value, sizeof(ULONG), &actual);
 
@@ -309,20 +320,20 @@ ULONG       i;
     }
 
     /* Reformat the media.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             32,                     // Directory Entries
                             0,                      // Hidden sectors
-                            256,                    // Total sectors 
-                            128,                    // Sector size   
+                            256,                    // Total sectors
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -368,7 +379,7 @@ ULONG       i;
 
     /* Pickup the available bytes in the media.  */
     status =  fx_media_space_available(&ram_disk, &available_bytes);
-    
+
     /* Check for available bytes error.  */
     if ((status != FX_SUCCESS) || (available_bytes < sizeof(ULONG)))
     {
@@ -382,7 +393,7 @@ ULONG       i;
     write_value =  0;
     while (i < available_bytes)
     {
-    
+
         /* Write 4 bytes to the file.  */
         status =  fx_file_write(&my_file, (void *) &write_value, sizeof(ULONG));
 
@@ -393,17 +404,17 @@ ULONG       i;
             printf("ERROR!\n");
             test_control_return(18);
         }
-        
+
         /* Increment byte count.  */
         i =  i + sizeof(ULONG);
-        
+
         /* Increment write value.  */
         write_value++;
     }
-    
+
     /* Pickup the available bytes in the media again.  */
     status =  fx_media_space_available(&ram_disk, &i);
-    
+
     /* Check for available bytes error.  */
     if ((status != FX_SUCCESS) || (i != 0))
     {
@@ -411,11 +422,11 @@ ULONG       i;
         printf("ERROR!\n");
         test_control_return(19);
     }
-    
-    /* At this point, we should flush the media to ensure that all 
+
+    /* At this point, we should flush the media to ensure that all
        dirty sectors are written.  */
     status =  fx_media_flush(&ram_disk);
-    
+
 #ifndef FX_DISABLE_CACHE
     /* Check for flush errors.  */
     if ((status != FX_SUCCESS) || (ram_disk.fx_media_sector_cache_dirty_count))
@@ -425,7 +436,7 @@ ULONG       i;
         test_control_return(20);
     }
 #endif
-    
+
     /* Seek to the beginning of the test file.  */
     status =  fx_file_seek(&my_file, 0);
 
@@ -442,7 +453,7 @@ ULONG       i;
     read_value =  0;
     while (i < available_bytes)
     {
-    
+
         /* Read 4 bytes from the file.  */
         status =  fx_file_read(&my_file, (void *) &read_value, sizeof(ULONG), &actual);
 

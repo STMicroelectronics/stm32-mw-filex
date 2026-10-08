@@ -1,3 +1,15 @@
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation
+ * Copyright (c) 2025 Eclipse ThreadX contributors
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ *
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
+
+
 /* This is a small demo of the high-performance FileX FAT file system. It includes setup for
    a small 34KB RAM disk and a loop that writes and reads a small file.  */
 #include "fx_api.h"
@@ -53,11 +65,11 @@ ULONG           thread_0_counter;
 void  main(void)
 {
 
-#ifdef FX_STANDALONE_ENABLE  
+#ifdef FX_STANDALONE_ENABLE
 
     /* Initialize FileX.  */
     fx_system_initialize();
-  
+
     thread_0_entry(0);
 #else
     /* Enter the ThreadX kernel.  */
@@ -108,7 +120,7 @@ CHAR  local_buffer[30];
        tx_application_define above.
 
        Important Note: The user must ensure there is enough RAM for the format
-                       specified.  Otherwise, memory corruption can occur. 
+                       specified.  Otherwise, memory corruption can occur.
     */
     status = fx_media_format(&ram_disk
                     _fx_ram_driver,               // Driver entry
@@ -131,7 +143,7 @@ CHAR  local_buffer[30];
     {
         /* Error formatting the RAM disk.  */
         printf("HTTPS RAM disk format failed, error: %x\n", status);
-        return; 
+        return;
     }
 
     /* Loop to repeat the demo over and over!  */
@@ -145,8 +157,9 @@ CHAR  local_buffer[30];
         {
             /* Error opening the RAM disk. */
             printf("RAM disk open failed, error: %x\n", status);
-            return; 
+            return;
         }
+
 
 #ifdef FX_ENABLE_FAULT_TOLERANT
         status = fx_fault_tolerant_enable(&ram_disk, fault_tolerant_memory, sizeof(fault_tolerant_memory));

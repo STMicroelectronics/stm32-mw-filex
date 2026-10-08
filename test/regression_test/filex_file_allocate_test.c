@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This FileX test concentrates on the file allocate test.  */
 /*
 Test steps:
@@ -48,7 +59,7 @@ static UCHAR                    *fault_tolerant_buffer;
 #else
 static UCHAR                     cache_buffer[CACHE_SIZE];
 #ifdef FX_ENABLE_FAULT_TOLERANT
-static UCHAR                     fault_tolerant_buffer[FAULT_TOLERANT_SIZE]; 
+static UCHAR                     fault_tolerant_buffer[FAULT_TOLERANT_SIZE];
 #endif /* FX_ENABLE_FAULT_TOLERANT */
 #endif
 
@@ -80,7 +91,7 @@ void    filex_file_allocate_application_define(void *first_unused_memory)
     tx_thread_create(&ftest_0, "thread 0", ftest_0_entry, 0,
             pointer, DEMO_STACK_SIZE,
             4, 4, TX_NO_TIME_SLICE, TX_AUTO_START);
-   
+
     pointer =  pointer + DEMO_STACK_SIZE;
 
     /* Setup memory for the RAM disk and the sector cache.  */

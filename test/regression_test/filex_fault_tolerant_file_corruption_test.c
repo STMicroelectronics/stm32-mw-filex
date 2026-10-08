@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This test case is design to reproduce file corruption bug.
  * https://expresslogic.zendesk.com/agent/tickets/1252 */
 #include <stdio.h>
@@ -27,14 +38,14 @@ extern UINT         (*driver_write_callback)(FX_MEDIA *media_ptr,
                                              UINT sector_type,
                                              UCHAR *block_ptr,
                                              UINT *operation_ptr);
-extern VOID (*driver_fault_tolerant_enable_callback)(FX_MEDIA *media_ptr, 
+extern VOID (*driver_fault_tolerant_enable_callback)(FX_MEDIA *media_ptr,
                                                      UCHAR *fault_tolerant_memory_buffer,
                                                      ULONG log_size);
 static UINT         my_driver_write_callback(FX_MEDIA *media_ptr,
                                              UINT sector_type,
                                              UCHAR *block_ptr,
                                              UINT *operation_ptr);
-static VOID         my_fault_tolerant_enable_callback(FX_MEDIA *media_ptr, 
+static VOID         my_fault_tolerant_enable_callback(FX_MEDIA *media_ptr,
                                                       UCHAR *fault_tolerant_memory_buffer,
                                                       ULONG log_size);
 static void         ftest_0_entry(ULONG thread_input);
@@ -344,7 +355,7 @@ static UINT         my_driver_write_callback(FX_MEDIA *media_ptr,
     return(FX_SUCCESS);
 }
 
-static VOID         my_fault_tolerant_enable_callback(FX_MEDIA *media_ptr, 
+static VOID         my_fault_tolerant_enable_callback(FX_MEDIA *media_ptr,
                                                       UCHAR *fault_tolerant_memory_buffer,
                                                       ULONG log_size)
 {

@@ -1,3 +1,14 @@
+/***************************************************************************/
+/* Copyright (c) 2024 Microsoft Corporation                                */
+/* Copyright (c) 2026 Eclipse ThreadX contributors                         */
+/*                                                                         */
+/* This program and the accompanying materials are made available under    */
+/* the terms of the MIT License which is available at                      */
+/* https://opensource.org/licenses/MIT.                                    */
+/*                                                                         */
+/* SPDX-License-Identifier: MIT                                            */
+/***************************************************************************/
+
 /* This FileX test concentrates on the basic media volume get/set operation.  */
 
 #ifndef FX_STANDALONE_ENABLE
@@ -53,13 +64,13 @@ void    filex_media_volume_get_set_application_define(void *first_unused_memory)
 #ifndef FX_STANDALONE_ENABLE
 UCHAR    *pointer;
 
-    
+
     /* Setup the working pointer.  */
     pointer =  (UCHAR *) first_unused_memory;
 
     /* Create the main thread.  */
-    tx_thread_create(&ftest_0, "thread 0", ftest_0_entry, 0,  
-            pointer, DEMO_STACK_SIZE, 
+    tx_thread_create(&ftest_0, "thread 0", ftest_0_entry, 0,
+            pointer, DEMO_STACK_SIZE,
             4, 4, TX_NO_TIME_SLICE, TX_AUTO_START);
 
     pointer =  pointer + DEMO_STACK_SIZE;
@@ -94,20 +105,20 @@ CHAR        volume_buffer[32];
     printf("FileX Test:   Media volume get/set test..............................");
 
     /* Format the media.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             32,                     // Directory Entries
                             0,                      // Hidden sectors
-                            256,                    // Total sectors 
-                            128,                    // Sector size   
+                            256,                    // Total sectors
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -116,15 +127,15 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(2);
     }
-    
+
     /* try to set the media volume name before the media is opened */
     status =  fx_media_volume_set(&ram_disk, "NEW");
-    if (status != FX_MEDIA_NOT_OPEN) 
+    if (status != FX_MEDIA_NOT_OPEN)
     {
         printf("ERROR!\n");
         test_control_return(11);
     }
-    
+
     /* try to get the media volume name before the media is opened */
     status =  fx_media_volume_get(&ram_disk, volume_buffer, FX_BOOT_SECTOR);
     if (status != FX_MEDIA_NOT_OPEN)
@@ -144,7 +155,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(3);
     }
-    
+
 /* Only run this if error checking is enabled */
 #ifndef FX_DISABLE_ERROR_CHECKING
     /* send null pointer to generate an error */
@@ -173,16 +184,16 @@ CHAR        volume_buffer[32];
 #else
     /* try to set the media volume name to something invalid */
     status =  fx_media_volume_set(&ram_disk, "");
-    if (status != FX_INVALID_NAME) 
+    if (status != FX_INVALID_NAME)
     {
         printf("ERROR!\n");
         test_control_return(11);
     }
 #endif /* FX_DISABLE_ERROR_CHECKING */
-    
+
     /* Get the current volume name - from boot record.  */
     status =  fx_media_volume_get(&ram_disk, volume_buffer, FX_BOOT_SECTOR);
-    
+
     /* Determine if there was an error getting the volume name.  */
     if ((status != FX_SUCCESS) ||
         (volume_buffer[0] != 'M') ||
@@ -202,7 +213,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(4);
     }
-    
+
     /* Set volume_buffer to known state.  */
     memcpy(volume_buffer, "ORIGINALSTRING", 15);
 
@@ -225,7 +236,7 @@ CHAR        volume_buffer[32];
 
     /* Get the current volume name - from root directory.  */
     status =  fx_media_volume_get(&ram_disk, volume_buffer, FX_DIRECTORY_SECTOR);
-            
+
     /* Determine if we found a volume name in the root directory.
      * When not, the value from boot sector will be returned. */
     if ((status != FX_SUCCESS) ||
@@ -241,7 +252,7 @@ CHAR        volume_buffer[32];
         (volume_buffer[9] != 'S') ||
         (volume_buffer[10] != 'K'))
     {
-    
+
         /* Error getting the volume name.  */
         printf("ERROR!\n");
         test_control_return(5);
@@ -251,9 +262,9 @@ CHAR        volume_buffer[32];
     status =  fx_media_volume_set(&ram_disk, "NEW");
 
     /* Determine if the volume name set was successful...  */
-    if (status != FX_SUCCESS) 
+    if (status != FX_SUCCESS)
     {
-    
+
         /* Error setting the volume name.  */
         printf("ERROR!\n");
         test_control_return(6);
@@ -264,7 +275,7 @@ CHAR        volume_buffer[32];
 
     /* Get the current volume name - from boot record.  */
     status =  fx_media_volume_get(&ram_disk, volume_buffer, FX_BOOT_SECTOR);
-    
+
     /* Determine if there was an error getting the volume name.  */
     if ((status != FX_SUCCESS) ||
         (volume_buffer[0] != 'N') ||
@@ -277,10 +288,10 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(7);
     }
-    
+
     /* Get the current volume name - from root directory.  */
     status =  fx_media_volume_get(&ram_disk, volume_buffer, FX_DIRECTORY_SECTOR);
-            
+
     /* Determine if we found a volume name in the root directory... should not since our
        format doesn't do that!  */
     if ((status != FX_SUCCESS) ||
@@ -289,7 +300,7 @@ CHAR        volume_buffer[32];
         (volume_buffer[2] != 'W') ||
         (volume_buffer[3] != (CHAR) 0))
     {
-    
+
         /* Error getting the volume name.  */
         printf("ERROR!\n");
         test_control_return(8);
@@ -307,20 +318,20 @@ CHAR        volume_buffer[32];
     }
 
     /* Format the media in FAT32.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             32,                     // Directory Entries
                             0,                      // Hidden sectors
                             70000,                   // Total sectors - FAT 32
-                            128,                    // Sector size   
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -329,7 +340,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(11);
     }
-    
+
 
     /* Open the ram_disk.  */
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, CACHE_SIZE);
@@ -346,12 +357,12 @@ CHAR        volume_buffer[32];
     /* Set the volume name to a NULL volume name.   */
     volume_buffer[0] =  0;
     status =  _fx_media_volume_set(&ram_disk, volume_buffer);
-    if (status != FX_INVALID_NAME) 
+    if (status != FX_INVALID_NAME)
     {
         printf("ERROR!\n");
         test_control_return(13);
     }
-    
+
     /* Now set the volume name to something longer than 11 characters that are lower case.  */
     status =  fx_media_volume_set(&ram_disk, "thisisareallylongvolumename");
     if (status != FX_SUCCESS)
@@ -405,29 +416,29 @@ CHAR        volume_buffer[32];
     }
     /* Close the media.  */
     status =  fx_media_close(&ram_disk);
-    
+
     if (status != FX_SUCCESS)
     {
         printf("ERROR!\n");
         test_control_return(18);
     }
-    
+
 
     /* Format the media in FAT16.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             16,                     // Directory Entries
                             0,                      // Hidden sectors
                             7000,                   // Total sectors - FAT 16
-                            128,                    // Sector size   
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -436,7 +447,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(19);
     }
-    
+
     /* Open the ram_disk.  */
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, 128);
 
@@ -475,7 +486,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(21);
     }
-    
+
     /* Now set the volume name.  */
     status =  fx_media_volume_set(&ram_disk, "MINE ");
     if (status != FX_MEDIA_INVALID)
@@ -486,7 +497,7 @@ CHAR        volume_buffer[32];
 
     /* Now delete the first entry so we can find it.  */
     status =  fx_file_delete(&ram_disk, "FILE1.TXT");
-    
+
     /* And set the volume name again.  */
     status +=  fx_media_volume_set(&ram_disk, "MINE ");
     if (status != FX_SUCCESS)
@@ -505,7 +516,7 @@ CHAR        volume_buffer[32];
 
     /* Close the media.  */
     status =  fx_media_close(&ram_disk);
-    
+
     if (status != FX_SUCCESS)
     {
         printf("ERROR!\n");
@@ -513,20 +524,20 @@ CHAR        volume_buffer[32];
     }
 
     /* Format the media in FAT16.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             16,                     // Directory Entries
                             0,                      // Hidden sectors
                             7000,                   // Total sectors - FAT 16
-                            128,                    // Sector size   
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -535,7 +546,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(26);
     }
-    
+
     /* Open the ram_disk.  */
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, 128);
 
@@ -574,10 +585,10 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(28);
     }
-    
+
     /* Now delete the first entry so we can find it.  */
     status =  fx_file_delete(&ram_disk, "FILE16.TXT");
-    
+
     /* And set the volume name again.  */
     status +=  fx_media_volume_set(&ram_disk, "mine~ ");
     if (status != FX_SUCCESS)
@@ -596,28 +607,28 @@ CHAR        volume_buffer[32];
 
     /* Close the media.  */
     status =  fx_media_close(&ram_disk);
-    
+
     if (status != FX_SUCCESS)
     {
         printf("ERROR!\n");
         test_control_return(31);
     }
-    
+
     /* Format the media in FAT16.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             16,                     // Directory Entries
                             0,                      // Hidden sectors
                             7000,                   // Total sectors - FAT 16
-                            128,                    // Sector size   
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -626,7 +637,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(32);
     }
-    
+
     /* Open the ram_disk.  */
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, 128);
 
@@ -657,7 +668,7 @@ CHAR        volume_buffer[32];
     status +=  fx_file_create(&ram_disk, "FILE15.TXT");
 
     /* Leave the last entry free for search test.  */
-    
+
     /* Check the status.  */
     if (status != FX_SUCCESS)
     {
@@ -666,7 +677,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(34);
     }
-     
+
     /* Set the volume name.  */
     status +=  fx_media_volume_set(&ram_disk, "MY ");
     if (status != FX_SUCCESS)
@@ -677,28 +688,28 @@ CHAR        volume_buffer[32];
 
     /* Close the media.  */
     status =  fx_media_close(&ram_disk);
-    
+
     if (status != FX_SUCCESS)
     {
         printf("ERROR!\n");
         test_control_return(36);
-    }    
+    }
 
     /* Format the media in FAT16.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             16,                     // Directory Entries
                             0,                      // Hidden sectors
                             7000,                   // Total sectors - FAT 16
-                            128,                    // Sector size   
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
 
     /* Determine if the format had an error.  */
     if (status)
@@ -707,7 +718,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(37);
     }
-    
+
     /* Open the ram_disk.  */
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, 128);
 
@@ -740,7 +751,7 @@ CHAR        volume_buffer[32];
     /* Leave the last entry free for search test... and delete file 5 and 6 to create some available slots.  */
     status +=  fx_file_delete(&ram_disk, "FILE6.TXT");
     status +=  fx_file_delete(&ram_disk, "FILE7.TXT");
-       
+
     /* Check the status.  */
     if (status != FX_SUCCESS)
     {
@@ -749,7 +760,7 @@ CHAR        volume_buffer[32];
         printf("ERROR!\n");
         test_control_return(39);
     }
-     
+
     /* Set the volume name.  */
     status =  fx_media_volume_set(&ram_disk, "MY ");
     if (status != FX_SUCCESS)
@@ -767,7 +778,7 @@ CHAR        volume_buffer[32];
     }
 
     /* Test the I/O errors.  */
-    
+
     /* Cause an error reading sector 0.  */
     _fx_utility_logical_sector_flush(&ram_disk, 0, 60000, FX_TRUE);
     _fx_ram_driver_io_error_request =  1;
@@ -883,32 +894,32 @@ CHAR        volume_buffer[32];
     {
         printf("ERROR!\n");
         test_control_return(51);
-    }    
+    }
 
     /* Close the media.  */
     status =  fx_media_close(&ram_disk);
-    
+
     if (status != FX_SUCCESS)
     {
         printf("ERROR!\n");
         test_control_return(52);
-    }    
+    }
 
     /* Format the media.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "MY_RAM_DISK",          // Volume Name
                             1,                      // Number of FATs
                             32,                     // Directory Entries
                             0,                      // Hidden sectors
-                            256,                    // Total sectors 
-                            128,                    // Sector size   
+                            256,                    // Total sectors
+                            128,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
     return_if_fail(status == FX_SUCCESS);
 
     status =  fx_media_open(&ram_disk, "RAM DISK", _fx_ram_driver, ram_disk_memory, cache_buffer, CACHE_SIZE);
@@ -924,31 +935,31 @@ CHAR        volume_buffer[32];
 
     /* Close the media.  */
     status =  fx_media_close(&ram_disk);
-    
+
     if (status != FX_SUCCESS)
     {
         printf("ERROR!\n");
         test_control_return(53);
-    }  
+    }
 
     /* This test is added to check if fx_media_volume_get() returns volume entry that was marked free */
     memset(ram_disk_memory,'\0',sizeof(ram_disk_memory));
 
     /* Format the media.  This needs to be done before opening it!  */
-    status =  fx_media_format(&ram_disk, 
+    status =  fx_media_format(&ram_disk,
                             _fx_ram_driver,         // Driver entry
                             ram_disk_memory,        // RAM disk memory pointer
                             cache_buffer,           // Media buffer pointer
-                            CACHE_SIZE,             // Media buffer size 
+                            CACHE_SIZE,             // Media buffer size
                             "NO NAME",              // Volume Name
                             1,                      // Number of FATs
                             32,                     // Directory Entries
                             0,                      // Hidden sectors
-                            70000 * 8,              // Total sectors 
-                            512,                    // Sector size   
+                            70000 * 8,              // Total sectors
+                            512,                    // Sector size
                             1,                      // Sectors per cluster
                             1,                      // Heads
-                            1);                     // Sectors per track 
+                            1);                     // Sectors per track
     return_if_fail(status == FX_SUCCESS);
 
     status =  fx_media_open(&ram_disk, "RAMDISK", _fx_ram_driver, ram_disk_memory, cache_buffer, CACHE_SIZE);
@@ -972,33 +983,33 @@ CHAR        volume_buffer[32];
 
     /* Close the media.  */
     status =  fx_media_close(&ram_disk);
-    
+
     if (status != FX_SUCCESS)
     {
         printf("ERROR!\n");
         test_control_return(54);
-    }  
+    }
 
-    /* Modify first character of the volume label entry in boot sector. This is done to verify 
+    /* Modify first character of the volume label entry in boot sector. This is done to verify
     if the volume entry marked free is returned or not */
     ram_disk_memory[71] = 0x39;
 
-    /* First Character of Volume label in data section 
+    /* First Character of Volume label in data section
     The absolute address was found by looping across the ram_disk_memory to find the Volume name in data section */
     ram_disk_memory[2241024] = FX_DIR_ENTRY_FREE;
 
     memset(cache_buffer,'\0',sizeof(cache_buffer));
-    
+
     status =  fx_media_open(&ram_disk, "RAMDISK", _fx_ram_driver, ram_disk_memory, cache_buffer, CACHE_SIZE);
     return_if_fail(status == FX_SUCCESS);;
     status = fx_media_volume_get(&ram_disk, volume_buffer, FX_DIRECTORY_SECTOR);
     return_if_fail(status == FX_SUCCESS);
-        
+
     if ((status != FX_SUCCESS) || (volume_buffer[0] != '9'))
     {
         printf("ERROR!\n");
         test_control_return(55);
-    }  
+    }
 
     printf("SUCCESS!\n");
     test_control_return(0);
