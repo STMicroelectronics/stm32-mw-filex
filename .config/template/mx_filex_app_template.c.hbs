@@ -34,14 +34,22 @@
       {{#if @root.isStandalone}}
         {{#if (or applicative.filex_media_open applicative.filex_format_media)}}
 static FX_MEDIA fx_media_{{i}};
-static UCHAR fx_media_{{i}}_buffer[512];
+          {{#if (or filex_sd_flag_cache_maintenance filex_mmc_flag_cache_maintenance)}}
+static __attribute__((aligned(32))) ULONG fx_media_{{i}}_buffer[{{applicative.more.filex_media_buffer_size}} / sizeof(ULONG)];
+          {{else}}
+static ULONG fx_media_{{i}}_buffer[{{applicative.more.filex_media_buffer_size}} / sizeof(ULONG)];
+          {{/if}}
         {{/if}}
       {{/if}}
       {{#unless @root.isStandalone}}
         {{#if (or @root.generateInit applicative.filex_configure_task)}}
           {{#if (or applicative.filex_media_open applicative.filex_format_media)}}
 static FX_MEDIA fx_media_{{i}};
-static UCHAR fx_media_{{i}}_buffer[512];
+            {{#if (or filex_sd_flag_cache_maintenance filex_mmc_flag_cache_maintenance)}}
+static __attribute__((aligned(32))) ULONG fx_media_{{i}}_buffer[{{applicative.more.filex_media_buffer_size}} / sizeof(ULONG)];
+            {{else}}
+static ULONG fx_media_{{i}}_buffer[{{applicative.more.filex_media_buffer_size}} / sizeof(ULONG)];
+            {{/if}}
           {{/if}}
           {{#if applicative.filex_configure_task}}
 TaskHandle_t task_{{i}};
@@ -53,6 +61,18 @@ TaskHandle_t task_{{i}};
 {{/with}}
 {{#if generateInit}}
 TaskHandle_t main_task;
+{{/if}}
+{{assign "main_task_needs_status" false~}}
+{{#if generateInit~}}
+  {{#with filex_cxt~}}
+    {{#each interfaces as |iface i|}}
+      {{#with logical_config~}}
+        {{#if (or applicative.filex_format_media applicative.filex_media_open)}}
+          {{assign "main_task_needs_status" true~}}
+        {{/if}}
+      {{/with}}
+    {{/each}}
+  {{/with}}
 {{/if}}
 
 /* Private function prototypes -----------------------------------------------*/
@@ -73,6 +93,55 @@ VOID {{applicative.filex_app_task_entry}}(VOID *args);
   */
 UINT app_filex_init(VOID)
 {
+{{#if isStandalone}}
+  UINT status = FX_SUCCESS;
+
+  fx_system_initialize();
+
+  {{#each filex_cxt.interfaces as |iface i|}}
+    {{#with logical_config~}}
+  {{#if (or applicative.filex_format_media applicative.filex_media_open)}}
+  VOID *fx_driver_{{i}}_info_ptr = mx_filex_driver_{{i}}_get_ctx();
+      {{/if}}
+  {{#if applicative.filex_format_media}}
+  MX_FILEX_MEDIA_FORMAT_CONFIG *media_{{i}}_format_cfg;
+  media_{{i}}_format_cfg = mx_filex_driver_{{i}}_get_media_format_config();
+
+  status = fx_media_format(&fx_media_{{i}},
+                           mx_filex_driver_{{i}},
+                           fx_driver_{{i}}_info_ptr,
+                           (VOID *)fx_media_{{i}}_buffer,
+                           sizeof(fx_media_{{i}}_buffer),
+                           volume_name_{{i}},
+                           media_{{i}}_format_cfg->number_of_fats,
+                           media_{{i}}_format_cfg->directory_entries,
+                           media_{{i}}_format_cfg->hidden_sectors,
+                           media_{{i}}_format_cfg->total_sectors,
+                           media_{{i}}_format_cfg->bytes_per_sector,
+                           media_{{i}}_format_cfg->sectors_per_cluster,
+                           media_{{i}}_format_cfg->heads,
+                           media_{{i}}_format_cfg->sectors_per_track);
+
+  if (status != FX_SUCCESS)
+  {
+    return status;
+  }
+  {{/if}}
+
+  {{#if applicative.filex_media_open}}
+  status = fx_media_open(&fx_media_{{i}}, volume_name_{{i}}, mx_filex_driver_{{i}}, fx_driver_{{i}}_info_ptr,
+                         (VOID *)fx_media_{{i}}_buffer, sizeof(fx_media_{{i}}_buffer));
+
+  if (status != FX_SUCCESS)
+  {
+    return status;
+  }
+      {{/if}}
+    {{/with}}
+  {{/each}}
+
+  return status;
+{{else}}
 {{#if generateInit}}
   UINT ret;
 {{else}}
@@ -107,16 +176,19 @@ UINT app_filex_init(VOID)
   {{/each}}
   fx_system_initialize();
   return FX_SUCCESS;
+{{/if}}
 }
 
 {{#if generateInit}}
 VOID {{filex_cxt.core.applicative.filex_app_task_entry}}(VOID *args)
 {
+  {{#if main_task_needs_status}}
+  UINT status;
+  {{/if}}
   {{#with filex_cxt~}}
     {{#each interfaces as |iface i|}}
       {{#with logical_config~}}
   {{#if (or applicative.filex_format_media applicative.filex_media_open)}}
-  UINT status;
   VOID *fx_driver_{{i}}_info_ptr = mx_filex_driver_{{i}}_get_ctx();
       {{/if}}
   {{#if applicative.filex_format_media}}
@@ -215,59 +287,17 @@ VOID {{applicative.filex_app_task_entry}}(VOID *args)
     {{#if applicative.filex_configure_task}}
 VOID {{applicative.filex_app_task_entry}}(VOID *args)
 {
-  /* Empty: main task handles all logic */
 }
 
     {{/if}}
   {{/with}}
 {{/each}}
 {{/if}}
-{{#if (eq filex_cxt.core.basic.filex_core.fx_standalone "No_OS")}}
+{{#if isStandalone}}
 UINT app_filex_process(VOID)
 {
   UINT status = FX_SUCCESS;
-  {{#each filex_cxt.interfaces as |iface i|}}
-    {{#with logical_config~}}
-  {{#if (or applicative.filex_format_media applicative.filex_media_open)}}
-  VOID *fx_driver_{{i}}_info_ptr = mx_filex_driver_{{i}}_get_ctx();
-      {{/if}}
-  {{#if applicative.filex_format_media}}
-  MX_FILEX_MEDIA_FORMAT_CONFIG *media_{{i}}_format_cfg;
-  media_{{i}}_format_cfg = mx_filex_driver_{{i}}_get_media_format_config();
 
-  status = fx_media_format(&fx_media_{{i}},
-                           mx_filex_driver_{{i}},
-                           fx_driver_{{i}}_info_ptr,
-                           (VOID *)fx_media_{{i}}_buffer,
-                           sizeof(fx_media_{{i}}_buffer),
-                           volume_name_{{i}},
-                           media_{{i}}_format_cfg->number_of_fats,
-                           media_{{i}}_format_cfg->directory_entries,
-                           media_{{i}}_format_cfg->hidden_sectors,
-                           media_{{i}}_format_cfg->total_sectors,
-                           media_{{i}}_format_cfg->bytes_per_sector,
-                           media_{{i}}_format_cfg->sectors_per_cluster,
-                           media_{{i}}_format_cfg->heads,
-                           media_{{i}}_format_cfg->sectors_per_track);
-
-  if (status != FX_SUCCESS)
-  {
-    return status;
-  }
-  {{/if}}
-
-  {{#if applicative.filex_media_open}}
-  status = fx_media_open(&fx_media_{{i}}, volume_name_{{i}}, mx_filex_driver_{{i}}, fx_driver_{{i}}_info_ptr,
-                         (VOID *)fx_media_{{i}}_buffer, sizeof(fx_media_{{i}}_buffer));
-
-  if (status != FX_SUCCESS)
-  {
-    return status;
-  }
-      {{/if}}
-    {{/with}}
-  {{/each}}
-  
   return status;
 }
 {{/if}}

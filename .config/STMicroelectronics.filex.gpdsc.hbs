@@ -46,8 +46,14 @@
     </release>
   </releases>
   <conditions>
-    {{assign "conditions" (@root.pdscAPI.getAllPDSCConditionsWithFilters exclude="USE FAULT TOLERANCE ENV,USE SD DMA OS ENV,USE SD DMA NO OS ENV,USE SD POLLING ENV,USE MMC DMA OS ENV,USE MMC DMA NO OS ENV,USE MMC POLLING ENV,USE NOR ENV,USE NAND ENV,Operating System Used")~}}
+    {{assign "conditions" (@root.pdscAPI.getAllPDSCConditionsWithFilters exclude="USE FAULT TOLERANCE ENV,USE SD DMA OS ENV,USE SD DMA NO OS ENV,USE SD POLLING ENV,USE MMC DMA OS ENV,USE MMC DMA NO OS ENV,USE MMC POLLING ENV,USE NOR ENV,USE NAND ENV,Operating System Used,USE CUSTOM INTERFACE ENV")~}}
     {{{@root.conditions}}}
+
+    <condition id="USE CUSTOM INTERFACE ENV">
+      {{#if (@root.EnvVarAPI.getVariableValue 'generated_custom')}}
+      <require Cclass="File System" Cgroup="FileX" Csub="custom_interface"/>
+      {{/if}}
+    </condition>
 
     <condition id="Operating System Used">
       {{#if (eq No_OS_Mode true)}}

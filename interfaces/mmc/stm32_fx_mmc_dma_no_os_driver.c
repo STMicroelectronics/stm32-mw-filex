@@ -62,11 +62,15 @@ VOID stm32_fx_mmc_dma_no_os_driver(FX_MEDIA *media_ptr)
         break;
       }
 
-      /* Verify scratch buffer if flag is set */
-      if ((mmc_context->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && (mmc_context->scratch_buffer == FX_NULL))
+      /* Verify scratch buffer and size if flag is set */
+      if (mmc_context->flags & FX_MMC_FLAG_SCRATCH_BUFFER)
       {
-        media_ptr->fx_media_driver_status = FX_PTR_ERROR;
-        break;
+        if ((mmc_context->scratch_buffer == FX_NULL) ||
+            (mmc_context->scratch_buffer_size < media_ptr->fx_media_bytes_per_sector))
+        {
+          media_ptr->fx_media_driver_status = FX_PTR_ERROR;
+          break;
+        }
       }
 
       /* Register DMA transfer complete callback and associate user context */
@@ -232,16 +236,16 @@ static UINT mmc_read_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx,
   hal_mmc_handle_t *mmc_handle = ctx->mmc_handle;
   ULONG i;
 
-  /* Reset DMA receive completion flag */
-  ctx->mmc_rx_cplt = 0;
-
   /* Select buffer based on memory alignment and scratch buffer flag */
-  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x3))
+  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x1F))
   {
     buffer = ctx->scratch_buffer;
 
     for (i = 0; i < num_sectors; i++)
     {
+      /* Reset DMA receive completion flag */
+      ctx->mmc_rx_cplt = 0;
+
       /* Start DMA read transfer for one sector */
       status = HAL_MMC_ReadBlocks_DMA(mmc_handle, buffer, (uint32_t)(start_addr + i), 1);
       if (status != HAL_OK)
@@ -267,13 +271,12 @@ static UINT mmc_read_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx,
       _fx_utility_memory_copy(ctx->scratch_buffer,
                               media_ptr->fx_media_driver_buffer + i * media_ptr->fx_media_bytes_per_sector,
                               media_ptr->fx_media_bytes_per_sector);
-
-      /* Advance buffer pointer to next sector */
-      buffer += media_ptr->fx_media_bytes_per_sector;
     }
   }
   else
   {
+    ctx->mmc_rx_cplt = 0;
+
     buffer = media_ptr->fx_media_driver_buffer;
 
     /* Start DMA read transfer for all sectors at once */
@@ -293,9 +296,19 @@ static UINT mmc_read_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx,
 #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
     if (ctx->flags & FX_MMC_FLAG_CACHE_MAINTENANCE)
     {
-      SCB_InvalidateDCache_by_Addr((uint32_t *)buffer, num_sectors * media_ptr->fx_media_bytes_per_sector);
+      /* During the boot-sector read, fx_media_bytes_per_sector has not yet been initialized from the boot record.
+       Use fx_media_memory_size, which is already valid, as the cache invalidation length. For normal reads, the sector size is known, so invalidate only the DMA transfer range. */
+      if (media_ptr->fx_media_driver_sector_type == FX_BOOT_SECTOR)
+      {
+        SCB_InvalidateDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer, media_ptr->fx_media_memory_size);
+      }
+      else
+      {
+        SCB_InvalidateDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer,
+        num_sectors * media_ptr->fx_media_bytes_per_sector);
+      }
     }
-#endif
+#endif /* __DCACHE_PRESENT */
   }
 
   return FX_SUCCESS;
@@ -316,16 +329,16 @@ static UINT mmc_write_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx
   hal_mmc_handle_t *mmc_handle = ctx->mmc_handle;
   ULONG i;
 
-  /* Reset DMA transmit completion flag */
-  ctx->mmc_tx_cplt = 0;
-
   /* Select buffer based on memory alignment and scratch buffer flag */
-  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x3))
+  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x1F))
   {
     buffer = ctx->scratch_buffer;
 
     for (i = 0; i < num_sectors; i++)
     {
+      /* Reset DMA transmit completion flag */
+       ctx->mmc_tx_cplt = 0;
+
       /* Copy one sector from user buffer to scratch buffer */
       _fx_utility_memory_copy(media_ptr->fx_media_driver_buffer + i * media_ptr->fx_media_bytes_per_sector,
                               buffer, media_ptr->fx_media_bytes_per_sector);
@@ -350,9 +363,6 @@ static UINT mmc_write_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx
       {
         return FX_IO_ERROR;
       }
-
-      /* Advance buffer pointer to next sector */
-      buffer += media_ptr->fx_media_bytes_per_sector;
     }
   }
   else
@@ -366,7 +376,7 @@ static UINT mmc_write_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx
       SCB_CleanDCache_by_Addr((uint32_t *)buffer, num_sectors * media_ptr->fx_media_bytes_per_sector);
     }
 #endif
-
+    ctx->mmc_tx_cplt = 0;
     /* Start DMA write transfer for all sectors at once */
     status = HAL_MMC_WriteBlocks_DMA(mmc_handle, buffer, (uint32_t)start_addr, num_sectors);
     if (status != HAL_OK)

@@ -78,6 +78,7 @@ VOID  stm32_fx_sd_dma_os_driver(FX_MEDIA *media_ptr)
       else
       {
         media_ptr->fx_media_driver_status = FX_INVALID_STATE;
+        break;
       }
 
       /* Create a semaphore used for transfer notification */
@@ -103,7 +104,8 @@ VOID  stm32_fx_sd_dma_os_driver(FX_MEDIA *media_ptr)
 
       if (sd_context->flags & FX_SD_FLAG_SCRATCH_BUFFER)
       {
-        if (sd_context->scratch_buffer == FX_NULL)
+        if ((sd_context->scratch_buffer == FX_NULL) ||
+            (sd_context->scratch_buffer_size < media_ptr->fx_media_bytes_per_sector))
         {
           media_ptr->fx_media_driver_status = FX_PTR_ERROR;
 
@@ -339,7 +341,7 @@ static UINT sd_read_data(FX_MEDIA *media_ptr, STM32_FX_SD_DRIVER_CONTEXT *ctx, U
   /* When the FX_SD_FLAG_SCRATCH_BUFFER flag is enabled, we need to check that the media_buffer
      is not 4 byte aligned to decide whether to use an intermediate read operation or not.
    */
-  if ((ctx->flags & FX_SD_FLAG_SCRATCH_BUFFER) && (UINT)(media_ptr->fx_media_driver_buffer) & 0x3)
+  if ((ctx->flags & FX_SD_FLAG_SCRATCH_BUFFER) && (UINT)(media_ptr->fx_media_driver_buffer) & 0x1F)
   {
     read_addr = media_ptr->fx_media_driver_buffer;
 
@@ -359,12 +361,12 @@ static UINT sd_read_data(FX_MEDIA *media_ptr, STM32_FX_SD_DRIVER_CONTEXT *ctx, U
         return FX_IO_ERROR;
       }
 
-#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
       if (ctx->flags & FX_SD_FLAG_CACHE_MAINTENANCE)
       {
         SCB_InvalidateDCache_by_Addr((uint32_t *)ctx->scratch_buffer, media_ptr->fx_media_bytes_per_sector);
       }
-#endif /* __DCACHE_PRESENT */
+  #endif /* __DCACHE_PRESENT */
 
       _fx_utility_memory_copy(ctx->scratch_buffer,
                               read_addr + i * media_ptr->fx_media_bytes_per_sector,
@@ -391,13 +393,22 @@ static UINT sd_read_data(FX_MEDIA *media_ptr, STM32_FX_SD_DRIVER_CONTEXT *ctx, U
 
     status = FX_SUCCESS;
 
-#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
     if (ctx->flags & FX_SD_FLAG_CACHE_MAINTENANCE)
     {
-      SCB_InvalidateDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer,
-      num_sectors * media_ptr->fx_media_bytes_per_sector);
+      /* During the boot-sector read, fx_media_bytes_per_sector has not yet been initialized from the boot record.
+       Use fx_media_memory_size, which is already valid, as the cache invalidation length. For normal reads, the sector size is known, so invalidate only the DMA transfer range. */
+      if (media_ptr->fx_media_driver_sector_type == FX_BOOT_SECTOR)
+      {
+        SCB_InvalidateDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer, media_ptr->fx_media_memory_size);
+      }
+      else
+      {
+        SCB_InvalidateDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer,
+        num_sectors * media_ptr->fx_media_bytes_per_sector);
+      }
     }
-#endif /* __DCACHE_PRESENT */
+  #endif /* __DCACHE_PRESENT */
   }
 
   return status;
@@ -423,7 +434,7 @@ static UINT sd_write_data(FX_MEDIA *media_ptr, STM32_FX_SD_DRIVER_CONTEXT *ctx, 
   /* When the FX_SD_FLAG_SCRATCH_BUFFER flag is enabled, we need to check that the media_buffer
      is not 4 byte aligned to decide whether to use an intermediate write operation or not.
   */
-  if ((ctx->flags & FX_SD_FLAG_SCRATCH_BUFFER) && (UINT)(media_ptr->fx_media_driver_buffer) & 0x3)
+  if ((ctx->flags & FX_SD_FLAG_SCRATCH_BUFFER) && (UINT)(media_ptr->fx_media_driver_buffer) & 0x1F)
   {
     write_addr = media_ptr->fx_media_driver_buffer;
 
@@ -434,13 +445,13 @@ static UINT sd_write_data(FX_MEDIA *media_ptr, STM32_FX_SD_DRIVER_CONTEXT *ctx, 
                               ctx->scratch_buffer,
                               media_ptr->fx_media_bytes_per_sector);
 
-#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
       if (ctx->flags & FX_SD_FLAG_CACHE_MAINTENANCE)
       {
         /* Clean the DCache to make the SD DMA see the actual content of the scratch buffer */
         SCB_CleanDCache_by_Addr((uint32_t *)ctx->scratch_buffer, media_ptr->fx_media_bytes_per_sector);
       }
-#endif /* __DCACHE_PRESENT */
+  #endif /* __DCACHE_PRESENT */
 
       status = HAL_SD_WriteBlocks_DMA(sd_handle, (uint8_t *)ctx->scratch_buffer, (uint32_t)(start_addr + i), 1);
 
@@ -461,13 +472,13 @@ static UINT sd_write_data(FX_MEDIA *media_ptr, STM32_FX_SD_DRIVER_CONTEXT *ctx, 
 
   else
   {
-#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
     if (ctx->flags & FX_SD_FLAG_CACHE_MAINTENANCE)
     {
       SCB_CleanDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer,
       num_sectors * media_ptr->fx_media_bytes_per_sector);
     }
-#endif /* __DCACHE_PRESENT */
+  #endif /* __DCACHE_PRESENT */
 
     /* FileX is writing one sector per operation,i.e num_sectors is always equal to 1.
        Thus call the HAL_SD_WriteBlocks_DMA without any loop

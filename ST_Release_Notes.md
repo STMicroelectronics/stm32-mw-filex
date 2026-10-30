@@ -20,6 +20,64 @@ More  documentation is available at [**FileX SW Pack online documentation**](htt
 
 # Update history
 
+<label for="collapse-section-2.2.0" aria-hidden="true">__2.2.0 / 21-September-2026__</label>
+<div>
+
+## Main changes
+
+Release of FileX SW Pack update:
+
+  - Migrate FileX from version 6.4.2 to 6.5.1. 
+  - Add a custom interface.
+  - Bug fixing.
+  - Miscellaneous update of .config files.
+
+This pack is based on [**FileX V6.5.1 version**](https://github.com/eclipse-threadx/filex/tree/v6.5.1.202602_rel).
+
+
+
+## Contents
+
+- **FileX** is RTOS-agnostic (can be used with FreeRTOS or other RTOSs)
+- Supports NOR and NAND flash memories
+- Supports SD and MMC storage devices
+
+## Known limitations
+
+- Multi-instance (creating multiple interfaces) is not supported.
+- When an application uses the local path feature in FileX and stores data outside the FileX thread context, configNUM_THREAD_LOCAL_STORAGE_POINTERS must be increased by 1.
+- When cache is enabled, SD DMA read operations may result in data mismatches in GCC release mode builds.
+- When cache is enabled, MMC DMA read operations may result in data mismatches in GCC release mode builds.
+
+## Development toolchains and compilers
+
+- IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK
+- MDK-ARM Keil uVision V5.42
+- STM32CubeIDE for Visual Studio Code (GCC13 compiler)
+- STM32CubeMX2 V1.1.1
+
+## Supported devices and boards
+
+- STM32C5 series.
+- STM32V8 series.
+- STM32G5 series.
+- STM32H7P series.
+
+## Backward compatibility
+
+- None
+
+## Dependencies
+
+- STM32C5xx HAL Drivers V2.1.0
+- STM32V8xx HAL Drivers V2.0.0
+- STM32H7Pxx HAL Drivers V2.0.0
+- STM32G5xx HAL Drivers V2.0.0
+- FreeRTOS SW Pack V2.2.0 (required when selecting RTOS mode)
+- LevelX SW Pack V2.2.0 (required when selecting NOR/NAND interfaces)
+
+</div>
+
 <label for="collapse-section-2.1.0" aria-hidden="true">__2.1.0 / 12-June-2026__</label>
 <div>
 

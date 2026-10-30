@@ -25,16 +25,23 @@ extern "C" {
 typedef enum
 {
   FX_SD_FLAG_NONE                = 0x00000000U,
+  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
   FX_SD_FLAG_CACHE_MAINTENANCE   = 0x00000001U,
+  #endif /* __DCACHE_PRESENT */
   FX_SD_FLAG_SCRATCH_BUFFER      = 0x00000002U,
+  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
   FX_SD_FLAG_ALL                 = 0x00000003U,
+  #else
+  FX_SD_FLAG_ALL                 = 0x00000002U,
+  #endif /* __DCACHE_PRESENT */
 } STM32_FX_SD_FLAGS;
 
 typedef struct STM32_FX_SD_DRIVER_CONTEXT_STURCT
 {
   STM32_FX_SD_FLAGS              flags;
   hal_sd_handle_t                *sd_handle;
-  UCHAR                          *scratch_buffer; /* Should be allocated with a size of 512 bytes */
+  UCHAR                          *scratch_buffer; /* Allocated size shall equal the media logical sector size */
+  ULONG                          scratch_buffer_size;
   ULONG                          sd_max_timeout;
 #ifndef FX_STANDALONE_ENABLE
   FX_SEMAPHORE                   sd_rx_cplt_semaphore;

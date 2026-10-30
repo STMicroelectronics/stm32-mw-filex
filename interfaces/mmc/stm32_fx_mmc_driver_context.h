@@ -34,7 +34,8 @@ typedef struct STM32_FX_MMC_DRIVER_CONTEXT_STRUCT
 {
   STM32_FX_MMC_FLAGS              flags;
   hal_mmc_handle_t                *mmc_handle;
-  UCHAR                           *scratch_buffer; /* Should be allocated with a size of 512 bytes */
+  UCHAR                           *scratch_buffer; /* Allocated size shall equal the media logical sector size */
+  ULONG                           scratch_buffer_size;
   ULONG                           mmc_max_timeout;
 #ifndef FX_STANDALONE_ENABLE
   FX_SEMAPHORE                    mmc_rx_cplt_semaphore;

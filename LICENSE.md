@@ -20,6 +20,8 @@ Copyrights statements for [eclipse-threadx/filex]
 
 	Copyright (c) 2024 Microsoft Corporation
 
+	Copyright (c) 2026-present Eclipse ThreadX contributors
+
 <!-- End of Copyrights statements for [eclipse-threadx/filex] -->
 
 <!-- Copyrights statements for [eclipse-threadx/filex_STM32] [MIT] -->
@@ -30,5 +32,7 @@ Copyrights statements for [eclipse-threadx/filex_STM32]
 	Copyright (c) 2025-2026 STMicroelectronics
 
 	Copyright (c) 2026 STMicroelectronics
+
+	Copyright (c) 2026-present Eclipse ThreadX contributors
 
 <!-- End of Copyrights statements for [eclipse-threadx/filex_STM32] -->

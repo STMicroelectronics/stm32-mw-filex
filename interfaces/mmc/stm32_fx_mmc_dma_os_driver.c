@@ -81,11 +81,15 @@ VOID stm32_fx_mmc_dma_os_driver(FX_MEDIA *media_ptr)
       }
 
 
-      /* Verify scratch buffer if flag is set */
-      if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && (ctx->scratch_buffer == FX_NULL))
+      /* Verify scratch buffer and size if flag is set */
+      if (ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER)
       {
-        media_ptr->fx_media_driver_status = FX_PTR_ERROR;
-        break;
+        if ((ctx->scratch_buffer == FX_NULL) ||
+            (ctx->scratch_buffer_size < media_ptr->fx_media_bytes_per_sector))
+        {
+          media_ptr->fx_media_driver_status = FX_PTR_ERROR;
+          break;
+        }
       }
 
       /* Register DMA transfer complete callback and associate user context */
@@ -251,7 +255,7 @@ static UINT mmc_read_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx,
   UINT i;
 
   /* Select buffer based on memory alignment and scratch buffer flag */
-  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x3))
+  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x1F))
   {
     buffer = ctx->scratch_buffer;
 
@@ -270,13 +274,17 @@ static UINT mmc_read_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx,
         return FX_IO_ERROR;
       }
 
+#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+      if (ctx->flags & FX_MMC_FLAG_CACHE_MAINTENANCE)
+      {
+        SCB_InvalidateDCache_by_Addr((uint32_t *)ctx->scratch_buffer, media_ptr->fx_media_bytes_per_sector);
+      }
+#endif
       /* Copy from scratch buffer to user buffer for one sector */
       _fx_utility_memory_copy(ctx->scratch_buffer,
                               media_ptr->fx_media_driver_buffer + i * media_ptr->fx_media_bytes_per_sector,
                               media_ptr->fx_media_bytes_per_sector);
 
-      /* Move buffer pointer to next sector */
-      buffer += media_ptr->fx_media_bytes_per_sector;
     }
   }
   else
@@ -295,16 +303,24 @@ static UINT mmc_read_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx,
     {
       return FX_IO_ERROR;
     }
-  }
 
 #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-  /* Invalidate D-Cache if cache maintenance flag is set */
-  if (ctx->flags & FX_MMC_FLAG_CACHE_MAINTENANCE)
-  {
-    SCB_InvalidateDCache_by_Addr((uint32_t *)buffer, num_sectors * media_ptr->fx_media_bytes_per_sector);
+    if (ctx->flags & FX_MMC_FLAG_CACHE_MAINTENANCE)
+    {
+      /* During the boot-sector read, fx_media_bytes_per_sector has not yet been initialized from the boot record.
+       Use fx_media_memory_size, which is already valid, as the cache invalidation length. For normal reads, the sector size is known, so invalidate only the DMA transfer range. */
+      if (media_ptr->fx_media_driver_sector_type == FX_BOOT_SECTOR)
+      {
+        SCB_InvalidateDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer, media_ptr->fx_media_memory_size);
+      }
+      else
+      {
+        SCB_InvalidateDCache_by_Addr((uint32_t *)media_ptr->fx_media_driver_buffer,
+        num_sectors * media_ptr->fx_media_bytes_per_sector);
+      }
+    }
+#endif /* __DCACHE_PRESENT */
   }
-#endif
-
   return FX_SUCCESS;
 }
 
@@ -324,7 +340,7 @@ static UINT mmc_write_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx
   ULONG i;
 
   /* Check if scratch buffer should be used due to unaligned user buffer */
-  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x3))
+  if ((ctx->flags & FX_MMC_FLAG_SCRATCH_BUFFER) && ((UINT)(media_ptr->fx_media_driver_buffer) & 0x1F))
   {
     /* Use scratch buffer for write operations */
     buffer = ctx->scratch_buffer;
@@ -357,8 +373,6 @@ static UINT mmc_write_data(FX_MEDIA *media_ptr, STM32_FX_MMC_DRIVER_CONTEXT *ctx
         return FX_IO_ERROR; /* Return error on timeout or failure */
       }
 
-      /* Move buffer pointer to next sector */
-      buffer += media_ptr->fx_media_bytes_per_sector;
     }
   }
   else

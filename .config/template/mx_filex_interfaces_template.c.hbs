@@ -53,8 +53,20 @@
 {{#with iface.logical_config~}}
 {{#if applicative.filex_media_open}}
 {{#if (eq interface_type "SD_ITF")}}
+{{#if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+{{#if filex_sd_flag_scratch_buffer}}
+#define SD_SCRATCH_BUFFER_SIZE_{{i}}  {{applicative.more.filex_sector_size}}
+static UCHAR scratch_buffer_{{i}}[SD_SCRATCH_BUFFER_SIZE_{{i}} / sizeof(ULONG)];
+{{/if}}
+{{/if}}
 static STM32_FX_SD_DRIVER_CONTEXT mx_stm32_fx_sd_ctx_{{i}};
 {{else if (eq interface_type "MMC_ITF")}}
+{{#if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+{{#if filex_mmc_flag_scratch_buffer}}
+#define MMC_SCRATCH_BUFFER_SIZE_{{i}}  {{applicative.more.filex_sector_size}}
+static UCHAR scratch_buffer_{{i}}[MMC_SCRATCH_BUFFER_SIZE_{{i}} / sizeof(ULONG)];
+{{/if}}
+{{/if}}
 static STM32_FX_MMC_DRIVER_CONTEXT mx_stm32_fx_mmc_ctx_{{i}};
 {{else if (eq interface_type "NOR_ITF")}}
 static STM32_FX_NOR_FLASH_DRIVER_CONTEXT mx_stm32_fx_nor_flash_ctx_{{i}};
@@ -70,8 +82,20 @@ ULONG mx_lx_nand_driver_buffer[{{applicative.more.filex_driver_buffer}}];
 {{/if}}
 {{else if applicative.filex_format_media}}
 {{#if (eq interface_type "SD_ITF")}}
+{{#if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+{{#if filex_sd_flag_scratch_buffer}}
+#define SD_SCRATCH_BUFFER_SIZE_{{i}}  {{applicative.more.filex_sector_size}}
+static UCHAR scratch_buffer_{{i}}[SD_SCRATCH_BUFFER_SIZE_{{i}} / sizeof(ULONG)];
+{{/if}}
+{{/if}}
 static STM32_FX_SD_DRIVER_CONTEXT mx_stm32_fx_sd_ctx_{{i}};
 {{else if (eq interface_type "MMC_ITF")}}
+{{#if (or (eq interface_mode "DMA_OS") (eq interface_mode "DMA_NO_OS"))}}
+{{#if filex_mmc_flag_scratch_buffer}}
+#define MMC_SCRATCH_BUFFER_SIZE_{{i}}  {{applicative.more.filex_sector_size}}
+static UCHAR scratch_buffer_{{i}}[MMC_SCRATCH_BUFFER_SIZE_{{i}} / sizeof(ULONG)];
+{{/if}}
+{{/if}}
 static STM32_FX_MMC_DRIVER_CONTEXT mx_stm32_fx_mmc_ctx_{{i}};
 {{else if (eq interface_type "NOR_ITF")}}
 static STM32_FX_NOR_FLASH_DRIVER_CONTEXT mx_stm32_fx_nor_flash_ctx_{{i}};
@@ -119,6 +143,8 @@ VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
   mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_CACHE_MAINTENANCE;
     {{else if filex_sd_flag_scratch_buffer}}
   mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_SCRATCH_BUFFER;
+  mx_stm32_fx_sd_ctx_{{i}}.scratch_buffer = scratch_buffer_{{i}};
+  mx_stm32_fx_sd_ctx_{{i}}.scratch_buffer_size = SD_SCRATCH_BUFFER_SIZE_{{i}};
     {{else}}
   mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
     {{/if}}
@@ -126,11 +152,11 @@ VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
   mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
   {{/if}}
   mx_stm32_fx_sd_ctx_{{i}}.sd_max_timeout = {{applicative.more.filex_max_timeout}};
-  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
-  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc1_gethandle();
+  {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC1")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc1_sd_gethandle();
   {{/if}}
-  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
-  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc2_gethandle();
+  {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC2")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc2_sd_gethandle();
   {{/if}}
   return (VOID *)&mx_stm32_fx_sd_ctx_{{i}};
 }
@@ -147,17 +173,19 @@ VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
   mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_CACHE_MAINTENANCE;
     {{else if filex_mmc_flag_scratch_buffer}}
   mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_SCRATCH_BUFFER;
+  mx_stm32_fx_sd_ctx_{{i}}.scratch_buffer = scratch_buffer_{{i}};
+  mx_stm32_fx_sd_ctx_{{i}}.scratch_buffer_size = SD_SCRATCH_BUFFER_SIZE_{{i}};
     {{else}}
   mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
     {{/if}}
   {{else}}
   mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
   {{/if}}
-    {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
-  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc1_gethandle();
+    {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC1")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc1_mmc_gethandle();
   {{/if}}
-  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
-  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc2_gethandle();
+  {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC2")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc2_mmc_gethandle();
   {{/if}}
   mx_stm32_fx_mmc_ctx_{{i}}.mmc_max_timeout = {{applicative.more.filex_max_timeout}};
 
@@ -227,11 +255,11 @@ VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
   {{else}}
   mx_stm32_fx_sd_ctx_{{i}}.flags = FX_SD_FLAG_NONE;
   {{/if}}
-  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
-  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc1_gethandle();
+  {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC1")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc1_sd_gethandle();
   {{/if}}
-  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
-  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc2_gethandle();
+  {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC2")}}
+  mx_stm32_fx_sd_ctx_{{i}}.sd_handle = mx_sdmmc2_sd_gethandle();
   {{/if}}
   mx_stm32_fx_sd_ctx_{{i}}.sd_max_timeout = {{applicative.more.filex_max_timeout}};
 
@@ -256,11 +284,11 @@ VOID *mx_filex_driver_{{i}}_get_ctx(VOID)
   {{else}}
   mx_stm32_fx_mmc_ctx_{{i}}.flags = FX_MMC_FLAG_NONE;
   {{/if}}
-  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC1")}}
-  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc1_gethandle();
+  {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC1")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc1_mmc_gethandle();
   {{/if}}
-  {{#if (eq ../resources_allocation.sdmmc_ip_selection.selection "SDMMC2")}}
-  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc2_gethandle();
+  {{#if (eq ../resources_allocation.hw_selection.selection "SDMMC2")}}
+  mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle = mx_sdmmc2_mmc_gethandle();
   {{/if}}
   mx_stm32_fx_mmc_ctx_{{i}}.mmc_max_timeout = {{applicative.more.filex_max_timeout}};
   return (VOID *)&mx_stm32_fx_mmc_ctx_{{i}};
@@ -334,7 +362,7 @@ MX_FILEX_MEDIA_FORMAT_CONFIG *mx_filex_driver_{{i}}_get_media_format_config(VOID
   {{else if (eq interface_type "MMC_ITF")}}
   hal_mmc_card_info_t CardInfo;
   HAL_MMC_GetCardInfo(mx_stm32_fx_mmc_ctx_{{i}}.mmc_handle, &CardInfo);
-  media_{{i}}_format_cfg.total_sectors       = CardInfo.blk_nbr;
+  media_{{i}}_format_cfg.total_sectors       = ((uint64_t)CardInfo.block_nbr * (uint64_t)CardInfo.block_size_byte) / 512;
   {{else if (eq interface_type "NOR_ITF")}}
   media_{{i}}_format_cfg.total_sectors       = LX_NOR_FLASH_0_SIZE / LX_NOR_SECTOR_SIZE * sizeof(ULONG);
   {{else if (eq interface_type "NAND_ITF")}}

@@ -21,17 +21,19 @@
   * @brief          : FileX applicative file.
 {{> LICENSE}}
 {{assign "filexFilter" (JSONparse '{"cgroup": "STM32CubeMX2 Config", "csub": "FileX"}')~}}
-{{assign 'filex_context' (@root.SWConfigurationAPI.getInstancesConfiguration @root.filexFilter)~}}
-{{assign 'filex_cxt' @root.filex_context.[0].settings.parameters~}}
-{{assign 'used_components_filex' (@root.SWProjectAPI.getUsedComponents 'asObject' cgroup="FileX")~}}
-{{#with filex_cxt.core.basic.filex_core}}
-    {{#if (eq fx_standalone 'No_OS')}}
-      {{assign 'No_OS_Mode' true~}}
-    {{/if}}
-    {{#if (eq fx_standalone 'FreeRTOS')}}
-      {{assign 'FreeRTOS_Mode' true~}}
-    {{/if}}
+{{assign "filex_context" (@root.SWConfigurationAPI.getInstancesConfiguration @root.filexFilter)~}}
+{{assign "filex_cxt" @root.filex_context.[0].settings.parameters~}}
+{{assign "used_components_filex" (@root.SWProjectAPI.getUsedComponents "asObject" cgroup="FileX")~}}
+
+{{#with filex_cxt.core.basic.filex_core~}}
+{{#if (eq fx_standalone "No_OS")~}}
+{{assign "No_OS_Mode" true~}}
+{{/if~}}
+{{#if (eq fx_standalone "FreeRTOS")~}}
+{{assign "FreeRTOS_Mode" true~}}
+{{/if~}}
 {{/with}}
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MX_FILEX_INTERFACES_H__
 #define __MX_FILEX_INTERFACES_H__
@@ -41,173 +43,174 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+{{assign "need_hal_def_include" false~}}
+{{assign "need_levelx_include" false~}}
+{{assign "need_sd_polling_include" false~}}
+{{assign "need_sd_dma_os_include" false~}}
+{{assign "need_sd_dma_no_os_include" false~}}
+{{assign "need_mmc_polling_include" false~}}
+{{assign "need_mmc_dma_os_include" false~}}
+{{assign "need_mmc_dma_no_os_include" false~}}
+{{assign "need_nor_driver_include" false~}}
+{{assign "need_nand_driver_include" false~}}
 {{#with @root.filex_cxt~}}
-  {{#each interfaces as |iface i|}}
-    {{#with iface.resources_allocation~}}
-      {{#if (eq sdmmc_ip_selection.selection "SDMMC1")}}
-#include "mx_sdmmc1.h"
-      {{/if}}
-      {{#if (eq sdmmc_ip_selection.selection "SDMMC2")}}
-#include "mx_sdmmc2.h"
-      {{/if}}
-    {{/with}}
-  {{/each}}
+{{#each interfaces as |iface i|~}}
+{{#with iface.resources_allocation~}}
+{{#if (or (eq hw_selection.selection "SDMMC1") (eq hw_selection.selection "SDMMC2"))~}}
+{{assign "need_hal_def_include" true~}}
+{{/if~}}
 {{/with}}
-{{#with @root.filex_cxt~}}
-{{#each interfaces}}
-{{#with logical_config~}}
-{{#if (eq interface_type "SD_ITF")}}
-{{#if (eq interface_mode "POLLING")}}
+{{#with iface.logical_config~}}
+{{#if (eq interface_type "SD_ITF")~}}
+{{#if (eq interface_mode "POLLING")~}}
+{{assign "need_sd_polling_include" true~}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_OS")~}}
+{{assign "need_sd_dma_os_include" true~}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_NO_OS")~}}
+{{assign "need_sd_dma_no_os_include" true~}}
+{{/if~}}
+{{/if~}}
+{{#if (eq interface_type "MMC_ITF")~}}
+{{#if (eq interface_mode "POLLING")~}}
+{{assign "need_mmc_polling_include" true~}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_OS")~}}
+{{assign "need_mmc_dma_os_include" true~}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_NO_OS")~}}
+{{assign "need_mmc_dma_no_os_include" true~}}
+{{/if~}}
+{{/if~}}
+{{#if (eq interface_type "NOR_ITF")~}}
+{{assign "need_levelx_include" true~}}
+{{assign "need_nor_driver_include" true~}}
+{{/if~}}
+{{#if (eq interface_type "NAND_ITF")~}}
+{{assign "need_levelx_include" true~}}
+{{assign "need_nand_driver_include" true~}}
+{{/if~}}
+{{/with}}
+{{/each}}
+{{/with}}
+{{#if need_hal_def_include}}
+#include "mx_hal_def.h"
+{{/if}}
+{{#if need_sd_polling_include}}
 #include "stm32_fx_sd_polling_driver.h"
 {{/if}}
-{{#if (eq interface_mode "DMA_OS")}}
+{{#if need_sd_dma_os_include}}
 #include "stm32_fx_sd_dma_os_driver.h"
 {{/if}}
-{{#if (eq interface_mode "DMA_NO_OS")}}
+{{#if need_sd_dma_no_os_include}}
 #include "stm32_fx_sd_dma_no_os_driver.h"
 {{/if}}
-{{/if}}
-{{#if (eq interface_type "MMC_ITF")}}
-{{#if (eq interface_mode "POLLING")}}
+{{#if need_mmc_polling_include}}
 #include "stm32_fx_mmc_polling_driver.h"
 {{/if}}
-{{#if (eq interface_mode "DMA_OS")}}
+{{#if need_mmc_dma_os_include}}
 #include "stm32_fx_mmc_dma_os_driver.h"
 {{/if}}
-{{#if (eq interface_mode "DMA_NO_OS")}}
+{{#if need_mmc_dma_no_os_include}}
 #include "stm32_fx_mmc_dma_no_os_driver.h"
 {{/if}}
-{{/if}}
-{{#if (eq interface_type "NAND_ITF")}}
-#include "mx_levelx_interfaces.h"
-{{else if (eq interface_type "NOR_ITF")}}
+{{#if need_levelx_include}}
 #include "mx_levelx_interfaces.h"
 {{/if}}
-{{#if (eq interface_type "NOR_ITF")}}
+{{#if need_nor_driver_include}}
 #include "stm32_fx_nor_flash_driver.h"
 {{/if}}
-{{#if (eq interface_type "NAND_ITF")}}
+{{#if need_nand_driver_include}}
 #include "stm32_fx_nand_flash_driver.h"
 {{/if}}
+
+/* Exported types ------------------------------------------------------------*/
+{{assign "need_media_format_struct" false~}}
+{{#with @root.filex_cxt~}}
+{{#each interfaces~}}
+{{#with logical_config~}}
+{{#if applicative.filex_format_media~}}
+{{assign "need_media_format_struct" true~}}
+{{/if~}}
 {{/with}}
 {{/each}}
 {{/with}}
 
-/* Exported types ------------------------------------------------------------*/
-{{#with @root.filex_cxt~}}
-  {{#each interfaces}}
-    {{#with logical_config~}}
-  {{#if applicative.filex_format_media}}
+{{#if need_media_format_struct}}
 typedef struct MX_FILEX_MEDIA_FORMAT_CONFIG_STRUCT {
-     UINT   number_of_fats;
-     UINT   directory_entries;
-     UINT   hidden_sectors;
-     ULONG  total_sectors;
-     UINT   bytes_per_sector;
-     ULONG  sectors_per_cluster;
-     UINT   heads;
-     UINT   sectors_per_track;
+  UINT  number_of_fats;
+  UINT  directory_entries;
+  UINT  hidden_sectors;
+  ULONG total_sectors;
+  UINT  bytes_per_sector;
+  ULONG sectors_per_cluster;
+  UINT  heads;
+  UINT  sectors_per_track;
 } MX_FILEX_MEDIA_FORMAT_CONFIG;
-  {{/if}}
-    {{/with}}
-  {{/each}}
-{{/with}}
+{{/if}}
 
 /* Exported macro ------------------------------------------------------------*/
 {{#with @root.filex_cxt~}}
-  {{#each interfaces as |iface i|}}
-    {{#with iface.logical_config~}}
-  {{#if applicative.filex_media_open}}
-        {{!-- SD drivers --}}
-        {{#if (eq interface_type "SD_ITF")}}
-          {{#if (eq interface_mode "POLLING")}}
+{{#each interfaces as |iface i|~}}
+{{#with iface.logical_config~}}
+{{#if (or applicative.filex_media_open applicative.filex_format_media)~}}
+
+{{#if (eq interface_type "SD_ITF")~}}
+{{#if (eq interface_mode "POLLING")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_sd_polling_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_OS")}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_OS")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_sd_dma_os_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_NO_OS")}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_NO_OS")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_sd_dma_no_os_driver
-          {{/if}}
-        {{/if}}
-        {{!-- MMC drivers --}}
-        {{#if (eq interface_type "MMC_ITF")}}
-          {{#if (eq interface_mode "POLLING")}}
+{{/if~}}
+{{/if~}}
+
+{{#if (eq interface_type "MMC_ITF")~}}
+{{#if (eq interface_mode "POLLING")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_mmc_polling_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_OS")}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_OS")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_mmc_dma_os_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_NO_OS")}}
+{{/if~}}
+{{#if (eq interface_mode "DMA_NO_OS")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_mmc_dma_no_os_driver
-          {{/if}}
-        {{/if}}
-        {{#if (eq interface_type "NOR_ITF")}}
+{{/if~}}
+{{/if~}}
+
+{{#if (eq interface_type "NOR_ITF")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_nor_flash_driver
-        {{/if}}
-        {{#if (eq interface_type "NAND_ITF")}}
+{{/if~}}
+
+{{#if (eq interface_type "NAND_ITF")~}}
 #define mx_filex_driver_{{i}}  stm32_fx_nand_flash_driver
-        {{/if}}
-#define volume_name_{{i}} "{{applicative.more.filex_volume_name}}"
-  {{else if applicative.filex_format_media}}
-        {{#if (eq interface_type "SD_ITF")}}
-          {{#if (eq interface_mode "POLLING")}}
-#define mx_filex_driver_{{i}}  stm32_fx_sd_polling_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_OS")}}
-#define mx_filex_driver_{{i}}  stm32_fx_sd_dma_os_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_NO_OS")}}
-#define mx_filex_driver_{{i}}  stm32_fx_sd_dma_no_os_driver
-          {{/if}}
-        {{/if}}
-        {{#if (eq interface_type "MMC_ITF")}}
-          {{#if (eq interface_mode "POLLING")}}
-#define mx_filex_driver_{{i}}  stm32_fx_mmc_polling_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_OS")}}
-#define mx_filex_driver_{{i}}  stm32_fx_mmc_dma_os_driver
-          {{/if}}
-          {{#if (eq interface_mode "DMA_NO_OS")}}
-#define mx_filex_driver_{{i}}  stm32_fx_mmc_dma_no_os_driver
-          {{/if}}
-        {{/if}}
-        {{#if (eq interface_type "NOR_ITF")}}
-#define mx_filex_driver_{{i}}  stm32_fx_nor_flash_driver
-        {{/if}}
-        {{#if (eq interface_type "NAND_ITF")}}
-#define mx_filex_driver_{{i}}  stm32_fx_nand_flash_driver
-        {{/if}}
+{{/if~}}
 
 #define volume_name_{{i}} "{{applicative.more.filex_volume_name}}"
-      {{/if}}
-    {{/with}}
-  {{/each}}
+
+{{/if~}}
+{{/with}}
+{{/each}}
 {{/with}}
 
 /* Exported functions prototypes ---------------------------------------------*/
 {{#with @root.filex_cxt~}}
-  {{#each interfaces as |iface i|}}
-    {{#with iface.logical_config~}}
-  {{#if applicative.filex_media_open}}
+{{#each interfaces as |iface i|~}}
+{{#with iface.logical_config~}}
+{{#if (or applicative.filex_media_open applicative.filex_format_media)~}}
 VOID *mx_filex_driver_{{i}}_get_ctx(VOID);
-      {{else if applicative.filex_format_media}}
-VOID *mx_filex_driver_{{i}}_get_ctx(VOID);
-      {{/if}}
-    {{/with}}
-  {{/each}}
-{{/with}}
-{{#with @root.filex_cxt~}}
-  {{#each interfaces as |iface i|}}
-    {{#with iface.logical_config}}
-      {{#if applicative.filex_format_media}}
+{{/if~}}
+{{#if applicative.filex_format_media~}}
 MX_FILEX_MEDIA_FORMAT_CONFIG *mx_filex_driver_{{i}}_get_media_format_config(VOID);
-      {{/if}}
-    {{/with}}
-  {{/each}}
+{{/if~}}
+{{/with}}
+{{/each}}
 {{/with}}
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* __MX_FILEX_INTERFACES_H__ */

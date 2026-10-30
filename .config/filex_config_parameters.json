@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "version": "0.0.1",
   "type": "object",
-  "grammarVersion": "3.9.0",
+  "grammarVersion": "3.8.0",
   "componentid": "File System:STM32CubeMX2 Config:FileX",
   "functions": [
     {
@@ -21,7 +21,7 @@
             "version": {
               "title": "FileX version",
               "type": "string",
-              "default": "6.4.2",
+              "default": "6.5.1",
               "actions": [
                 {
                   "type": "disable",
@@ -43,17 +43,13 @@
                 {
                   "title": "Default",
                   "const": "Default"
-                },
+                }
+              ],
+              "actions": [
                 {
-                  "title": "Low Footprint",
-                  "const": "Low_Footprint",
-                  "actions": [
-                    {
-                      "type": "disable",
-                      "condition": "true",
-                      "message": "The Low Footprint profile is currently not supported."
-                    }
-                 ]
+                  "type": "disable",
+                  "condition": "true",
+                  "message": "The profile is fixed to Default and cannot be modified."
                 }
               ],
               "default": "Default"
@@ -517,6 +513,17 @@
                         ]
                       },
                       {
+                        "title": "CUSTOM",
+                        "const": "CUSTOM_ITF",
+                        "actions": [
+                          {
+                            "type": "disable",
+                            "condition": "$item.logical_config.interface_type !== 'CUSTOM_ITF' && $filex.filexCountInterfaceType($interfaces, 'CUSTOM_ITF') > 0",
+                            "message": "The CUSTOM interface can only be used by a single interface. Another interface is already configured as CUSTOM."
+                          }
+                        ]
+                      },
+                      {
                         "title": "",
                         "const": ""
                       }
@@ -532,6 +539,12 @@
                         "on": "update-value",
                         "condition": "$item.logical_config.interface_type === 'NAND_ITF'",
                         "name": "generated_nand",
+                        "semaphore": true
+                      },
+                      {
+                        "on": "update-value",
+                        "condition": "$item.logical_config.interface_type === 'CUSTOM_ITF'",
+                        "name": "generated_custom",
                         "semaphore": true
                       }
                     ],
@@ -610,7 +623,7 @@
                         "semaphore": true
                       }
                     ],
-                    "default": ""
+                    "default": "POLLING"
                   },
                   "filex_sd_flag_none": {
                     "title": "Disactivate all SD flags",
@@ -637,7 +650,7 @@
                       },
                       {
                         "type": "include",
-                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'SD_ITF')"
+                        "condition": "($item.logical_config.interface_type === 'SD_ITF')"
                       }
                     ]
                   },
@@ -683,7 +696,7 @@
                       },
                       {
                         "type": "include",
-                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS') && ($item.logical_config.interface_type === 'MMC_ITF')"
+                        "condition": "($item.logical_config.interface_type === 'MMC_ITF')"
                       }
                     ]
                   },
@@ -739,7 +752,7 @@
                     "actions": [
                       {
                         "type": "include",
-                        "condition": "(($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && $item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF' || $item.logical_config.interface_type === 'MMC_ITF' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING'))"
+                        "condition": "($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF' || $item.logical_config.interface_type === 'CUSTOM_ITF' || $item.logical_config.interface_type === 'MMC_ITF')"
                       }
                     ],
                     "properties": {
@@ -755,7 +768,7 @@
                             "actions": [
                               {
                                 "type": "enable",
-                                "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF')",
+                                "condition": "$get('swproject.hasRTOSenabled') && $core.basic.filex_core.fx_standalone === 'FreeRTOS' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING' || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF' || $item.logical_config.interface_type === 'CUSTOM_ITF')",
                                 "message": "Enable FreeRTOS, set operating system to FreeRTOS, and configure a valid interface to generate a task."
                               }
                             ]
@@ -906,6 +919,33 @@
                               "dec"
                             ]
                           },
+                          "filex_media_buffer_size": {
+                            "title": "Define media buffer size",
+                            "description": "Defines the size in bytes of the buffer allocated for media operations. It is used by the file system middleware during media open, format, and other related services. It must be a multiple of the logical sector size. The default value follows the configured logical sector size.",
+                            "type": "integer",
+                            "default": 512,
+                            "actions": [
+                              {
+                                "type": "include",
+                                "condition": "($item.logical_config.applicative.filex_format_media || $item.logical_config.applicative.filex_media_open)"
+                              },
+                              {
+                                "type": "set",
+                                "condition": "true",
+                                "computed": {
+                                  "default": "$item.logical_config.applicative.more.filex_sector_size"
+                                }
+                              },
+                              {
+                                "type": "warning",
+                                "condition": "$item.logical_config.applicative.more.filex_sector_size > 0 && ($value < $item.logical_config.applicative.more.filex_sector_size || ($value % $item.logical_config.applicative.more.filex_sector_size) !== 0)",
+                                "message": "The media buffer size must be greater than or equal to the logical sector size and a multiple of it."
+                              }
+                            ],
+                            "display_format": [
+                             "dec"
+                            ]
+                          },
                           "filex_driver_buffer": {
                             "title": "Define the driver buffer size",
                             "description": "Define the FileX NAND driver working buffer size in ULONG elements. The default value 8192 corresponds to 32 KB when ULONG is 4 bytes.",
@@ -921,8 +961,26 @@
                           },
                           "filex_sector_size": {
                             "title": "Sector size",
-                            "description": "Define the sector size.",
+                            "description": "Define the sector size in bytes.",
                             "type": "integer",
+                            "oneOf": [
+                              {
+                                "title": "512",
+                                "const": 512
+                              },
+                              {
+                                "title": "1024",
+                                "const": 1024
+                              },
+                              {
+                                "title": "2048",
+                                "const": 2048
+                              },
+                              {
+                                "title": "4096",
+                                "const": 4096
+                              }
+                            ],
                             "default": 512,
                             "display_format": ["dec"],
                             "actions": [
@@ -1018,7 +1076,7 @@
                 "actions": [
                   {
                     "type": "include",
-                    "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && $item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF' && ($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF'"
+                    "condition": "(($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF')) || $item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF'"
                   }
                 ],
                 "properties": {
@@ -1031,11 +1089,16 @@
                       {
                         "type": "include",
                         "condition": "$item.logical_config.interface_type === 'NOR_ITF' || $item.logical_config.interface_type === 'NAND_ITF'"
-                        },
-                        {
-                          "type": "warning",
-                          "condition": "$value === ''",
-                          "message": "Select a media peripheral instance to complete this interface configuration."
+                      },
+                      {
+                        "type": "warning",
+                        "condition": "$value === ''",
+                        "message": "Select a media peripheral instance to complete this interface configuration."
+                      },
+                      {
+                        "type": "error",
+                        "condition": "$value !== '' && $filex.filexIsResourceValueUsedByOtherInterface($interfaces, $item, $value)",
+                        "message": "This media resource is already assigned to another interface. Please select a different media resource."
                       }
                     ],
                     "oneOf": [
@@ -1092,12 +1155,17 @@
                     "actions": [
                       {
                         "type": "include",
-                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF') "
-                        },
-                        {
-                          "type": "warning",
-                          "condition": "!$item.resources_allocation.hw_selection?.selection",
-                          "message": "No SDMMC peripheral instance is selected. Pick one in 'Media selection'. If there is no SDMMC instance available, activate one in the peripherals view."
+                        "condition": "($item.logical_config.interface_mode === 'DMA_OS' || $item.logical_config.interface_mode === 'DMA_NO_OS' || $item.logical_config.interface_mode === 'POLLING') && ($item.logical_config.interface_type === 'SD_ITF' || $item.logical_config.interface_type === 'MMC_ITF')"
+                      },
+                      {
+                        "type": "warning",
+                        "condition": "!$item.resources_allocation.hw_selection?.selection",
+                        "message": "No SDMMC peripheral instance is selected. Pick one in 'Media selection'. If there is no SDMMC instance available, activate one in the peripherals view."
+                      },
+                      {
+                        "type": "error",
+                        "condition": "$item.resources_allocation.hw_selection?.selection && $filex.filexIsResourceValueUsedByOtherInterface($interfaces, $item, $item.resources_allocation.hw_selection.selection)",
+                        "message": "This media resource is already assigned to another interface. Please select a different media resource."
                       }
                     ],
                     "objectType": "bind.peripheral.config",

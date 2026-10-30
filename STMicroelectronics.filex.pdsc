@@ -7,6 +7,13 @@
       <stm32:pack type="MW" friendlyName="filex" shortDesc="FileX Middleware">
         <relocation-info parent="middleware" layer="" element=""/>
         <compatibility>
+          <release version="2.2.0">
+            <applicable-schema schemaType="sw-configuration" schemaVersion="3.8.0"/>
+            <applicable-api-group apiType="codegen-getters">
+              <applicable-api apiType="SWConfigurationAPI" apiVersion="1.0.0"/>
+              <applicable-api apiType="SWProjectAPI" apiVersion="1.0.0"/>
+            </applicable-api-group>
+          </release>
           <release version="2.1.0">
             <applicable-schema schemaType="sw-configuration" schemaVersion="3.9.0"/>
             <applicable-api-group apiType="codegen-getters">
@@ -34,6 +41,15 @@
   <url>https://developer.st.com/st-pack-server/api/v1/pack/</url>
   <license>LICENSE.md</license>
   <releases>
+    <release date="2026-08-24" version="2.2.0">
+      FileX pack version based on the 6.5.1 Release
+      ## Main changes
+       * Release of FileX SW Pack update:
+         * Migrate FileX from version 6.4.2 to 6.5.1.
+         * Add a custom interface.
+         * Bug fixing.
+         * Miscellaneous update of .config files.
+    </release>
     <release date="2026-05-05" version="2.1.0">
       Official release of FileX Middleware based on FileX v6.4.2.
       ## Main changes
@@ -86,10 +102,13 @@
     </condition>
     <condition id="Operating System Used">
     </condition>
+    <condition id="USE CUSTOM INTERFACE ENV">
+    </condition>
     <condition id="FX Core Condition">
       <description>FX common condition :dependency to FileX Core</description>
       <require Cclass="File System" Cgroup="FileX" Csub="Core"/>
       <require condition="USE FAULT TOLERANCE ENV"/>
+      <require condition="USE CUSTOM INTERFACE ENV"/>
       <require condition="Operating System Used"/>
       <require condition="USE SD DMA OS ENV"/>
       <require condition="USE SD DMA NO OS ENV"/>
@@ -130,7 +149,7 @@
     </generator>
   </generators>
   <components>
-    <component Cclass="File System" Cgroup="FileX" Csub="Core" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="Core" Cversion="6.5.1" maxInstances="1">
       <description>FileX core component</description>
       <files>
         <!-- common files -->
@@ -340,14 +359,14 @@
         <file category="include" name="ports/freertos/inc/" condition="filex freertos condition"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="No_OS" Cversion="6.4.2">
+    <component Cclass="File System" Cgroup="FileX" Csub="No_OS" Cversion="6.5.1">
       <description>FileX Standalone Mode </description>
       <files>
         <!-- case of standalone mode -->
         <file category="include" name="ports/generic/inc/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="Fault Tolerance Support" condition="USE FAULT TOLERANCE ENV" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="Fault Tolerance Support" condition="USE FAULT TOLERANCE ENV" Cversion="6.5.1" maxInstances="1">
       <description>Fault tolerance support component</description>
       <files>
         <!-- common files -->
@@ -372,7 +391,7 @@
         <file category="source" name="common/src/fx_fault_tolerant_write_log_file.c"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="sd_polling_itf" condition="USE SD POLLING ENV" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="sd_polling_itf" condition="USE SD POLLING ENV" Cversion="6.5.1" maxInstances="1">
       <description>SD Polling interface component </description>
       <files>
         <file category="source" name="interfaces/sd/stm32_fx_sd_polling_driver.c"/>
@@ -380,7 +399,7 @@
         <file category="include" name="interfaces/sd/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="sd_dma_os_itf" condition="USE SD DMA OS ENV" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="sd_dma_os_itf" condition="USE SD DMA OS ENV" Cversion="6.5.1" maxInstances="1">
       <description>SD DMA OS interface component</description>
       <files>
         <file category="source" name="interfaces/sd/stm32_fx_sd_dma_os_driver.c" condition="filex freertos condition"/>
@@ -388,7 +407,7 @@
         <file category="include" name="interfaces/sd/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="sd_dma_no_os_itf" condition="USE SD DMA NO OS ENV" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="sd_dma_no_os_itf" condition="USE SD DMA NO OS ENV" Cversion="6.5.1" maxInstances="1">
       <description>SD DMA NO OS interface component</description>
       <files>
         <file category="source" name="interfaces/sd/stm32_fx_sd_dma_no_os_driver.c" condition="filex standalone condition"/>
@@ -396,7 +415,7 @@
         <file category="include" name="interfaces/sd/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="nor_flash_itf" condition="USE NOR ENV" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="nor_flash_itf" condition="USE NOR ENV" Cversion="6.5.1" maxInstances="1">
       <description>FileX NOR Flash Interface</description>
       <files>
         <file category="source" name="interfaces/nor/stm32_fx_nor_flash_driver.c"/>
@@ -404,7 +423,7 @@
         <file category="include" name="interfaces/nor/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="nand_flash_itf" condition="USE NAND ENV" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="nand_flash_itf" condition="USE NAND ENV" Cversion="6.5.1" maxInstances="1">
       <description>FileX NAND Flash Interface</description>
       <files>
         <file category="source" name="interfaces/nand/stm32_fx_nand_flash_driver.c"/>
@@ -412,7 +431,7 @@
         <file category="include" name="interfaces/nand/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="mmc_polling_itf" condition="USE MMC POLLING ENV" Cversion="6.4.2" maxInstances="1">
+    <component Cclass="File System" Cgroup="FileX" Csub="mmc_polling_itf" condition="USE MMC POLLING ENV" Cversion="6.5.1" maxInstances="1">
       <description>MMC Polling interface component</description>
       <files>
         <file category="source" name="interfaces/mmc/stm32_fx_mmc_polling_driver.c"/>
@@ -420,24 +439,31 @@
         <file category="include" name="interfaces/mmc/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="mmc_dma_os_itf" condition="USE MMC DMA OS ENV" Cversion="6.4.2" maxInstances="1">
-      <description>MMC Polling interface component</description>
+    <component Cclass="File System" Cgroup="FileX" Csub="mmc_dma_os_itf" condition="USE MMC DMA OS ENV" Cversion="6.5.1" maxInstances="1">
+      <description>MMC DMA OS interface component</description>
       <files>
         <file category="source" name="interfaces/mmc/stm32_fx_mmc_dma_os_driver.c"/>
         <file category="header" name="interfaces/mmc/stm32_fx_mmc_dma_os_driver.h"/>
         <file category="include" name="interfaces/mmc/"/>
       </files>
     </component>
-    <component Cclass="File System" Cgroup="FileX" Csub="mmc_dma_no_os_itf" condition="USE MMC DMA NO OS ENV" Cversion="6.4.2" maxInstances="1">
-      <description>MMC Polling interface component</description>
+    <component Cclass="File System" Cgroup="FileX" Csub="mmc_dma_no_os_itf" condition="USE MMC DMA NO OS ENV" Cversion="6.5.1" maxInstances="1">
+      <description>MMC DMA NO OS interface component</description>
       <files>
         <file category="source" name="interfaces/mmc/stm32_fx_mmc_dma_no_os_driver.c"/>
         <file category="header" name="interfaces/mmc/stm32_fx_mmc_dma_no_os_driver.h"/>
         <file category="include" name="interfaces/mmc/"/>
       </files>
     </component>
+    <component Cclass="File System" Cgroup="FileX" Csub="custom_interface" condition="USE CUSTOM INTERFACE ENV" Cversion="6.5.1">
+      <description>Custom FileX interface component</description>
+      <files>
+        <file category="source" name="interfaces/user_defined/stm32_fx_driver.c" attr="config" version="6.5.1"/>
+        <file category="header" name="interfaces/user_defined/stm32_fx_driver.h" attr="config" version="6.5.1"/>
+      </files>
+    </component>
     <!-- START: STMicroelectronics MW FileX CODE GEN -->
-    <component generator="filex_mx2codegen" Cclass="File System" Cgroup="STM32CubeMX2 Config" Csub="FileX" condition="FX Core Condition" Cversion="2.1.0">
+    <component generator="filex_mx2codegen" Cclass="File System" Cgroup="STM32CubeMX2 Config" Csub="FileX" condition="FX Core Condition" Cversion="2.2.0">
       <description>STMicroelectronics: STM32Cube Configuration Code Generation for FileX</description>
       <environments>
         <environment name="STM32Cube">
