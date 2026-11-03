@@ -76,8 +76,13 @@ VOID  fx_stm32_mmc_driver(FX_MEDIA *media_ptr)
   }
 
 #if (FX_STM32_MMC_DMA_API == 1)
+  #if (FX_STM32_MMC_CACHE_MAINTENANCE == 1)
+  /* Cache maintenance requires 32-byte aligned buffer */
+  unaligned_buffer = ((UINT)(media_ptr->fx_media_driver_buffer) & 0x1F);
+  #else
   /* the SD DMA requires a 4-byte aligned buffers */
   unaligned_buffer = (UINT)(media_ptr->fx_media_driver_buffer) & 0x3;
+  #endif
 #else
   /* if the DMA is not used there isn't any constraint on buffer alignment */
   unaligned_buffer = 0;
@@ -410,3 +415,4 @@ static UINT mmc_write_data(FX_MEDIA *media_ptr, ULONG start_sector, UINT num_sec
 
   return status;
 }
+

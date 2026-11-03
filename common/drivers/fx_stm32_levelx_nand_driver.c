@@ -153,16 +153,14 @@ VOID  fx_stm32_levelx_nand_driver(FX_MEDIA *media_ptr)
 
         case FX_DRIVER_READ:
             {
-                /* Setup the destination buffer and logical sector.  */
-                logical_sector = media_ptr->fx_media_driver_logical_sector;
+                /* Setup the destination buffer.  */
                 destination_buffer =(UCHAR *)media_ptr->fx_media_driver_buffer;
 
-                /* Loop to read sectors from flash.  */
-                for (i = 0; i < media_ptr->fx_media_driver_sectors; i++)
-                {
-
-                    /* Read a sector from NAND flash.  */
-                    status =  lx_nand_flash_sector_read(&current_driver->flash_instance, logical_sector, destination_buffer);
+                /* Read the sectors from NAND flash.  */
+                status = lx_nand_flash_sectors_read(&current_driver->flash_instance,
+                                                    media_ptr->fx_media_driver_logical_sector,
+                                                    destination_buffer,
+                                                    media_ptr->fx_media_driver_sectors);
 
                     /* Determine if the read was successful.  */
                     if (status != LX_SUCCESS)
@@ -172,11 +170,6 @@ VOID  fx_stm32_levelx_nand_driver(FX_MEDIA *media_ptr)
                         media_ptr->fx_media_driver_status = FX_IO_ERROR;
 
                         return;
-                    }
-
-                    /* Move to the next entries.  */
-                    logical_sector++;
-                    destination_buffer = destination_buffer + media_ptr->fx_media_bytes_per_sector;
                 }
 
                 /* Successful driver request.  */

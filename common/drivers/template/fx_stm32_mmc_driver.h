@@ -43,10 +43,10 @@ extern "C" {
  */
 #define FX_STM32_MMC_DMA_API                                          0
 
-/* Enable the cache maintenance, needed when using SD DMA
+/* Enable the cache maintenance, needed when using MMC DMA
  * and accessing buffers in cacheable area.
  */
-#define FX_STM32_SD_CACHE_MAINTENANCE                                 0
+#define FX_STM32_MMC_CACHE_MAINTENANCE                                 0
 
 /* MMC instance default to 0 */
 #define FX_STM32_MMC_INSTANCE                                         0

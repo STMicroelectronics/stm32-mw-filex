@@ -6,6 +6,21 @@
   *          FileX low level drivers for STM32 devices.
   ******************************************************************************
   */
+### V4.1.0 / 11-September-2026 ###
+=================================
+Main changes
+-------------
+-  Fix compiler issue when selecting multiple NOR interfaces
+ + fx_stm32_levelx_nor_driver.c
+-  Update the FileX LevelX extended cache buffer type from UCHAR to ULONG to ensure proper alignment and reliable cache operation
+ + fx_stm32_levelx_nor_driver.c
+ + template/fx_stm32_levelx_nor_driver.h
+-  Optimize FileX LevelX NAND flash read operations by using the multi-sector read API
+ + fx_stm32_levelx_nand_driver.c
+-  Add 32-byte alignment checks for SD/MMC buffers to ensure reliable DMA transfers and cache maintenance
+  + fx_stm32_sd_driver.c
+  + fx_stm32_mmc_driver.c
+
 ### V4.0.0 / 03-October-2025 ###
 =================================
 Main changes

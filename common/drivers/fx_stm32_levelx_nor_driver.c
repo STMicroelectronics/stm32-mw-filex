@@ -19,7 +19,7 @@ struct fx_lx_nor_driver_instance
     CHAR name[32];
 #ifndef LX_NOR_DISABLE_EXTENDED_CACHE
 #if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
-    UCHAR *extended_nor_cache;
+    ULONG *extended_nor_cache;
 
     ULONG extended_nor_cache_size;
 #endif
@@ -47,7 +47,7 @@ struct fx_lx_nor_driver_instance
 #endif
 
 #if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
-UCHAR lx_stm32_nor_simulator_extended_cache_memory[LX_STM32_SIMULATOR_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_SIMULATOR_MAPPING_BITMAP_CACHE_SIZE];
+ULONG lx_stm32_nor_simulator_extended_cache_memory[(LX_STM32_SIMULATOR_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_SIMULATOR_MAPPING_BITMAP_CACHE_SIZE) / sizeof(ULONG)];
 #endif
 
 #endif //LX_NOR_SIMULATOR_DRIVER
@@ -67,7 +67,7 @@ UCHAR lx_stm32_nor_simulator_extended_cache_memory[LX_STM32_SIMULATOR_OBSOLETE_C
 #endif
 
 #if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
-UCHAR lx_stm32_nor_ospi_extended_cache_memory[LX_STM32_OSPI_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_OSPI_MAPPING_BITMAP_CACHE_SIZE];
+ULONG lx_stm32_nor_ospi_extended_cache_memory[(LX_STM32_OSPI_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_OSPI_MAPPING_BITMAP_CACHE_SIZE) / sizeof(ULONG)];
 #endif
 
 #endif //LX_NOR_OSPI_DRIVER
@@ -87,7 +87,7 @@ UCHAR lx_stm32_nor_ospi_extended_cache_memory[LX_STM32_OSPI_OBSOLETE_COUNT_CACHE
 #endif
 
 #if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
-UCHAR lx_stm32_nor_qspi_extended_cache_memory[LX_STM32_QSPI_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_QSPI_MAPPING_BITMAP_CACHE_SIZE];
+ULONG lx_stm32_nor_qspi_extended_cache_memory[(LX_STM32_QSPI_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_QSPI_MAPPING_BITMAP_CACHE_SIZE) / sizeof(ULONG)];
 #endif
 
 #endif //LX_NOR_QSPI_DRIVER
@@ -107,7 +107,7 @@ UCHAR lx_stm32_nor_qspi_extended_cache_memory[LX_STM32_QSPI_OBSOLETE_COUNT_CACHE
 #endif
 
 #if defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP)
-UCHAR lx_stm32_nor_xspi_extended_cache_memory[LX_STM32_XSPI_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_XSPI_MAPPING_BITMAP_CACHE_SIZE];
+ULONG lx_stm32_nor_xspi_extended_cache_memory[(LX_STM32_XSPI_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_XSPI_MAPPING_BITMAP_CACHE_SIZE) / sizeof(ULONG)];
 #endif
 
 #endif //LX_NOR_XSPI_DRIVER
@@ -165,7 +165,7 @@ static struct fx_lx_nor_driver_instance  fx_lx_nor_drivers[MAX_LX_NOR_DRIVERS] =
       .extended_nor_cache_size = sizeof(lx_stm32_nor_xspi_extended_cache_memory),
       #endif
       #endif
-    }
+    },
 #endif
 
 #ifdef LX_NOR_CUSTOM_DRIVER

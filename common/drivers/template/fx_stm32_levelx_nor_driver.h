@@ -66,7 +66,7 @@ extern "C" {
 
 #if !defined(LX_NOR_DISABLE_EXTENDED_CACHE) && (defined(LX_NOR_ENABLE_OBSOLETE_COUNT_CACHE) || defined(LX_NOR_ENABLE_MAPPING_BITMAP))
 // if the extended cache feature is enabled, the extended cache buffer and cache size should be defined in driver implementation file
-extern UCHAR lx_stm32_nor_custom_extended_cache_memory[LX_STM32_CUSTOM_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_CUSTOM_MAPPING_BITMAP_CACHE_SIZE];
+extern ULONG lx_stm32_nor_custom_extended_cache_memory[(LX_STM32_CUSTOM_OBSOLETE_COUNT_CACHE_SIZE + LX_STM32_CUSTOM_MAPPING_BITMAP_CACHE_SIZE) / sizeof(ULONG)];
 #define LX_NOR_CUSTOM_DRIVERS   {.name = "NOR CUSTOM DRIVER", .id = CUSTOM_DRIVER_ID, .nor_driver_initialize = lx_stm32_nor_custom_driver_initialize, \
                                  .extended_nor_cache = lx_stm32_nor_custom_extended_cache_memory, .extended_nor_cache_size = sizeof(lx_stm32_nor_custom_extended_cache_memory)}
 #else
